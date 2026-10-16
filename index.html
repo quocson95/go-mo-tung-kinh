@@ -251,6 +251,7 @@ body {
 .eyebrow { font: 500 11px/1 var(--f-ui); letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink3); }
 .merit { display: grid; gap: 4px; }
 .merit-num { font: 600 40px/1 var(--f-mono); font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+.merit-total { font: 500 11.5px/1 var(--f-mono); color: var(--ink4); font-variant-numeric: tabular-nums; }
 .realm { display: grid; gap: 8px; }
 .realm-row { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
 .realm-name { font-family: var(--f-display); font-size: 22px; font-weight: 600; color: var(--realm-accent, var(--ink)); }
@@ -491,7 +492,7 @@ body.zen .stage { min-height: 58vh; }
 @media (max-width: 560px) {
   .top-actions { gap: 6px; }
   .top-actions .pill { height: 36px; padding: 0 12px; font-size: 13px; }
-  #themeTx, #zenTx { display: none; }
+  #themeTx, #zenTx, #templeTx { display: none; }
 }
 
 /* ── Thanh tiến trình công đức trên sân khấu ── */
@@ -560,8 +561,38 @@ body.calm *, body.calm *::before, body.calm *::after {
   .side { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-content: start; }
   .side > .panel:first-child,
   .side > [data-panel="sutra"],
-  .side > [data-panel="mixer"] { grid-column: 1 / -1; }
+  .side > [data-panel="wl"] { grid-column: 1 / -1; }
 }
+
+/* ── Tab Cài đặt trong Sưu tập ── */
+.set-sec { display: grid; gap: 10px; }
+.set-sec + .set-sec { margin-top: 16px; padding-top: 15px; border-top: 1px solid var(--line); }
+
+/* ── Chùa của bạn ── */
+.tm-yard {
+  position: relative; height: 190px; border-radius: 16px; overflow: hidden;
+  border: 1px solid var(--line);
+  background: linear-gradient(180deg, var(--sky-top), var(--sky-bot) 58%, var(--water-top) 58%, var(--water-bot));
+}
+.tm-item { position: absolute; transform: translate(-50%, -50%); line-height: 1; filter: drop-shadow(0 5px 10px rgba(0,0,0,.42)); transition: opacity .3s ease, filter .3s ease; }
+.tm-item:not(.built) { opacity: .15; filter: grayscale(1); }
+.tm-item.pop { animation: tmPop .5s cubic-bezier(.2,1.6,.4,1); }
+@keyframes tmPop { from { transform: translate(-50%, -50%) scale(.15); } to { transform: translate(-50%, -50%) scale(1); } }
+.tm-stats { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 12px 2px; font: 500 11.5px/1 var(--f-mono); color: var(--ink3); }
+.tm-stats b { color: var(--ink); font-weight: 600; }
+.tm-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.tm-card { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; padding: 9px 11px; border: 1px solid var(--line2); border-radius: 12px; background: var(--surface); color: var(--ink); font: inherit; cursor: pointer; transition: border-color .14s ease, transform .12s ease, opacity .14s ease; }
+.tm-card:not(.built):not(:disabled):hover { border-color: var(--ink4); transform: translateY(-1px); }
+.tm-card:disabled { opacity: .5; cursor: default; }
+.tm-card.built { border-color: var(--good); cursor: default; }
+.tm-card.built:disabled { opacity: 1; }
+.tm-ic { font-size: 20px; width: 26px; text-align: center; flex: 0 0 auto; }
+.tm-tx { flex: 1; min-width: 0; display: grid; gap: 2px; }
+.tm-name { font-weight: 600; font-size: 13px; }
+.tm-cost { font: 500 10.5px/1 var(--f-mono); color: var(--ink4); }
+.tm-st { font: 500 10.5px/1 var(--f-mono); color: var(--ink3); white-space: nowrap; }
+.tm-card.built .tm-st { color: var(--good); }
+.tm-mini { display: flex; flex-wrap: wrap; gap: 5px; font-size: 17px; line-height: 1; min-height: 20px; }
 </style>
 
 <canvas id="scene" aria-hidden="true"></canvas>
@@ -579,6 +610,7 @@ body.calm *, body.calm *::before, body.calm *::after {
     </div>
     <div class="top-actions">
       <button class="pill" id="collectBtn">📿 Sưu tập</button>
+      <button class="pill" id="templeBtn2">🏯 <span id="templeTx">Chùa</span></button>
       <button class="pill" id="lbBtn">🏆 Bảng xếp hạng</button>
       <button class="pill" id="musicBtn" aria-pressed="true"><span class="dot"></span>Nhạc thiền</button>
       <button class="pill" id="themeBtn" title="Giao diện: Tự động"><span id="themeTx">Tự động</span></button>
@@ -620,8 +652,9 @@ body.calm *, body.calm *::before, body.calm *::after {
     <aside class="side">
       <section class="panel">
         <div class="merit">
-          <span class="eyebrow">Công đức</span>
+          <span class="eyebrow">Công đức khả dụng</span>
           <span class="merit-num" id="merit">0</span>
+          <span class="merit-total" id="meritTotal">Tu tập · 0</span>
         </div>
         <div class="realm">
           <div class="realm-row"><span class="realm-name" id="realmName">Sơ Tâm</span><span class="realm-next" id="realmNext">0 / 108</span></div>
@@ -656,23 +689,21 @@ body.calm *, body.calm *::before, body.calm *::after {
         <p class="hint"><kbd>Space</kbd> gõ mõ · <kbd>B</kbd> thỉnh chuông · <kbd>Enter</kbd> bắt đầu / dừng tụng · <kbd>F</kbd> tập trung · <kbd>T</kbd> giao diện. Khi tụng, gõ đúng lúc vòng hồng chạm mõ để được nhân công đức.</p>
       </details>
 
-      <details class="panel" data-panel="mixer">
-        <summary class="panel-head"><span class="eyebrow">Âm thanh</span><span class="panel-hint">Trộn 4 kênh</span></summary>
+      <details class="panel" data-panel="tm" open>
+        <summary class="panel-head"><span class="eyebrow">Chùa của bạn</span><span class="panel-hint" id="tmBrief"></span></summary>
         <div class="field">
-          <div class="mixer">
-            <label class="mix-row"><span>Tiếng mõ</span><input type="range" id="volMo" min="0" max="1" step="0.02" aria-label="Âm lượng tiếng mõ"><span class="mix-val" id="mvalMo">100%</span></label>
-            <label class="mix-row"><span>Chuông &amp; tụng</span><input type="range" id="volBell" min="0" max="1" step="0.02" aria-label="Âm lượng chuông và giọng tụng"><span class="mix-val" id="mvalBell">90%</span></label>
-            <label class="mix-row"><span>Nhạc thiền</span><input type="range" id="volMusic" min="0" max="1" step="0.02" aria-label="Âm lượng nhạc thiền"><span class="mix-val" id="mvalMusic">80%</span></label>
-            <label class="mix-row"><span>Tiếng suối</span><input type="range" id="volAmbient" min="0" max="1" step="0.02" aria-label="Âm lượng tiếng suối nền"><span class="mix-val" id="mvalAmbient">50%</span></label>
-          </div>
+          <div class="tm-mini" id="tmMini"></div>
+          <div class="bar"><i id="tmBar"></i></div>
+          <p class="rit-note" id="tmNote">Dùng công đức để xây chùa</p>
+          <button class="pill big" id="templeBtn">🏯 Mở chùa</button>
         </div>
       </details>
 
-      <details class="panel" data-panel="view" open>
-        <summary class="panel-head"><span class="eyebrow">Hiển thị</span><span class="panel-hint" id="viewBrief"></span></summary>
+      <details class="panel" data-panel="set" open>
+        <summary class="panel-head"><span class="eyebrow">Cài đặt</span><span class="panel-hint" id="setBrief"></span></summary>
         <div class="field">
-          <label class="set-row"><input type="checkbox" id="calmToggle"> Giảm chuyển động — dịu mắt, đỡ mỏi</label>
-          <label class="set-row"><input type="checkbox" id="spToggle"> Thanh công đức trên sân khấu</label>
+          <p class="rit-note" id="setInfo">Giao diện · Âm thanh · Tiến trình</p>
+          <button class="pill big" id="setBtn">⚙️ Mở cài đặt</button>
         </div>
       </details>
 
@@ -736,18 +767,54 @@ body.calm *, body.calm *::before, body.calm *::after {
     <div class="tabs">
       <button class="tab active" data-tab="skins">Pháp khí</button>
       <button class="tab" data-tab="ach">Thành tựu</button>
-      <button class="tab" data-tab="prog">Tiến trình</button>
+      <button class="tab" data-tab="set">Cài đặt</button>
     </div>
     <div class="col-list" id="col-body"></div>
-    <div id="prog-body" hidden>
-      <p class="med-hint" style="text-align:left">Sao lưu tiến trình thành một đoạn mã ngắn, dán sang thiết bị khác để khôi phục.</p>
-      <textarea id="saveCode" class="save-code" spellcheck="false" placeholder="Dán mã tiến trình vào đây rồi bấm Nhập…"></textarea>
-      <div class="actions" style="margin-top:12px">
-        <button class="pill" id="exportBtn">📋 Sao chép mã</button>
-        <button class="pill" id="importBtn">⬆️ Nhập</button>
-        <button class="pill" id="resetBtn">♻️ Đặt lại</button>
+    <div id="set-body" hidden>
+      <div class="set-sec">
+        <span class="eyebrow">Giao diện</span>
+        <div class="seg" id="themeSeg"></div>
+        <label class="set-row"><input type="checkbox" id="calmToggle"> Giảm chuyển động — dịu mắt, đỡ mỏi</label>
+        <label class="set-row"><input type="checkbox" id="spToggle"> Thanh công đức trên sân khấu</label>
+      </div>
+      <div class="set-sec">
+        <span class="eyebrow">Âm thanh</span>
+        <div class="mixer">
+          <label class="mix-row"><span>Tiếng mõ</span><input type="range" id="volMo" min="0" max="1" step="0.02" aria-label="Âm lượng tiếng mõ"><span class="mix-val" id="mvalMo">100%</span></label>
+          <label class="mix-row"><span>Chuông &amp; tụng</span><input type="range" id="volBell" min="0" max="1" step="0.02" aria-label="Âm lượng chuông và giọng tụng"><span class="mix-val" id="mvalBell">90%</span></label>
+          <label class="mix-row"><span>Nhạc thiền</span><input type="range" id="volMusic" min="0" max="1" step="0.02" aria-label="Âm lượng nhạc thiền"><span class="mix-val" id="mvalMusic">80%</span></label>
+          <label class="mix-row"><span>Tiếng suối</span><input type="range" id="volAmbient" min="0" max="1" step="0.02" aria-label="Âm lượng tiếng suối nền"><span class="mix-val" id="mvalAmbient">50%</span></label>
+        </div>
+      </div>
+      <div class="set-sec">
+        <span class="eyebrow">Tiến trình</span>
+        <p class="med-hint" style="text-align:left">Sao lưu tiến trình thành một đoạn mã ngắn, dán sang thiết bị khác để khôi phục.</p>
+        <textarea id="saveCode" class="save-code" spellcheck="false" placeholder="Dán mã tiến trình vào đây rồi bấm Nhập…"></textarea>
+        <div class="actions" style="margin-top:12px">
+          <button class="pill" id="exportBtn">📋 Sao chép mã</button>
+          <button class="pill" id="importBtn">⬆️ Nhập</button>
+          <button class="pill" id="resetBtn">♻️ Đặt lại</button>
+        </div>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- Chùa của bạn -->
+<div class="modal" id="modal-temple" hidden>
+  <div class="modal-backdrop" data-close></div>
+  <div class="modal-card">
+    <header class="modal-header">
+      <h2>🏯 Chùa của bạn</h2>
+      <button class="icon-btn" data-close aria-label="Đóng">✕</button>
+    </header>
+    <p class="med-hint" style="text-align:left">Dùng <b>công đức</b> để xây dựng ngôi chùa của bạn. Mỗi hạng mục đã xây giúp <b>+2,5% công đức</b> (tối đa +30%) — công đức tu tập không bị giảm.</p>
+    <div class="tm-yard" id="tmYard"></div>
+    <div class="tm-stats">
+      <span>Công đức khả dụng: <b id="tmMerit">0</b></span>
+      <span id="tmBonus">Trang nghiêm +0%</span>
+    </div>
+    <div class="tm-grid" id="tmGrid"></div>
   </div>
 </div>
 
@@ -868,6 +935,26 @@ body.calm *, body.calm *::before, body.calm *::after {
       wood: ['#fff3c8', '#ffd478', '#a8782a', '#3a2818'], cushion: ['#ffe890', '#c09030'] },
   ];
 
+  // Chùa của bạn — xây bằng công đức khả dụng, vẽ bằng CSS trong modal.
+  // x, y là toạ độ % trong sân chùa; s là cỡ chữ (px).
+  const TEMPLE = [
+    { id: 'incense',  name: 'Lư hương',      ic: '🪔', cost: 108,   x: 50, y: 90, s: 24 },
+    { id: 'stone',    name: 'Tảng đá xanh',  ic: '🪨', cost: 180,   x: 36, y: 93, s: 20 },
+    { id: 'lantern',  name: 'Lồng đèn tả',   ic: '🏮', cost: 300,   x: 26, y: 76, s: 24 },
+    { id: 'lantern2', name: 'Lồng đèn hữu',  ic: '🏮', cost: 480,   x: 74, y: 76, s: 24 },
+    { id: 'bodhi',    name: 'Cây bồ đề',     ic: '🌳', cost: 780,   x: 14, y: 64, s: 30 },
+    { id: 'bell',     name: 'Chuông đồng',   ic: '🔔', cost: 1200,  x: 86, y: 64, s: 26 },
+    { id: 'lotus',    name: 'Hồ sen',        ic: '🪷', cost: 1900,  x: 64, y: 93, s: 22 },
+    { id: 'gate',     name: 'Cổng tam quan', ic: '⛩️', cost: 3000,  x: 50, y: 72, s: 30 },
+    { id: 'stupa',    name: 'Bảo tháp',      ic: '🗼', cost: 4700,  x: 10, y: 84, s: 28 },
+    { id: 'dragon',   name: 'Cột rồng',      ic: '🐉', cost: 7200,  x: 90, y: 84, s: 26 },
+    { id: 'main',     name: 'Chánh điện',    ic: '🏯', cost: 11000, x: 50, y: 38, s: 38 },
+    { id: 'cloud',    name: 'Mây lành',      ic: '☁️', cost: 17000, x: 72, y: 15, s: 24 },
+  ];
+  const TEMPLE_MAX_BONUS = 0.30;
+  const templeBuilt = () => (S.temple || []).filter(id => TEMPLE.some(t => t.id === id)).length;
+  const templeBonus = () => Math.min(TEMPLE_MAX_BONUS, templeBuilt() * 0.025);
+
   // Chuỗi tinh tấn (streak) tính theo ngày.
   const STREAK_MILESTONES = [3, 7, 21, 49, 108, 180, 365, 1000];
   const STREAK_TIERS = ['Sơ Phát Tâm', 'Tinh Tấn', 'Bền Bỉ', 'Không Thối Chuyển', 'Nhất Tâm', 'Dũng Mãnh', 'Bất Thoái', 'Kim Cang'];
@@ -881,8 +968,8 @@ body.calm *, body.calm *::before, body.calm *::after {
     { id: 'c27',     icon: '🔗', name: 'Chuỗi 27',           desc: 'Chuỗi 27 nhịp liên tiếp',    ok: s => s.best >= 27 },
     { id: 'c108',    icon: '⛓️', name: 'Chuỗi 108',          desc: 'Chuỗi 108 nhịp liên tiếp',   ok: s => s.best >= 108 },
     { id: 'bells10', icon: '🔔', name: 'Người thỉnh chuông', desc: 'Thỉnh chuông 10 lần',        ok: s => s.bells >= 10 },
-    { id: 'r3',      icon: '🏵️', name: 'Nhập Định',          desc: 'Đạt cảnh giới Nhập Định',    ok: s => realmOf(s.merit) >= 3 },
-    { id: 'r7',      icon: '🪷', name: 'Giác Tỉnh',          desc: 'Đạt cảnh giới Giác Tỉnh',    ok: s => realmOf(s.merit) >= 7 },
+    { id: 'r3',      icon: '🏵️', name: 'Nhập Định',          desc: 'Đạt cảnh giới Nhập Định',    ok: s => realmOf(s.total) >= 3 },
+    { id: 'r7',      icon: '🪷', name: 'Giác Tỉnh',          desc: 'Đạt cảnh giới Giác Tỉnh',    ok: s => realmOf(s.total) >= 7 },
     { id: 'st7',     icon: '🔥', name: 'Bảy ngày',           desc: 'Chuỗi 7 ngày tinh tấn',      ok: s => s.streak >= 7 },
     { id: 'st108',   icon: '🏮', name: 'Nhất Tâm 108',       desc: 'Chuỗi 108 ngày tinh tấn',    ok: s => s.streak >= 108 },
     { id: 'skins4',  icon: '📿', name: 'Bộ sưu tập',         desc: 'Sở hữu 4 pháp khí',          ok: s => unlockedSkins().length >= 4 },
@@ -896,6 +983,9 @@ body.calm *, body.calm *::before, body.calm *::after {
     { id: 'tk',      icon: '🕰️', name: 'Trọn thời khóa',     desc: 'Hoàn thành cả 4 buổi trong ngày', ok: s => !!s.wl && SLOTS.every(x => s.wl.done && s.wl.done[x.id]) },
     { id: 'dana',    icon: '🍚', name: 'Bố thí',             desc: 'Bố thí một lần',             ok: s => (s.dana && s.dana.used ? s.dana.used : 0) >= 1 },
     { id: 'dana3',   icon: '🧧', name: 'Đủ duyên',           desc: 'Bố thí 3 lần trong ngày',    ok: s => (s.dana && s.dana.used ? s.dana.used : 0) >= 3 },
+    { id: 't1',      icon: '🏯', name: 'Dựng chùa',          desc: 'Xây hạng mục đầu tiên',       ok: s => (s.temple || []).length >= 1 },
+    { id: 't6',      icon: '⛩️', name: 'Trang nghiêm',       desc: 'Xây 6 hạng mục chùa',         ok: s => (s.temple || []).length >= 6 },
+    { id: 't12',     icon: '🪷', name: 'Đại già lam',        desc: 'Xây đủ 12 hạng mục chùa',     ok: s => (s.temple || []).length >= TEMPLE.length },
   ];
 
   // ── Dữ liệu cho bảng xếp hạng / ticker / ngày lễ ──
@@ -1007,6 +1097,8 @@ body.calm *, body.calm *::before, body.calm *::after {
   };
   const S = {
     merit: store.get('merit', 0),
+    total: store.get('total', store.get('merit', 0)),
+    temple: store.get('temple', []),
     knocks: store.get('knocks', 0),
     lines: store.get('lines', 0),
     best: store.get('best', 0),
@@ -1049,8 +1141,10 @@ body.calm *, body.calm *::before, body.calm *::after {
   if (!S.wl.prog || typeof S.wl.prog !== 'object') S.wl.prog = {};
   if (!S.wl.done || typeof S.wl.done !== 'object') S.wl.done = {};
   if (!S.dana || typeof S.dana !== 'object' || Array.isArray(S.dana)) S.dana = { day: '', used: 0, until: 0 };
+  if (!Array.isArray(S.temple)) S.temple = [];
+  if (typeof S.total !== 'number' || !isFinite(S.total) || S.total < S.merit) S.total = S.merit;
   // Danh sách khoá được lưu (cũng dùng cho sao lưu / khôi phục tiến trình).
-  const SAVE_KEYS = ['merit', 'knocks', 'lines', 'best', 'sutra', 'bpm', 'music', 'voice', 'volMo', 'volBell', 'volMusic', 'volAmbient', 'ambient', 'skin', 'streak', 'lastDay', 'ach', 'bells', 'province', 'dayMerit', 'festivalOff', 'ritual', 'breaths', 'ritualBell', 'chimeDay', 'chimeDone', 'holyDays', 'wl', 'dana'];
+  const SAVE_KEYS = ['merit', 'total', 'temple', 'knocks', 'lines', 'best', 'sutra', 'bpm', 'music', 'voice', 'volMo', 'volBell', 'volMusic', 'volAmbient', 'ambient', 'skin', 'streak', 'lastDay', 'ach', 'bells', 'province', 'dayMerit', 'festivalOff', 'ritual', 'breaths', 'ritualBell', 'chimeDay', 'chimeDone', 'holyDays', 'wl', 'dana'];
   const save = () => { for (const k of SAVE_KEYS) store.set(k, S[k]); };
 
   const $ = id => document.getElementById(id);
@@ -1427,12 +1521,13 @@ body.calm *, body.calm *::before, body.calm *::after {
     return i;
   }
   function addMerit(n, x, y, note) {
-    const before = realmOf(S.merit);
+    const before = realmOf(S.total);
     S.merit += n;
+    S.total += n;
     S.dayMerit += n;
     floater('+' + n, x, y, note);
     trackSlot(n);
-    const after = realmOf(S.merit);
+    const after = realmOf(S.total);
     if (after > before) {
       const r = REALMS[after];
       summonBuddha('Phật quang phổ chiếu · đạt ' + r.name, 3800);
@@ -1457,10 +1552,10 @@ body.calm *, body.calm *::before, body.calm *::after {
     const now = ac.currentTime;
     if (now - lastKnock < 0.06) return; // one strike, not a double-bounce
     lastKnock = now;
-    playMo(now, 1, realmOf(S.merit) / (REALMS.length - 1));
+    playMo(now, 1, realmOf(S.total) / (REALMS.length - 1));
     strikeAnim = performance.now();
     S.knocks++;
-    burstSparks(Math.min(2 + realmOf(S.merit), 8), REALMS[realmOf(S.merit)].particle);
+    burstSparks(Math.min(2 + realmOf(S.total), 8), REALMS[realmOf(S.total)].particle);
     if (curSkin().id === 'phat') rainbowBurst();
 
     let gain = 1, note = '';
@@ -1484,7 +1579,7 @@ body.calm *, body.calm *::before, body.calm *::after {
       }
       updateCombo();
     }
-    gain = Math.max(1, Math.round(gain * periodOf().mult * (danaActive() ? 1.5 : 1))); // thưởng theo buổi + phước báo
+    gain = Math.max(1, Math.round(gain * periodOf().mult * (danaActive() ? 1.5 : 1) * (1 + templeBonus()))); // buổi + phước báo + trang nghiêm
     const p = stagePoint();
     addMerit(gain, p.x, p.y, note);
     if (!S.chanting && S.knocks % 108 === 0) { summonBuddha('Viên mãn 108 tiếng mõ', 3200); rainPetals(40); }
@@ -1542,27 +1637,29 @@ body.calm *, body.calm *::before, body.calm *::after {
   }
   function renderStats() {
     $('merit').textContent = fmt(S.merit);
+    const mt = $('meritTotal'); if (mt) mt.textContent = 'Tu tập · ' + fmt(S.total);
     $('sKnocks').textContent = fmt(S.knocks);
     $('sLines').textContent = fmt(S.lines);
     $('sBest').textContent = fmt(S.best);
     $('sAcc').textContent = S.judged ? Math.round(100 * S.hits / S.judged) + '%' : '–';
-    const r = realmOf(S.merit);
+    const r = realmOf(S.total);
     const cur = REALMS[r];
     $('realmName').textContent = cur.name;
     const spRealm = $('spRealm'); if (spRealm) spRealm.textContent = cur.name;
     if (r + 1 < REALMS.length) {
       const hi = REALMS[r + 1].cost;
-      const pct = (100 * (S.merit - cur.cost) / (hi - cur.cost)).toFixed(1) + '%';
-      $('realmNext').textContent = fmt(S.merit) + ' / ' + fmt(hi);
+      const pct = (100 * (S.total - cur.cost) / (hi - cur.cost)).toFixed(1) + '%';
+      $('realmNext').textContent = fmt(S.total) + ' / ' + fmt(hi);
       $('realmBar').style.width = pct;
       const b = $('spBar'); if (b) b.style.width = pct;
-      const v = $('spVal'); if (v) v.textContent = fmt(S.merit) + ' / ' + fmt(hi);
+      const v = $('spVal'); if (v) v.textContent = fmt(S.total) + ' / ' + fmt(hi);
     } else {
       $('realmNext').textContent = 'viên mãn';
       $('realmBar').style.width = '100%';
       const b = $('spBar'); if (b) b.style.width = '100%';
       const v = $('spVal'); if (v) v.textContent = 'viên mãn';
     }
+    refreshTemple();
   }
   function updateCombo() {
     $('comboLabel').textContent = S.chanting && S.combo > 1 ? 'Chuỗi ' + S.combo + ' · x' + mult() : '';
@@ -1653,10 +1750,10 @@ body.calm *, body.calm *::before, body.calm *::after {
 
   // ── Pháp khí (skins) ──
   const curSkin = () => SKINS.find(s => s.id === S.skin) || SKINS[0];
-  const unlockedSkins = () => SKINS.filter(s => realmOf(S.merit) >= s.unlock);
+  const unlockedSkins = () => SKINS.filter(s => realmOf(S.total) >= s.unlock);
   function applySkin(id) {
     const found = SKINS.find(s => s.id === id) || SKINS[0];
-    const sk = realmOf(S.merit) >= found.unlock ? found : SKINS[0];
+    const sk = realmOf(S.total) >= found.unlock ? found : SKINS[0];
     S.skin = sk.id; save();
     const v = document.documentElement.style;
     v.setProperty('--wood-hi', sk.wood[0]);
@@ -1751,16 +1848,16 @@ body.calm *, body.calm *::before, body.calm *::after {
     }, interval);
   }
 
-  // ── Modal Sưu tập (pháp khí + thành tựu) ──
+  // ── Modal Sưu tập (pháp khí + thành tựu + cài đặt) ──
   let colTab = 'skins';
   function renderCollection() {
     const body = $('col-body'); if (!body) return;
-    const prog = $('prog-body');
-    if (prog) prog.hidden = colTab !== 'prog';
-    body.hidden = colTab === 'prog';
-    if (colTab === 'prog') { refreshExport(); return; }
+    const setBody = $('set-body');
+    if (setBody) setBody.hidden = colTab !== 'set';
+    body.hidden = colTab === 'set';
+    if (colTab === 'set') { buildThemeSeg(); refreshExport(); return; }
     if (colTab === 'skins') {
-      const r = realmOf(S.merit), cur = curSkin();
+      const r = realmOf(S.total), cur = curSkin();
       const next = SKINS.find(s => s.unlock > r);
 
       const head = document.createElement('div');
@@ -1775,9 +1872,9 @@ body.calm *, body.calm *::before, body.calm *::after {
       prog.className = 'pk-prog';
       if (next) {
         const need = REALMS[next.unlock].cost, prev = cur.cost, span = Math.max(1, need - prev);
-        const pct = Math.max(0, Math.min(100, 100 * (S.merit - prev) / span));
+        const pct = Math.max(0, Math.min(100, 100 * (S.total - prev) / span));
         prog.innerHTML = '<span>Pháp khí kế tiếp</span><span class="bar"><i style="width:' + pct.toFixed(1) + '%"></i></span>'
-          + '<span>' + fmt(S.merit) + ' / ' + fmt(need) + '</span>';
+          + '<span>' + fmt(S.total) + ' / ' + fmt(need) + '</span>';
       } else {
         prog.innerHTML = '<span>Đã mở khoá tất cả pháp khí</span><span class="bar"><i style="width:100%"></i></span><span>🎉</span>';
       }
@@ -1827,6 +1924,114 @@ body.calm *, body.calm *::before, body.calm *::after {
     renderCollection();
   }));
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('modal-collection').hidden) closeCollection(); });
+
+  // ── Chùa của bạn ──
+  function renderTempleYard(popId) {
+    const yard = $('tmYard'); if (!yard) return;
+    yard.replaceChildren(...TEMPLE.map(t => {
+      const el = document.createElement('span');
+      const built = S.temple.includes(t.id);
+      el.className = 'tm-item' + (built ? ' built' : '') + (t.id === popId ? ' pop' : '');
+      el.dataset.id = t.id;
+      el.textContent = t.ic;
+      el.style.left = t.x + '%';
+      el.style.top = t.y + '%';
+      el.style.fontSize = t.s + 'px';
+      return el;
+    }));
+  }
+  let tmShown = -1;
+  function refreshTemple() {
+    const n = templeBuilt();
+    const next = TEMPLE.find(t => !S.temple.includes(t.id));
+    const bar = $('tmBar');
+    if (bar) bar.style.width = next ? (Math.min(100, 100 * S.merit / next.cost).toFixed(1) + '%') : '100%';
+    if (n !== tmShown) {
+      tmShown = n;
+      const brief = $('tmBrief'); if (brief) brief.textContent = n + '/' + TEMPLE.length;
+      const mini = $('tmMini');
+      if (mini) mini.textContent = n ? TEMPLE.filter(t => S.temple.includes(t.id)).map(t => t.ic).join(' ') : '🏞️';
+      const note = $('tmNote');
+      if (note) note.textContent = next ? ('Kế tiếp: ' + next.name + ' · ' + fmt(next.cost)) : 'Chùa đã viên mãn 🎉';
+    }
+    const modal = $('modal-temple');
+    if (!modal || modal.hidden) return;
+    const m = $('tmMerit'); if (m) m.textContent = fmt(S.merit);
+    const bo = $('tmBonus'); if (bo) bo.textContent = 'Trang nghiêm +' + Math.round(templeBonus() * 100) + '%';
+    const grid = $('tmGrid'); if (!grid) return;
+    for (const card of grid.querySelectorAll('.tm-card')) {
+      if (card.classList.contains('built')) continue;
+      const can = S.merit >= (+card.dataset.cost);
+      card.disabled = !can;
+      const st = card.querySelector('.tm-st'); if (st) st.textContent = can ? 'Xây' : '🔒';
+    }
+  }
+  function renderTemple(popId) {
+    const grid = $('tmGrid'); if (!grid) return;
+    renderTempleYard(popId);
+    grid.replaceChildren(...TEMPLE.map(t => {
+      const built = S.temple.includes(t.id);
+      const card = document.createElement('button');
+      card.type = 'button';
+      card.className = 'tm-card' + (built ? ' built' : '');
+      card.dataset.cost = String(t.cost);
+      card.disabled = built;
+      card.innerHTML = '<span class="tm-ic">' + t.ic + '</span>'
+        + '<span class="tm-tx"><span class="tm-name">' + t.name + '</span>'
+        + '<span class="tm-cost">' + fmt(t.cost) + ' công đức</span></span>'
+        + '<span class="tm-st">' + (built ? '✓ Đã xây' : 'Xây') + '</span>';
+      if (!built) card.addEventListener('click', () => buildTemple(t.id));
+      return card;
+    }));
+    refreshTemple();
+  }
+  function buildTemple(id) {
+    const t = TEMPLE.find(x => x.id === id); if (!t) return;
+    if (S.temple.includes(id)) { toast('Hạng mục này đã xây rồi'); return; }
+    if (S.merit < t.cost) { toast('Chưa đủ công đức — cần ' + fmt(t.cost)); return; }
+    S.merit -= t.cost;
+    S.temple.push(id);
+    save();
+    if (ac) playBell(ac.currentTime + 0.02, 261.63, 0.3, 6, bellBus);
+    rainPetals(24); burstSparks(12, t.ic);
+    toast(t.ic + ' Đã xây ' + t.name + ' — trang nghiêm thay!');
+    renderTemple(id);
+    renderStats();
+    checkAchievements();
+  }
+  function openTemple() { $('modal-temple').hidden = false; renderTemple(); }
+  function closeTemple() { $('modal-temple').hidden = true; }
+  $('templeBtn').addEventListener('click', openTemple);
+  $('templeBtn2').addEventListener('click', openTemple);
+  $('modal-temple').querySelectorAll('[data-close]').forEach(el => el.addEventListener('click', closeTemple));
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('modal-temple').hidden) closeTemple(); });
+
+  // ── Cài đặt (tab trong Sưu tập) ──
+  const THEME_LABEL = { auto: 'Tự động', light: 'Sáng', dark: 'Tối' };
+  function buildThemeSeg() {
+    const el = $('themeSeg'); if (!el) return;
+    const cur = store.get('theme', 'auto');
+    seg(el, [
+      { id: 'auto', label: 'Tự động' },
+      { id: 'light', label: 'Sáng' },
+      { id: 'dark', label: 'Tối' },
+    ], it => it.id === cur, it => applyTheme(it.id));
+  }
+  function renderSetInfo() {
+    const mode = THEME_LABEL[store.get('theme', 'auto')] || 'Tự động';
+    const bits = ['Giao diện ' + mode];
+    if (calm) bits.push('giảm chuyển động');
+    if (store.get('spBar', true) === false) bits.push('ẩn thanh công đức');
+    const b = $('setBrief'); if (b) b.textContent = mode;
+    const i = $('setInfo'); if (i) i.textContent = bits.join(' · ');
+  }
+  function openSettings() {
+    $('modal-collection').hidden = false;
+    colTab = 'set';
+    $('modal-collection').querySelectorAll('.tab').forEach(x => x.classList.toggle('active', x.dataset.tab === 'set'));
+    renderCollection();
+  }
+  $('setBtn').addEventListener('click', openSettings);
 
   // ── Ngày lễ / trang trí theo âm lịch ──
   let festival = null, viaSoon = null;
@@ -1943,13 +2148,13 @@ body.calm *, body.calm *::before, body.calm *::after {
     if (kind === 'province') {
       for (const p of PROVINCES) {
         let sc = Math.floor(rr() * 900000) + 1200;
-        if (S.province === p) sc += S.merit;
+        if (S.province === p) sc += S.total;
         out.push({ name: p, prov: '', score: sc, me: S.province === p });
       }
     } else {
       const cap = kind === 'daily' ? 1400 : 2200000;
       for (let i = 0; i < 10; i++) out.push({ name: DH_NAMES[i % DH_NAMES.length], prov: PROVINCES[Math.floor(rr() * PROVINCES.length)], score: Math.floor(rr() * cap) + 5 });
-      out.push({ name: 'Bạn', prov: S.province || '—', score: kind === 'daily' ? S.dayMerit : S.merit, me: true });
+      out.push({ name: 'Bạn', prov: S.province || '—', score: kind === 'daily' ? S.dayMerit : S.total, me: true });
     }
     return out;
   }
@@ -1965,7 +2170,7 @@ body.calm *, body.calm *::before, body.calm *::after {
         rows = Array.isArray(data) ? data.map(x => ({ name: x.name || 'Đạo hữu', prov: x.province || '', score: (x.score | 0) })) : boardRows(lbKind);
       } catch { rows = boardRows(lbKind); }
     } else rows = boardRows(lbKind);
-    if (lbKind !== 'province' && !rows.some(r => r.me)) rows.push({ name: 'Bạn', prov: S.province || '—', score: lbKind === 'daily' ? S.dayMerit : S.merit, me: true });
+    if (lbKind !== 'province' && !rows.some(r => r.me)) rows.push({ name: 'Bạn', prov: S.province || '—', score: lbKind === 'daily' ? S.dayMerit : S.total, me: true });
     rows.sort((a, b) => b.score - a.score);
     list.replaceChildren(...rows.map((r, i) => {
       const el = document.createElement('div');
@@ -2101,7 +2306,7 @@ body.calm *, body.calm *::before, body.calm *::after {
   function dedicate(who) {
     if ((S.ritual.ded || 0) >= 3) { toast('Hôm nay đã hồi hướng đủ 3 lần'); return; }
     S.ritual.ded = (S.ritual.ded || 0) + 1;
-    const bonus = Math.max(27, Math.round(Math.min(S.merit + 27, 32400) * 0.02));
+    const bonus = Math.max(27, Math.round(Math.min(S.total + 27, 32400) * 0.02));
     const pt = stagePoint();
     rainPetals(30); burstSparks(10, '🪷');
     if (ac) playBell(ac.currentTime + 0.02, 329.63, 0.26, 5, bellBus);
@@ -2841,6 +3046,8 @@ body.calm *, body.calm *::before, body.calm *::after {
       btn.title = 'Giao diện: ' + m[1] + ' — bấm để đổi';
     }
     store.set('theme', t);
+    buildThemeSeg();
+    renderSetInfo();
   }
   $('themeBtn').addEventListener('click', () => {
     const cur = store.get('theme', 'auto');
@@ -2873,10 +3080,10 @@ body.calm *, body.calm *::before, body.calm *::after {
     if (!document.fullscreenElement && document.body.classList.contains('zen')) applyZen(false, false);
   });
 
-  const PANEL_DEFAULTS = { sutra: true, mixer: false, streak: false, ritual: false, wl: true };
+  const PANEL_DEFAULTS = { sutra: true, tm: true, set: true, streak: false, ritual: false, wl: true };
   document.querySelectorAll('details.panel[data-panel]').forEach(d => {
     const saved = store.get('panels', {})[d.dataset.panel];
-    d.open = saved === undefined ? !!PANEL_DEFAULTS[d.dataset.panel] : !!saved;
+    d.open = saved === undefined ? (PANEL_DEFAULTS[d.dataset.panel] !== false) : !!saved;
     d.addEventListener('toggle', () => {
       const p = store.get('panels', {}); p[d.dataset.panel] = d.open; store.set('panels', p);
     });
@@ -2893,13 +3100,13 @@ body.calm *, body.calm *::before, body.calm *::after {
     if (s) s.checked = !!spBar;
     document.body.classList.toggle('calm', !!calm);
     const wrap = $('stageProgWrap'); if (wrap) wrap.hidden = !spBar;
-    const vb = $('viewBrief'); if (vb) vb.textContent = calm ? '🌙 Tĩnh' : (spBar ? '' : 'Ẩn thanh');
+    renderSetInfo();
   }
   $('calmToggle').addEventListener('change', () => {
     calm = $('calmToggle').checked;
     store.set('calm', calm);
     renderViewPrefs();
-    applyRealmTheme(realmOf(S.merit));
+    applyRealmTheme(realmOf(S.total));
     toast(calm ? '🌙 Đã bật giảm chuyển động' : '✨ Đã tắt giảm chuyển động');
   });
   $('spToggle').addEventListener('change', () => {
@@ -2909,11 +3116,12 @@ body.calm *, body.calm *::before, body.calm *::after {
     toast(spBar ? '📊 Đã hiện thanh công đức' : '📊 Đã ẩn thanh công đức');
   });
   renderViewPrefs();
+  renderTemple();
 
   renderLine();
   renderStats();
   applyFestival();
-  applyRealmTheme(realmOf(S.merit));
+  applyRealmTheme(realmOf(S.total));
   applySkin(S.skin);
   resize();
   buildScene();
