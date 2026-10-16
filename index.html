@@ -410,6 +410,19 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
 .ded-seg button:disabled { opacity: .45; cursor: default; }
 .rit-note { font-size: 11.5px; color: var(--ink3); margin: 8px 0 0; }
 .rit-badge + .rit-badge { margin-top: -6px; }
+
+/* ── Thời khóa ── */
+.wl-list { display: grid; gap: 9px; }
+.wl-row { display: grid; grid-template-columns: 20px 1fr 14px; align-items: center; gap: 10px; font-size: 12.5px; color: var(--ink2); }
+.wl-ic { font-size: 15px; text-align: center; }
+.wl-tx { display: grid; gap: 4px; min-width: 0; }
+.wl-top { display: flex; justify-content: space-between; gap: 8px; }
+.wl-goal { font: 500 11px/1 var(--f-mono); color: var(--ink4); font-variant-numeric: tabular-nums; }
+.wl-bar { height: 5px; border-radius: 3px; background: var(--surface); overflow: hidden; }
+.wl-bar i { display: block; height: 100%; width: 0; border-radius: 3px; background: var(--realm-accent, var(--lotus)); transition: width .4s ease; }
+.wl-check { font-size: 13px; color: var(--ink4); text-align: center; }
+.wl-row.done .wl-check { color: var(--realm-accent, var(--lotus)); }
+.wl-row.done .wl-bar i { background: var(--gold); }
 .save-code { width: 100%; min-height: 92px; resize: vertical; box-sizing: border-box; font: 500 11.5px/1.5 var(--f-mono); background: var(--surface); color: var(--ink2); border: 1px solid var(--line2); border-radius: 10px; padding: 10px; }
 
 /* ── Thiền định ── */
@@ -557,6 +570,19 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
           <p class="rit-note" id="dedNote">Còn 3 lần hồi hướng hôm nay</p>
         </div>
         <button class="pill solid big" id="medBtn">🧘 Thiền định</button>
+      </section>
+
+      <section class="panel">
+        <div class="field">
+          <span class="eyebrow">Thời khóa hôm nay</span>
+          <div class="wl-list" id="wlList"></div>
+          <p class="rit-note" id="wlNote"></p>
+        </div>
+        <div class="field">
+          <span class="eyebrow">Bố thí</span>
+          <button class="pill big" id="danaBtn">🍚 Bố thí</button>
+          <p class="rit-note" id="danaNote"></p>
+        </div>
       </section>
     </aside>
   </main>
@@ -732,6 +758,9 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
     { id: 'thien108',icon: '🌀', name: 'Nhất tọa',           desc: 'Thiền 108 hơi thở',          ok: s => (s.breaths || 0) >= 108 },
     { id: 'ram',     icon: '🌕', name: 'Tu ngày Rằm',        desc: 'Gõ mõ ngày Rằm hoặc Mùng Một', ok: s => (s.holyDays || []).length >= 1 },
     { id: 'via',     icon: '🪷', name: 'Ngày vía Phật',      desc: 'Gõ mõ trong một ngày vía',   ok: s => (s.holyDays || []).some(id => MAJOR_VIA.has(id)) },
+    { id: 'tk',      icon: '🕰️', name: 'Trọn thời khóa',     desc: 'Hoàn thành cả 4 buổi trong ngày', ok: s => !!s.wl && SLOTS.every(x => s.wl.done && s.wl.done[x.id]) },
+    { id: 'dana',    icon: '🍚', name: 'Bố thí',             desc: 'Bố thí một lần',             ok: s => (s.dana && s.dana.used ? s.dana.used : 0) >= 1 },
+    { id: 'dana3',   icon: '🧧', name: 'Đủ duyên',           desc: 'Bố thí 3 lần trong ngày',    ok: s => (s.dana && s.dana.used ? s.dana.used : 0) >= 3 },
   ];
 
   // ── Dữ liệu cho bảng xếp hạng / ticker / ngày lễ ──
@@ -869,6 +898,8 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
     chimeDay: store.get('chimeDay', ''),
     chimeDone: store.get('chimeDone', []),
     holyDays: store.get('holyDays', []),
+    wl: store.get('wl', { day: '', prog: {}, done: {} }),
+    dana: store.get('dana', { day: '', used: 0, until: 0 }),
     lineIdx: 0, syl: 0,
     chanting: false, combo: 0, hits: 0, judged: 0,
   };
@@ -879,8 +910,12 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
   if (!Array.isArray(S.ritual.incense)) S.ritual.incense = [];
   if (!Array.isArray(S.chimeDone)) S.chimeDone = [];
   if (!Array.isArray(S.holyDays)) S.holyDays = [];
+  if (!S.wl || typeof S.wl !== 'object' || Array.isArray(S.wl)) S.wl = { day: '', prog: {}, done: {} };
+  if (!S.wl.prog || typeof S.wl.prog !== 'object') S.wl.prog = {};
+  if (!S.wl.done || typeof S.wl.done !== 'object') S.wl.done = {};
+  if (!S.dana || typeof S.dana !== 'object' || Array.isArray(S.dana)) S.dana = { day: '', used: 0, until: 0 };
   // Danh sách khoá được lưu (cũng dùng cho sao lưu / khôi phục tiến trình).
-  const SAVE_KEYS = ['merit', 'knocks', 'lines', 'best', 'sutra', 'bpm', 'music', 'voice', 'volMo', 'volBell', 'volMusic', 'volAmbient', 'ambient', 'skin', 'streak', 'lastDay', 'ach', 'bells', 'province', 'dayMerit', 'festivalOff', 'ritual', 'breaths', 'ritualBell', 'chimeDay', 'chimeDone', 'holyDays'];
+  const SAVE_KEYS = ['merit', 'knocks', 'lines', 'best', 'sutra', 'bpm', 'music', 'voice', 'volMo', 'volBell', 'volMusic', 'volAmbient', 'ambient', 'skin', 'streak', 'lastDay', 'ach', 'bells', 'province', 'dayMerit', 'festivalOff', 'ritual', 'breaths', 'ritualBell', 'chimeDay', 'chimeDone', 'holyDays', 'wl', 'dana'];
   const save = () => { for (const k of SAVE_KEYS) store.set(k, S[k]); };
 
   const $ = id => document.getElementById(id);
@@ -1261,6 +1296,7 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
     S.merit += n;
     S.dayMerit += n;
     floater('+' + n, x, y, note);
+    trackSlot(n);
     const after = realmOf(S.merit);
     if (after > before) {
       const r = REALMS[after];
@@ -1313,7 +1349,7 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
       }
       updateCombo();
     }
-    gain = Math.max(1, Math.round(gain * periodOf().mult)); // thưởng theo buổi (sáng sớm / khuya tinh tấn)
+    gain = Math.max(1, Math.round(gain * periodOf().mult * (danaActive() ? 1.5 : 1))); // thưởng theo buổi + phước báo
     const p = stagePoint();
     addMerit(gain, p.x, p.y, note);
     if (!S.chanting && S.knocks % 108 === 0) { summonBuddha('Viên mãn 108 tiếng mõ', 3200); rainPetals(40); }
@@ -1537,6 +1573,8 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
     S.streak = (S.lastDay === yest) ? (S.streak || 0) + 1 : 1;
     S.lastDay = today; S.dayMerit = 0;
     S.ritual = { incense: [], repent: false, ded: 0 };
+    wlReset(today);
+    S.dana = { day: today, used: 0, until: S.dana.until || 0 };
     save();
     renderStreak();
     const p = stagePoint();
@@ -1823,13 +1861,16 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
   }
 
   // ── Nghi lễ theo buổi ──
+  // 4 buổi tu tập, mỗi buổi có hệ số công đức và mục tiêu riêng cho "thời khóa".
+  const SLOTS = [
+    { id: 'khuya', name: 'Khuya', ic: '🌌', mult: 2,    goal: 54,  hours: [23, 0, 1, 2, 3, 4] },
+    { id: 'sang',  name: 'Sáng',  ic: '🌅', mult: 1.5,  goal: 108, hours: [5, 6, 7, 8, 9, 10] },
+    { id: 'chieu', name: 'Chiều', ic: '🌇', mult: 1.1,  goal: 108, hours: [11, 12, 13, 14, 15, 16] },
+    { id: 'toi',   name: 'Tối',   ic: '🌙', mult: 1.25, goal: 108, hours: [17, 18, 19, 20, 21, 22] },
+  ];
   function periodOf(d) {
     const h = (d || new Date()).getHours();
-    if (h >= 5 && h < 11) return { id: 'sang', name: 'Sáng', ic: '🌅', mult: 1.5 };
-    if (h >= 11 && h < 14) return { id: 'trua', name: 'Trưa', ic: '☀️', mult: 1 };
-    if (h >= 14 && h < 18) return { id: 'chieu', name: 'Chiều', ic: '🌇', mult: 1.1 };
-    if (h >= 18 && h < 23) return { id: 'toi', name: 'Tối', ic: '🌙', mult: 1.25 };
-    return { id: 'khuya', name: 'Khuya', ic: '🌌', mult: 2 };
+    return SLOTS.find(s => s.hours.includes(h)) || SLOTS[1];
   }
   const DEDICATIONS = [
     { label: 'Cha mẹ' }, { label: 'Ông bà tổ tiên' },
@@ -1894,8 +1935,8 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
     toast('🪷 Hồi hướng đến ' + who + ' — +' + fmt(bonus) + ' công đức');
     save(); renderRitual();
   }
-  // Chuông nhắc giờ tu (chỉ khi trang đang mở)
-  const CHIME_HOURS = [5, 11, 19];
+  // Chuông nhắc giờ tu (chỉ khi trang đang mở) — đầu mỗi buổi
+  const CHIME_HOURS = [5, 11, 17, 23];
   function chimeTick() {
     if (!S.ritualBell) return;
     const now = new Date(), today = dayKey(now);
@@ -1903,8 +1944,9 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
     const h = now.getHours(), m = now.getMinutes();
     if (m === 0 && CHIME_HOURS.includes(h) && !S.chimeDone.includes(h)) {
       S.chimeDone.push(h); save();
-      toast('🔔 Giờ tu ' + h + ':00 — thỉnh chuông, tịnh tâm');
-      pushTicker('🔔 Đã đến giờ tu ' + h + ':00');
+      const slot = periodOf(new Date(now.getFullYear(), now.getMonth(), now.getDate(), h));
+      toast(slot.ic + ' Giờ tu buổi ' + slot.name + ' — thỉnh chuông, tịnh tâm');
+      pushTicker(slot.ic + ' Đã đến giờ tu buổi ' + slot.name);
       if (ensureAudio()) { playBell(ac.currentTime + 0.03, 130.81, 0.7, 9, bellBus); bellAnim = performance.now(); }
     }
   }
@@ -1992,6 +2034,82 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
   $('medBtn2').addEventListener('click', () => { medOn ? stopMeditate() : startMeditate(); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('modal-meditate').hidden) closeMeditate(); });
   $('chimeToggle').checked = !!S.ritualBell;
+
+  // ── Thời khóa 4 buổi (theo dõi & thưởng) ──
+  function wlReset(today) { S.wl = { day: today, prog: {}, done: {} }; }
+  function trackSlot(n) {
+    const today = dayKey(new Date());
+    if (S.wl.day !== today) wlReset(today);
+    const s = periodOf();
+    if (S.wl.done[s.id]) return;
+    S.wl.prog[s.id] = (S.wl.prog[s.id] || 0) + n;
+    if (S.wl.prog[s.id] < s.goal) return;
+    S.wl.done[s.id] = true;
+    toast(s.ic + ' Xong thời khóa buổi ' + s.name + ' — tinh tấn!');
+    if (ac) playBell(ac.currentTime + 0.02, 329.63, 0.25, 5, bellBus);
+    rainPetals(18);
+    renderThoiKhoa();
+    const pt = stagePoint();
+    if (SLOTS.every(x => S.wl.done[x.id])) {
+      toast('🎉 Trọn thời khóa 4 buổi — công đức viên mãn!');
+      pushTicker('🎉 <b>Bạn</b> đã trọn thời khóa 4 buổi hôm nay');
+      rainbowBurst();
+      rainPetals(50);
+      addMerit(108, pt.x, pt.y - 30, 'trọn thời khóa');
+    } else {
+      addMerit(27, pt.x, pt.y - 30, 'xong buổi');
+    }
+  }
+  function renderThoiKhoa() {
+    const box = $('wlList'); if (!box) return;
+    const today = dayKey(new Date());
+    if (S.wl.day !== today) wlReset(today);
+    const cur = periodOf().id;
+    box.replaceChildren(...SLOTS.map(s => {
+      const p = S.wl.prog[s.id] || 0, done = !!S.wl.done[s.id];
+      const row = document.createElement('div');
+      row.className = 'wl-row' + (done ? ' done' : '');
+      row.innerHTML = '<span class="wl-ic">' + s.ic + '</span>'
+        + '<span class="wl-tx"><span class="wl-top"><span>' + s.name + (s.id === cur && !done ? ' · đang tu' : '') + '</span>'
+        + '<span class="wl-goal">' + fmt(Math.min(p, s.goal)) + '/' + fmt(s.goal) + '</span></span>'
+        + '<span class="wl-bar"><i style="width:' + Math.min(100, 100 * p / s.goal).toFixed(1) + '%"></i></span></span>'
+        + '<span class="wl-check">' + (done ? '✓' : '') + '</span>';
+      return row;
+    }));
+    const note = $('wlNote');
+    if (note) {
+      const n = SLOTS.filter(s => S.wl.done[s.id]).length;
+      note.textContent = n === SLOTS.length ? '🎉 Trọn thời khóa hôm nay — thật tinh tấn!' : ('Đã xong ' + n + '/' + SLOTS.length + ' buổi hôm nay');
+    }
+  }
+
+  // ── Bố thí: 3 lần/ngày, mở phước báo ×1.5 trong 10 phút ──
+  const danaActive = () => Date.now() < (S.dana.until || 0);
+  function danaReset() { const t = dayKey(new Date()); if (S.dana.day !== t) S.dana = { day: t, used: 0, until: S.dana.until || 0 }; }
+  function renderDana() {
+    danaReset();
+    const btn = $('danaBtn'), note = $('danaNote');
+    const left = Math.max(0, 3 - (S.dana.used || 0));
+    if (btn) { btn.disabled = left <= 0; btn.classList.toggle('rit-done', left <= 0); }
+    if (note) {
+      const mins = danaActive() ? Math.ceil((S.dana.until - Date.now()) / 60000) : 0;
+      note.textContent = (danaActive() ? ('✨ Phước báo ×1.5 còn ' + mins + ' phút · ') : '')
+        + (left ? ('còn ' + left + ' lần bố thí hôm nay') : 'hôm nay đã bố thí đủ');
+    }
+  }
+  function doDana() {
+    danaReset();
+    if ((S.dana.used || 0) >= 3) { renderDana(); toast('Hôm nay đã bố thí đủ 3 lần'); return; }
+    S.dana.used = (S.dana.used || 0) + 1;
+    S.dana.until = Date.now() + 10 * 60 * 1000;
+    const pt = stagePoint();
+    rainPetals(26); burstSparks(12, '🍚');
+    if (ac) playBell(ac.currentTime + 0.02, 293.66, 0.28, 5, bellBus);
+    addMerit(27, pt.x, pt.y - 20, 'bố thí');
+    toast('🍚 Bố thí — phước báo ×1.5 trong 10 phút');
+    save(); renderDana();
+  }
+  $('danaBtn').addEventListener('click', doDana);
 
   $('chantBtn').addEventListener('click', () => S.chanting ? stopChant() : startChant());
   $('bellBtn').addEventListener('click', bell);
@@ -2543,8 +2661,10 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
   renderRitual();
   viaSoon = nextVia();
   renderLunar();
+  renderThoiKhoa();
+  renderDana();
   chimeTick();
-  setInterval(() => { renderRitual(); renderLunar(); chimeTick(); }, 30000);
+  setInterval(() => { renderRitual(); renderLunar(); renderThoiKhoa(); renderDana(); chimeTick(); }, 30000);
   startTicker();
   requestAnimationFrame(frame);
   requestAnimationFrame(sceneFrame);
