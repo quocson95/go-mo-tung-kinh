@@ -253,10 +253,10 @@ body {
 .merit-num { font: 600 40px/1 var(--f-mono); font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
 .realm { display: grid; gap: 8px; }
 .realm-row { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
-.realm-name { font-family: var(--f-display); font-size: 22px; font-weight: 600; }
+.realm-name { font-family: var(--f-display); font-size: 22px; font-weight: 600; color: var(--realm-accent, var(--ink)); }
 .realm-next { font: 500 12px/1 var(--f-mono); color: var(--ink3); font-variant-numeric: tabular-nums; }
 .bar { height: 6px; border-radius: 3px; background: var(--surface); overflow: hidden; }
-.bar > i { display: block; height: 100%; width: 0; background: var(--lotus); border-radius: 3px; transition: width 240ms ease; }
+.bar > i { display: block; height: 100%; width: 0; background: var(--realm-accent, var(--lotus)); border-radius: 3px; transition: width 240ms ease; }
 .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 16px; margin: 0; }
 .stats div { display: grid; gap: 4px; }
 .stats dt { font-size: 12px; color: var(--ink3); }
@@ -277,6 +277,87 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
 .brand span { background: var(--glass); padding: 4px 10px; border-radius: 12px; color: var(--ink2); }
 .seg button:disabled { opacity: 0.4; cursor: default; }
 
+/* ── Thanh trộn âm lượng ── */
+.mixer { display: grid; gap: 11px; }
+.mix-row { display: grid; grid-template-columns: 74px 1fr 40px; align-items: center; gap: 10px; font-size: 12px; color: var(--ink2); }
+.mix-row input[type="range"] {
+  -webkit-appearance: none; appearance: none; width: 100%; height: 4px; border-radius: 2px;
+  background: var(--surface); outline: none; cursor: pointer;
+}
+.mix-row input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none; width: 15px; height: 15px; border-radius: 50%;
+  background: var(--realm-accent, var(--lotus)); border: 2px solid var(--card);
+  box-shadow: 0 0 8px var(--realm-glow, transparent); cursor: pointer;
+}
+.mix-row input[type="range"]::-moz-range-thumb {
+  width: 13px; height: 13px; border-radius: 50%; border: 2px solid var(--card);
+  background: var(--realm-accent, var(--lotus)); cursor: pointer;
+}
+.mix-val { font: 500 11px/1 var(--f-mono); color: var(--ink4); text-align: right; font-variant-numeric: tabular-nums; }
+
+/* ── Banner thăng cấp cảnh giới ── */
+#realm-up {
+  position: fixed; left: 50%; top: 13%; transform: translateX(-50%);
+  z-index: 5; pointer-events: none; text-align: center;
+  padding: 16px 30px 15px; border-radius: 20px;
+  background: radial-gradient(120% 150% at 50% 0%, var(--realm-glow, transparent), rgba(18,12,6,.82) 72%);
+  border: 1px solid var(--realm-accent, var(--gold));
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  box-shadow: 0 10px 44px rgba(0,0,0,.5), 0 0 34px var(--realm-glow, transparent);
+}
+#realm-up[hidden] { display: none; }
+#realm-up.show { animation: realmUp 4200ms ease-out forwards; }
+@keyframes realmUp {
+  0% { opacity: 0; transform: translate(-50%, 12px) scale(.94); }
+  9% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+  80% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -10px) scale(1); }
+}
+.ru-eyebrow { font: 500 11px/1 var(--f-ui); letter-spacing: .16em; text-transform: uppercase; color: var(--ink3); }
+.ru-name { font-family: var(--f-display); font-size: 34px; font-weight: 600; line-height: 1.1; margin-top: 3px; color: var(--realm-accent, var(--gold)); text-shadow: 0 0 20px var(--realm-glow, transparent); }
+.ru-sub { font-size: 13px; color: var(--ink2); margin-top: 2px; }
+
+/* ── Chuỗi tinh tấn ── */
+.streak-row { display: flex; align-items: baseline; gap: 7px; }
+.streak-flame { font-size: 20px; line-height: 1; filter: drop-shadow(0 2px 6px rgba(240,135,42,.5)); }
+.streak-num { font: 600 30px/1 var(--f-mono); color: var(--realm-accent, var(--lotus)); font-variant-numeric: tabular-nums; }
+.streak-unit { font-size: 12px; color: var(--ink3); }
+.streak-tier { font-family: var(--f-display); font-size: 17px; color: var(--ink2); margin-top: 1px; }
+.streak-next { font: 500 12px/1 var(--f-mono); color: var(--ink3); }
+
+/* ── Hạt rơi nền theo cảnh giới ── */
+#particle-layer { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+.bg-particle { position: absolute; top: -40px; opacity: .45; will-change: transform; animation: particleFall linear forwards; }
+@keyframes particleFall { from { transform: translateY(0) rotate(0deg); } to { transform: translateY(118vh) rotate(240deg); } }
+
+/* ── Modal (Sưu tập) ── */
+.modal { position: fixed; inset: 0; z-index: 20; display: flex; align-items: center; justify-content: center; padding: 16px; }
+.modal[hidden] { display: none; }
+.modal-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,.62); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+.modal-card { position: relative; z-index: 1; width: 100%; max-width: 520px; max-height: 86vh; overflow: auto; background: var(--card); border: 1px solid var(--line2); border-radius: var(--r-card); padding: 18px; box-shadow: 0 20px 60px rgba(0,0,0,.5); }
+.modal-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+.modal-header h2 { margin: 0; font-family: var(--f-display); font-weight: 600; font-size: 22px; }
+.icon-btn { appearance: none; border: 1px solid var(--line2); background: var(--card); color: var(--ink); width: 34px; height: 34px; border-radius: 50%; cursor: pointer; font-size: 15px; display: inline-flex; align-items: center; justify-content: center; }
+.icon-btn:hover { border-color: var(--ink4); }
+.tabs { display: flex; gap: 6px; margin-bottom: 12px; }
+.tab { appearance: none; border: 1px solid var(--line2); background: transparent; color: var(--ink2); font: 500 13px/1 var(--f-ui); height: 32px; padding: 0 14px; border-radius: 16px; cursor: pointer; }
+.tab.active { background: var(--solid); color: var(--on-solid); border-color: var(--solid); }
+.col-list { display: grid; gap: 8px; }
+.col-row { display: flex; align-items: center; gap: 12px; width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); text-align: left; font: inherit; color: var(--ink); }
+.col-row.locked { opacity: .5; cursor: default; }
+.col-row[role="button"] { cursor: pointer; }
+.col-row.equipped { border-color: var(--realm-accent, var(--lotus)); box-shadow: inset 0 0 0 1px var(--realm-accent, var(--lotus)); }
+.col-ic { font-size: 22px; width: 30px; text-align: center; flex: 0 0 auto; }
+.col-tx { flex: 1; min-width: 0; }
+.col-name { font-weight: 600; font-size: 14px; }
+.col-desc { font-size: 12px; color: var(--ink3); }
+.col-act { font: 500 11px/1 var(--f-mono); color: var(--ink3); white-space: nowrap; flex: 0 0 auto; }
+
+/* ── Toast ── */
+#toast { position: fixed; left: 50%; bottom: 24px; z-index: 30; transform: translateX(-50%) translateY(10px); max-width: 90vw; text-align: center; padding: 10px 20px; border-radius: 999px; background: rgba(18,12,6,.94); color: #f5e6c8; border: 1px solid var(--realm-accent, var(--gold)); font-size: 13.5px; opacity: 0; pointer-events: none; transition: opacity .25s ease, transform .25s ease; }
+#toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+#toast[hidden] { display: none; }
+
 @media (max-width: 860px) {
   .stage { min-height: 300px; height: 46vh; flex: none; }
   .side { display: grid; grid-template-columns: minmax(0, 1fr); }
@@ -292,6 +373,11 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
 
 <canvas id="scene" aria-hidden="true"></canvas>
 <div id="flash" aria-hidden="true"></div>
+<div id="realm-up" hidden aria-live="polite">
+  <div class="ru-eyebrow">Thăng cấp cảnh giới</div>
+  <div class="ru-name" id="ru-name"></div>
+  <div class="ru-sub" id="ru-sub"></div>
+</div>
 <div class="app">
   <header class="top">
     <div class="brand">
@@ -299,6 +385,7 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
       <span>Mỗi tiếng mõ, một chữ kinh</span>
     </div>
     <div class="top-actions">
+      <button class="pill" id="collectBtn">📿 Sưu tập</button>
       <button class="pill" id="musicBtn" aria-pressed="true"><span class="dot"></span>Nhạc thiền</button>
     </div>
   </header>
@@ -354,11 +441,51 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
         </div>
         <p class="hint"><kbd>Space</kbd> gõ mõ · <kbd>B</kbd> thỉnh chuông · <kbd>Enter</kbd> bắt đầu / dừng tụng. Khi tụng, gõ đúng lúc vòng hồng chạm mõ để được nhân công đức.</p>
       </section>
+
+      <section class="panel">
+        <div class="field">
+          <span class="eyebrow">Âm thanh</span>
+          <div class="mixer">
+            <label class="mix-row"><span>Tiếng mõ</span><input type="range" id="volMo" min="0" max="1" step="0.02" aria-label="Âm lượng tiếng mõ"><span class="mix-val" id="mvalMo">100%</span></label>
+            <label class="mix-row"><span>Chuông &amp; tụng</span><input type="range" id="volBell" min="0" max="1" step="0.02" aria-label="Âm lượng chuông và giọng tụng"><span class="mix-val" id="mvalBell">90%</span></label>
+            <label class="mix-row"><span>Nhạc thiền</span><input type="range" id="volMusic" min="0" max="1" step="0.02" aria-label="Âm lượng nhạc thiền"><span class="mix-val" id="mvalMusic">80%</span></label>
+            <label class="mix-row"><span>Tiếng suối</span><input type="range" id="volAmbient" min="0" max="1" step="0.02" aria-label="Âm lượng tiếng suối nền"><span class="mix-val" id="mvalAmbient">50%</span></label>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="field">
+          <span class="eyebrow">Chuỗi tinh tấn</span>
+          <div class="streak-row"><span class="streak-flame">🔥</span><span class="streak-num" id="streak-num">0</span><span class="streak-unit">ngày liên tiếp</span></div>
+          <div class="streak-tier" id="streak-tier">Sơ Phát Tâm</div>
+          <div class="bar"><i id="streak-bar"></i></div>
+          <div class="streak-next" id="streak-next">Gõ mỗi ngày để giữ chuỗi</div>
+        </div>
+      </section>
     </aside>
   </main>
 
   <p class="foot">Trò chơi giải trí, không thuộc tổ chức tôn giáo nào. Tiếng mõ, chuông và nhạc thiền được tổng hợp trực tiếp trong trình duyệt.</p>
 </div>
+
+<!-- Sưu tập: pháp khí + thành tựu -->
+<div class="modal" id="modal-collection" hidden>
+  <div class="modal-backdrop" data-close></div>
+  <div class="modal-card">
+    <header class="modal-header">
+      <h2>📿 Sưu tập</h2>
+      <button class="icon-btn" data-close aria-label="Đóng">✕</button>
+    </header>
+    <div class="tabs">
+      <button class="tab active" data-tab="skins">Pháp khí</button>
+      <button class="tab" data-tab="ach">Thành tựu</button>
+    </div>
+    <div class="col-list" id="col-body"></div>
+  </div>
+</div>
+
+<div id="toast" hidden role="status" aria-live="polite"></div>
 
 <script>
 (() => {
@@ -379,11 +506,60 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
   ];
   const TEMPOS = [{ bpm: 60, label: 'Chậm · 60' }, { bpm: 76, label: 'Vừa · 76' }, { bpm: 96, label: 'Nhanh · 96' }];
   // Realms of practice, thresholds in công đức (108 is the count of a prayer-bead string).
+  // Each realm carries its own colour theme + falling-particle type — the whole stage
+  // re-tints as you advance, so progress is felt, not just read off a bar.
   const REALMS = [
-    ['Sơ Tâm', 0], ['Tịnh Tâm', 108], ['An Lạc', 540], ['Nhập Định', 1080],
-    ['Khai Tuệ', 3240], ['Từ Bi', 6480], ['Hỷ Xả', 10800], ['Giác Tỉnh', 32400],
+    { name: 'Sơ Tâm',    cost: 0,     sub: 'Tâm ban đầu — vẹn nguyên, mở rộng',   accent: '#f263ca', glow: '#f263ca22', halo: '#f0b040', haloWash: '#f0b04073', particle: '🍃' },
+    { name: 'Tịnh Tâm',  cost: 108,   sub: 'Lặng như mặt hồ — nội tâm trong trẻo', accent: '#57c9c0', glow: '#57c9c022', halo: '#7fe6dc', haloWash: '#7fe6dc66', particle: '🍃' },
+    { name: 'An Lạc',    cost: 540,   sub: 'An nhiên giữa mọi biến động',          accent: '#7ec95a', glow: '#7ec95a22', halo: '#a6e07e', haloWash: '#a6e07e66', particle: '🌿' },
+    { name: 'Nhập Định', cost: 1080,  sub: 'Tâm an trú — không còn tán loạn',      accent: '#6aa8e8', glow: '#6aa8e822', halo: '#8fc6ff', haloWash: '#8fc6ff66', particle: '✨' },
+    { name: 'Khai Tuệ',  cost: 3240,  sub: 'Lóe sáng đầu tiên — tâm khai mở',     accent: '#d4a857', glow: '#d4a85726', halo: '#ffd77f', haloWash: '#ffd77f66', particle: '✨' },
+    { name: 'Từ Bi',     cost: 6480,  sub: 'Thương yêu rộng khắp mọi loài',       accent: '#ef8fb0', glow: '#ef8fb022', halo: '#ffb3cc', haloWash: '#ffb3cc66', particle: '🌸' },
+    { name: 'Hỷ Xả',     cost: 10800, sub: 'Buông xuống — lòng nhẹ như mây',      accent: '#b98fe0', glow: '#b98fe022', halo: '#d8b6ff', haloWash: '#d8b6ff66', particle: '🌸' },
+    { name: 'Giác Tỉnh', cost: 32400, sub: 'Trí tuệ và từ bi viên mãn',          accent: '#ffd66e', glow: '#ffd66e2e', halo: '#fff0b8', haloWash: '#fff0b866', particle: '🪷' },
   ];
   const PERFECT = 0.075, GOOD = 0.16; // seconds either side of the beat
+
+  // Pháp khí (skins): đổi màu/dáng mõ vẽ trên canvas + cao độ tiếng gõ. Mở khoá theo cảnh giới.
+  // wood = [sáng, gỗ, tối, lỗ miệng]; cushion = [sáng, nền].
+  const SKINS = [
+    { id: 'tre',  name: 'Mõ Tre',  emoji: '🪵', unlock: 0, pitch: 0.95, desc: 'Mộc mạc, ấm — pháp khí khởi đầu',
+      wood: ['#e0a062', '#a35a28', '#5a2a0c', '#2a1206'], cushion: ['#c95a4a', '#9c2f2f'] },
+    { id: 'dong', name: 'Mõ Đồng', emoji: '🔔', unlock: 1, pitch: 0.85, desc: 'Vang xa, trong — kim loại sáng',
+      wood: ['#e88f4a', '#b8541e', '#6a2810', '#2a1004'], cushion: ['#d9863f', '#8a4a12'] },
+    { id: 'vang', name: 'Mõ Vàng', emoji: '🪙', unlock: 2, pitch: 1.10, desc: 'Rực rỡ, cao thanh',
+      wood: ['#f7dd9a', '#d4a857', '#8a6a2a', '#3a2515'], cushion: ['#f0d07a', '#a87c2a'] },
+    { id: 'ech',  name: 'Mõ Ếch',  emoji: '🐸', unlock: 3, pitch: 0.70, desc: 'Trầm đục, thân thương',
+      wood: ['#8fd16a', '#4f9a30', '#2a5d1e', '#0e240d'], cushion: ['#a6e07e', '#5a8a2a'] },
+    { id: 'quy',  name: 'Mõ Quy',  emoji: '🐢', unlock: 4, pitch: 0.55, desc: 'Trường thọ, rất trầm',
+      wood: ['#7fc79a', '#3f7a52', '#1d4029', '#0a1c10'], cushion: ['#bfe8a6', '#4a7a3a'] },
+    { id: 'lan',  name: 'Mõ Kỳ Lân', emoji: '🦄', unlock: 5, pitch: 0.85, desc: 'Linh khí, sáng lấp lánh',
+      wood: ['#f0c86a', '#b8842e', '#6a4a18', '#2a1808'], cushion: ['#ffe0a0', '#a86a1a'] },
+    { id: 'rong', name: 'Mõ Long', emoji: '🐉', unlock: 6, pitch: 0.60, desc: 'Uy mãnh, vang sâu',
+      wood: ['#e8555a', '#8a1820', '#4a0c14', '#1a0408'], cushion: ['#ffd24a', '#a83a1a'] },
+    { id: 'phat', name: 'Mõ Phật Tối Thượng', emoji: '🪷', unlock: 7, pitch: 0.50, desc: 'Viên mãn — chỉ đạt khi Giác Tỉnh',
+      wood: ['#fff3c8', '#ffd478', '#a8782a', '#3a2818'], cushion: ['#ffe890', '#c09030'] },
+  ];
+
+  // Chuỗi tinh tấn (streak) tính theo ngày.
+  const STREAK_MILESTONES = [3, 7, 21, 49, 108, 180, 365, 1000];
+  const STREAK_TIERS = ['Sơ Phát Tâm', 'Tinh Tấn', 'Bền Bỉ', 'Không Thối Chuyển', 'Nhất Tâm', 'Dũng Mãnh', 'Bất Thoái', 'Kim Cang'];
+
+  // Thành tựu — kiểm tra sau mỗi lần đổi công đức.
+  const ACHIEVEMENTS = [
+    { id: 'first',   icon: '🌱', name: 'Sơ tâm',             desc: 'Gõ nhịp mõ đầu tiên',        ok: s => s.knocks >= 1 },
+    { id: 'k108',    icon: '📿', name: 'Một tràng 108',      desc: 'Gõ 108 tiếng mõ',            ok: s => s.knocks >= 108 },
+    { id: 'k1080',   icon: '🪵', name: 'Ngàn tiếng mõ',      desc: 'Gõ 1.080 tiếng mõ',          ok: s => s.knocks >= 1080 },
+    { id: 'lines10', icon: '📖', name: 'Thuộc kinh',         desc: 'Tụng trọn 10 câu kinh',      ok: s => s.lines >= 10 },
+    { id: 'c27',     icon: '🔗', name: 'Chuỗi 27',           desc: 'Chuỗi 27 nhịp liên tiếp',    ok: s => s.best >= 27 },
+    { id: 'c108',    icon: '⛓️', name: 'Chuỗi 108',          desc: 'Chuỗi 108 nhịp liên tiếp',   ok: s => s.best >= 108 },
+    { id: 'bells10', icon: '🔔', name: 'Người thỉnh chuông', desc: 'Thỉnh chuông 10 lần',        ok: s => s.bells >= 10 },
+    { id: 'r3',      icon: '🏵️', name: 'Nhập Định',          desc: 'Đạt cảnh giới Nhập Định',    ok: s => realmOf(s.merit) >= 3 },
+    { id: 'r7',      icon: '🪷', name: 'Giác Tỉnh',          desc: 'Đạt cảnh giới Giác Tỉnh',    ok: s => realmOf(s.merit) >= 7 },
+    { id: 'st7',     icon: '🔥', name: 'Bảy ngày',           desc: 'Chuỗi 7 ngày tinh tấn',      ok: s => s.streak >= 7 },
+    { id: 'st108',   icon: '🏮', name: 'Nhất Tâm 108',       desc: 'Chuỗi 108 ngày tinh tấn',    ok: s => s.streak >= 108 },
+    { id: 'skins4',  icon: '📿', name: 'Bộ sưu tập',         desc: 'Sở hữu 4 pháp khí',          ok: s => unlockedSkins().length >= 4 },
+  ];
 
   // ---------- state ----------
   const store = {
@@ -399,18 +575,30 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
     bpm: store.get('bpm', 76),
     music: store.get('music', true),
     voice: store.get('voice', 'ngan'),
+    volMo: store.get('volMo', 1),
+    volBell: store.get('volBell', 0.9),
+    volMusic: store.get('volMusic', 0.8),
+    volAmbient: store.get('volAmbient', 0.5),
+    ambient: store.get('ambient', true),
+    skin: store.get('skin', 'tre'),
+    streak: store.get('streak', 0),
+    lastDay: store.get('lastDay', ''),
+    ach: store.get('ach', []),
+    bells: store.get('bells', 0),
     lineIdx: 0, syl: 0,
     chanting: false, combo: 0, hits: 0, judged: 0,
   };
   if (!SUTRAS.find(s => s.id === S.sutra)) S.sutra = 'adida';
   if (!TEMPOS.find(t => t.bpm === S.bpm)) S.bpm = 76;
-  const save = () => { for (const k of ['merit', 'knocks', 'lines', 'best', 'sutra', 'bpm', 'music', 'voice']) store.set(k, S[k]); };
+  if (!Array.isArray(S.ach)) S.ach = [];
+  const save = () => { for (const k of ['merit', 'knocks', 'lines', 'best', 'sutra', 'bpm', 'music', 'voice', 'volMo', 'volBell', 'volMusic', 'volAmbient', 'ambient', 'skin', 'streak', 'lastDay', 'ach', 'bells']) store.set(k, S[k]); };
 
   const $ = id => document.getElementById(id);
   const fmt = n => n.toLocaleString('vi-VN');
 
   // ---------- audio ----------
   let ac = null, master, sfx, music, wet, droneNodes = null;
+  let moBus, bellBus, musicBus, ambBus, ambNodes = null;
 
   function impulse(ctx, secs, decay) {
     const len = Math.floor(ctx.sampleRate * secs);
@@ -433,9 +621,19 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
     const verb = ac.createConvolver(); verb.buffer = impulse(ac, 3.6, 2.6);
     wet = ac.createGain(); wet.gain.value = 0.55;
     verb.connect(wet).connect(master);
-    sfx = ac.createGain(); sfx.gain.value = 1; sfx.connect(master);
-    music = ac.createGain(); music.gain.value = S.music ? 1 : 0; music.connect(master);
-    sfx.verb = verb; music.verb = verb;
+    // One gain node per channel so each slider can be mixed independently.
+    const bus = v => { const g = ac.createGain(); g.gain.value = v; g.connect(master); g.verb = verb; return g; };
+    moBus = bus(S.volMo);
+    bellBus = bus(S.volBell);
+    musicBus = bus(S.music ? S.volMusic : 0);
+    ambBus = bus(0.0001);
+    sfx = moBus;      // tiếng mõ
+    music = musicBus; // nhạc nền
+    startAmbient();
+    // iOS suspends Web Audio on lock / tab switch / phone call — nudge it back.
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden && ac && ac.state === 'suspended') ac.resume().catch(() => {});
+    });
     return ac;
   }
   function send(node, bus, amt) {
@@ -445,13 +643,22 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
   const latency = () => ac ? (ac.outputLatency || ac.baseLatency || 0) : 0;
 
   // Mõ: a hollow wooden block — short pitched knock plus a breathy click from the slit.
-  function playMo(t, vel = 1) {
-    const out = ac.createGain(); out.gain.value = 0.9 * vel; send(out, sfx, 0.18);
-    for (const [f, g, d] of [[520, 1, 0.16], [1240, 0.35, 0.07], [1880, 0.12, 0.04]]) {
+  // `rich` (0→1, by cảnh giới) deepens the voice: a sub-bass thud when low, a warm
+  // bronze overtone when high, and more reverb — the instrument "grows" with the practitioner.
+  function playMo(t, vel = 1, rich = 0) {
+    const pitch = curSkin().pitch;
+    const out = ac.createGain(); out.gain.value = 0.9 * vel; send(out, sfx, 0.18 + 0.35 * rich);
+    const partials = [[520, 1, 0.16], [1240, 0.35, 0.07], [1880, 0.12, 0.04]];
+    if (rich > 0) {
+      partials.push([260, 0.28 + 0.35 * rich, 0.24]);   // sub-bass body
+      partials.push([3640, 0.06 + 0.10 * rich, 0.06]);  // shimmering high overtone
+    }
+    for (const [f, g, d] of partials) {
       const o = ac.createOscillator(), e = ac.createGain();
       o.type = 'sine';
-      o.frequency.setValueAtTime(f * 1.12, t);
-      o.frequency.exponentialRampToValueAtTime(f, t + 0.02);
+      const fr = f * pitch;
+      o.frequency.setValueAtTime(fr * 1.12, t);
+      o.frequency.exponentialRampToValueAtTime(fr, t + 0.02);
       e.gain.setValueAtTime(0.0001, t);
       e.gain.exponentialRampToValueAtTime(g, t + 0.002);
       e.gain.exponentialRampToValueAtTime(0.0001, t + d);
@@ -459,7 +666,7 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
     }
     const n = ac.createBufferSource();
     n.buffer = noiseBuf();
-    const bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 2400; bp.Q.value = 3;
+    const bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 2400 * pitch; bp.Q.value = 3;
     const ne = ac.createGain();
     ne.gain.setValueAtTime(0.5, t); ne.gain.exponentialRampToValueAtTime(0.0001, t + 0.03);
     n.connect(bp).connect(ne).connect(out); n.start(t); n.stop(t + 0.05);
@@ -533,6 +740,67 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
     droneNodes = null;
   }
 
+  // Tiếng suối chảy — 3 lớp nhiễu, không file, chạy hoài không lặp tai:
+  // L1 pink noise + lowpass = tiếng nước trầm; L2 bandpass quét chậm = dòng chảy;
+  // L3 highpass rất nhỏ = ánh nước lấp lánh.
+  function pinkBuffer(secs) {
+    const len = Math.floor(ac.sampleRate * secs);
+    const buf = ac.createBuffer(2, len, ac.sampleRate);
+    for (let ch = 0; ch < 2; ch++) {
+      const d = buf.getChannelData(ch);
+      let b0 = 0, b1 = 0, b2 = 0;
+      for (let i = 0; i < len; i++) {
+        const w = Math.random() * 2 - 1;
+        b0 = 0.99765 * b0 + w * 0.0990460;
+        b1 = 0.96300 * b1 + w * 0.2965164;
+        b2 = 0.57000 * b2 + w * 1.0526913;
+        d[i] = (b0 + b1 + b2 + w * 0.1848) * 0.18;
+      }
+    }
+    return buf;
+  }
+  function startAmbient() {
+    if (!ac || ambNodes || !S.ambient || S.volAmbient <= 0) return;
+    const t = ac.currentTime;
+    const pink = ac.createBufferSource(); pink.buffer = pinkBuffer(4); pink.loop = true;
+    const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 560; lp.Q.value = 0.6;
+    const g1 = ac.createGain(); g1.gain.value = 0.5;
+    pink.connect(lp).connect(g1).connect(ambBus);
+
+    const flow = ac.createBufferSource(); flow.buffer = noiseBuf(); flow.loop = true;
+    const bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 1100; bp.Q.value = 0.7;
+    const g2 = ac.createGain(); g2.gain.value = 0.22;
+    flow.connect(bp).connect(g2).connect(ambBus);
+    const lfo = ac.createOscillator(), lg = ac.createGain();
+    lfo.frequency.value = 0.06; lg.gain.value = 420; lfo.connect(lg).connect(bp.frequency);
+
+    const spark = ac.createBufferSource(); spark.buffer = noiseBuf(); spark.loop = true;
+    const hp = ac.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 4200;
+    const g3 = ac.createGain(); g3.gain.value = 0.02;
+    spark.connect(hp).connect(g3).connect(ambBus);
+
+    pink.start(t); flow.start(t); spark.start(t); lfo.start(t);
+    ambBus.gain.cancelScheduledValues(t);
+    ambBus.gain.setValueAtTime(0.0001, t);
+    ambBus.gain.exponentialRampToValueAtTime(S.volAmbient, t + 4); // rì rào hiện ra từ từ
+    ambNodes = { pink, flow, spark, lfo };
+  }
+  function stopAmbient() {
+    if (!ambNodes) return;
+    const t = ac.currentTime, { pink, flow, spark, lfo } = ambNodes;
+    ambBus.gain.cancelScheduledValues(t);
+    ambBus.gain.setValueAtTime(Math.max(0.0001, ambBus.gain.value), t);
+    ambBus.gain.exponentialRampToValueAtTime(0.0001, t + 2);
+    [pink, flow, spark, lfo].forEach(n => { try { n.stop(t + 2.2); } catch {} });
+    ambNodes = null;
+  }
+  function setAmbient(v) {
+    S.volAmbient = v; S.ambient = v > 0; save();
+    if (!ac) return;
+    if (v <= 0) { stopAmbient(); return; }
+    if (!ambNodes) startAmbient(); else ambBus.gain.setTargetAtTime(v, ac.currentTime, 0.2);
+  }
+
   // Melody: four 16-beat phrases in the D pentatonic (D F G A C), one note per beat or longer.
   const N = { D4: 293.66, F4: 349.23, G4: 392, A4: 440, C5: 523.25, D5: 587.33 };
   const PHRASES = [
@@ -578,7 +846,7 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
     const len = stop ? Math.min(dur, 0.32) : dur;
     const f0 = 138.6; // a low monk's voice around C#3
     const [p0, p1, p2] = TONES[tone];
-    const out = ac.createGain(); send(out, sfx, 0.55);
+    const out = ac.createGain(); send(out, bellBus, 0.55);
     out.gain.setValueAtTime(0.0001, t);
     out.gain.exponentialRampToValueAtTime(0.5, t + 0.04);
     out.gain.setValueAtTime(0.5, t + len * 0.8);
@@ -652,7 +920,7 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
     while (nextBeat < horizon) {
       const t = nextBeat, i = beatNo;
       if (i < COUNT_IN) {
-        playBell(t, i === COUNT_IN - 1 ? 1320 : 990, 0.18, 0.9, sfx);
+        playBell(t, i === COUNT_IN - 1 ? 1320 : 990, 0.18, 0.9, bellBus);
         beats.push({ t, i, count: COUNT_IN - i, judged: true });
       } else {
         const k = (i - COUNT_IN) % LOOP;
@@ -695,18 +963,28 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
   const mult = () => 1 + Math.min(3, Math.floor(S.combo / 12));
 
   function realmOf(m) {
-    let i = 0; while (i + 1 < REALMS.length && m >= REALMS[i + 1][1]) i++;
+    let i = 0; while (i + 1 < REALMS.length && m >= REALMS[i + 1].cost) i++;
     return i;
   }
   function addMerit(n, x, y, note) {
     const before = realmOf(S.merit);
     S.merit += n;
     floater('+' + n, x, y, note);
-    if (realmOf(S.merit) > before) {
-      summonBuddha('Phật quang phổ chiếu · đạt ' + REALMS[realmOf(S.merit)][0], 3800);
-      rainPetals(60);
+    const after = realmOf(S.merit);
+    if (after > before) {
+      const r = REALMS[after];
+      summonBuddha('Phật quang phổ chiếu · đạt ' + r.name, 3800);
+      rainPetals(80); burstSparks(24, r.particle);
+      applyRealmTheme(after);
+      showRealmUp(r.name, r.sub);
+      if (ac) { // ba hồi chuông báo thăng cấp
+        playBell(ac.currentTime + 0.05, 130.81, 0.7, 9, bellBus);
+        playBell(ac.currentTime + 0.55, 174.61, 0.5, 8, bellBus);
+        playBell(ac.currentTime + 1.05, 261.63, 0.4, 7, bellBus);
+      }
     }
     renderStats();
+    checkAchievements();
   }
 
   let lastKnock = 0;
@@ -715,9 +993,10 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
     const now = ac.currentTime;
     if (now - lastKnock < 0.06) return; // one strike, not a double-bounce
     lastKnock = now;
-    playMo(now);
+    playMo(now, 1, realmOf(S.merit) / (REALMS.length - 1));
     strikeAnim = performance.now();
     S.knocks++;
+    burstSparks(Math.min(2 + realmOf(S.merit), 8), REALMS[realmOf(S.merit)].particle);
 
     let gain = 1, note = '';
     if (S.chanting) {
@@ -755,7 +1034,7 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
       const bonus = syl.length * (S.chanting ? 2 : 1);
       const p = stagePoint();
       setTimeout(() => addMerit(bonus, p.x, p.y - 30, 'trọn câu'), 180);
-      if (ac) playBell(ac.currentTime + 0.12, 392, 0.22, 3.5, sfx);
+      if (ac) playBell(ac.currentTime + 0.12, 392, 0.22, 3.5, bellBus);
       rainPetals(16);
       S.lineIdx = (S.lineIdx + 1) % sutra().lines.length;
       S.syl = 0;
@@ -766,11 +1045,12 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
     if (!ensureAudio()) return;
     const b = $('bellBtn');
     if (b.disabled) return;
-    playBell(ac.currentTime + 0.01, 130.81, 0.9, 10, sfx);
+    playBell(ac.currentTime + 0.01, 130.81, 0.9, 10, bellBus);
     bellAnim = performance.now();
     rayPulse = bellAnim; divineSpike = Math.max(divineSpike, 0.7);
     rainPetals(28);
     const p = stagePoint();
+    S.bells++; 
     addMerit(9, p.x, p.y - 40, 'chuông');
     save();
     b.disabled = true;
@@ -798,11 +1078,12 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
     $('sBest').textContent = fmt(S.best);
     $('sAcc').textContent = S.judged ? Math.round(100 * S.hits / S.judged) + '%' : '–';
     const r = realmOf(S.merit);
-    $('realmName').textContent = REALMS[r][0];
+    const cur = REALMS[r];
+    $('realmName').textContent = cur.name;
     if (r + 1 < REALMS.length) {
-      const lo = REALMS[r][1], hi = REALMS[r + 1][1];
+      const hi = REALMS[r + 1].cost;
       $('realmNext').textContent = fmt(S.merit) + ' / ' + fmt(hi);
-      $('realmBar').style.width = (100 * (S.merit - lo) / (hi - lo)).toFixed(1) + '%';
+      $('realmBar').style.width = (100 * (S.merit - cur.cost) / (hi - cur.cost)).toFixed(1) + '%';
     } else {
       $('realmNext').textContent = 'viên mãn';
       $('realmBar').style.width = '100%';
@@ -873,11 +1154,165 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
     S.music = !S.music; save();
     $('musicBtn').setAttribute('aria-pressed', String(S.music));
     if (ensureAudio()) {
-      music.gain.setTargetAtTime(S.music ? 1 : 0, ac.currentTime, 0.3);
+      music.gain.setTargetAtTime(S.music ? S.volMusic : 0, ac.currentTime, 0.3);
       if (S.music && S.chanting) startDrone();
       if (!S.music) stopDrone();
     }
   });
+
+  // ── Thanh trộn âm lượng: mỗi kênh một bus, lưu vào localStorage ──
+  function bindMixer(id, key, apply) {
+    const el = $(id); if (!el) return;
+    const out = $(id.replace('vol', 'mval'));
+    const paint = () => { const v = parseFloat(el.value); if (out) out.textContent = Math.round(v * 100) + '%'; apply(v); };
+    el.value = String(S[key]);
+    el.addEventListener('input', paint);
+    if (out) out.textContent = Math.round(S[key] * 100) + '%';
+    apply(S[key]);
+  }
+  const setBusVol = (node, v) => { if (node && ac) node.gain.setTargetAtTime(v, ac.currentTime, 0.05); };
+  bindMixer('volMo', 'volMo', v => { S.volMo = v; save(); setBusVol(moBus, v); });
+  bindMixer('volBell', 'volBell', v => { S.volBell = v; save(); setBusVol(bellBus, v); });
+  bindMixer('volMusic', 'volMusic', v => { S.volMusic = v; save(); setBusVol(musicBus, S.music ? v : 0); });
+  bindMixer('volAmbient', 'volAmbient', v => { setAmbient(v); });
+
+  // ── Pháp khí (skins) ──
+  const curSkin = () => SKINS.find(s => s.id === S.skin) || SKINS[0];
+  const unlockedSkins = () => SKINS.filter(s => realmOf(S.merit) >= s.unlock);
+  function applySkin(id) {
+    const found = SKINS.find(s => s.id === id) || SKINS[0];
+    const sk = realmOf(S.merit) >= found.unlock ? found : SKINS[0];
+    S.skin = sk.id; save();
+    const v = document.documentElement.style;
+    v.setProperty('--wood-hi', sk.wood[0]);
+    v.setProperty('--wood', sk.wood[1]);
+    v.setProperty('--wood-lo', sk.wood[2]);
+    v.setProperty('--wood-cut', sk.wood[3]);
+    v.setProperty('--cushion', sk.cushion[1]);
+    v.setProperty('--cushion-hi', sk.cushion[0]);
+    readColors();
+  }
+
+  // ── Toast ──
+  let toastTimer = null;
+  function toast(msg, ms = 2600) {
+    const el = $('toast'); if (!el) return;
+    el.textContent = msg; el.hidden = false;
+    el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { el.classList.remove('show'); setTimeout(() => { el.hidden = true; }, 300); }, ms);
+  }
+
+  // ── Thành tựu ──
+  function checkAchievements() {
+    let changed = false;
+    for (const a of ACHIEVEMENTS) {
+      if (!S.ach.includes(a.id) && a.ok(S)) {
+        S.ach.push(a.id); changed = true;
+        toast(a.icon + ' Thành tựu: ' + a.name);
+        if (ac) { try { playBell(ac.currentTime + 0.02, 660, 0.22, 3, bellBus); } catch {} }
+      }
+    }
+    if (changed) { save(); if (!$('modal-collection').hidden) renderCollection(); }
+  }
+
+  // ── Chuỗi tinh tấn ──
+  const dayKey = d => d.toLocaleDateString('en-CA'); // YYYY-MM-DD theo giờ máy
+  function renderStreak() {
+    const n = S.streak || 0;
+    $('streak-num').textContent = fmt(n);
+    let ti = 0; while (ti < STREAK_MILESTONES.length && n >= STREAK_MILESTONES[ti]) ti++;
+    $('streak-tier').textContent = STREAK_TIERS[Math.min(ti, STREAK_TIERS.length - 1)];
+    const max = STREAK_MILESTONES[STREAK_MILESTONES.length - 1];
+    if (n >= max) {
+      $('streak-bar').style.width = '100%';
+      $('streak-next').textContent = 'Kim Cang bất thoái';
+    } else {
+      const next = STREAK_MILESTONES[ti], prev = ti > 0 ? STREAK_MILESTONES[ti - 1] : 0;
+      $('streak-bar').style.width = (100 * (n - prev) / (next - prev)).toFixed(1) + '%';
+      $('streak-next').textContent = 'Còn ' + (next - n) + ' ngày → ' + STREAK_TIERS[ti];
+    }
+  }
+  function touchDay() {
+    const today = dayKey(new Date());
+    if (S.lastDay === today) return;             // đã tính hôm nay
+    const yest = dayKey(new Date(Date.now() - 864e5));
+    S.streak = (S.lastDay === yest) ? (S.streak || 0) + 1 : 1;
+    S.lastDay = today; save();
+    renderStreak();
+    const p = stagePoint();
+    addMerit(Math.max(10, S.streak * 10), p.x, p.y - 30, 'chuỗi ' + S.streak + ' ngày');
+    if (STREAK_MILESTONES.includes(S.streak)) {
+      toast('🔥 Chuỗi ' + S.streak + ' ngày tinh tấn — thật bền bỉ!');
+      if (ac) playBell(ac.currentTime + 0.03, 523.25, 0.3, 4, bellBus);
+    } else {
+      toast('🔥 Ngày thứ ' + S.streak + ' — giữ nhịp nhé');
+    }
+  }
+
+  // ── Hạt rơi nền theo cảnh giới ──
+  let partLayer = null, partTimer = null;
+  function applyAmbientParticles(ri) {
+    if (partTimer) { clearInterval(partTimer); partTimer = null; }
+    if (!partLayer) { partLayer = document.createElement('div'); partLayer.id = 'particle-layer'; document.body.appendChild(partLayer); }
+    if (ri <= 0 || reduce.matches) return;
+    const interval = Math.max(700, 4200 - ri * 450);
+    partTimer = setInterval(() => {
+      if (document.hidden) return;
+      const s = document.createElement('span');
+      s.className = 'bg-particle';
+      s.textContent = REALMS[ri].particle;
+      s.style.left = (Math.random() * 100) + '%';
+      s.style.fontSize = (14 + Math.random() * 14) + 'px';
+      s.style.animationDuration = (8 + Math.random() * 6) + 's';
+      s.style.filter = 'drop-shadow(0 0 5px ' + REALMS[ri].halo + ')';
+      partLayer.appendChild(s);
+      setTimeout(() => s.remove(), 15000);
+    }, interval);
+  }
+
+  // ── Modal Sưu tập (pháp khí + thành tựu) ──
+  let colTab = 'skins';
+  function renderCollection() {
+    const body = $('col-body'); if (!body) return;
+    if (colTab === 'skins') {
+      body.replaceChildren(...SKINS.map(sk => {
+        const unlocked = realmOf(S.merit) >= sk.unlock;
+        const equipped = S.skin === sk.id;
+        const row = document.createElement('button');
+        row.type = 'button';
+        row.className = 'col-row' + (unlocked ? '' : ' locked') + (equipped ? ' equipped' : '');
+        row.innerHTML = '<span class="col-ic">' + sk.emoji + '</span>'
+          + '<span class="col-tx"><span class="col-name">' + sk.name + '</span>'
+          + '<span class="col-desc">' + (unlocked ? sk.desc : ('🔒 Cần cảnh giới ' + REALMS[sk.unlock].name)) + '</span></span>'
+          + '<span class="col-act">' + (equipped ? 'Đang dùng' : unlocked ? 'Dùng ›' : '🔒') + '</span>';
+        if (unlocked && !equipped) row.addEventListener('click', () => { applySkin(sk.id); renderCollection(); toast(sk.emoji + ' Đã dùng ' + sk.name); });
+        if (!unlocked) row.disabled = true;
+        return row;
+      }));
+    } else {
+      body.replaceChildren(...ACHIEVEMENTS.map(a => {
+        const got = S.ach.includes(a.id);
+        const row = document.createElement('div');
+        row.className = 'col-row ' + (got ? 'equipped' : 'locked');
+        row.innerHTML = '<span class="col-ic">' + (got ? a.icon : '🔒') + '</span>'
+          + '<span class="col-tx"><span class="col-name">' + a.name + '</span>'
+          + '<span class="col-desc">' + a.desc + '</span></span>'
+          + '<span class="col-act">' + (got ? '✓' : '') + '</span>';
+        return row;
+      }));
+    }
+  }
+  function openCollection() { $('modal-collection').hidden = false; renderCollection(); }
+  function closeCollection() { $('modal-collection').hidden = true; }
+  $('collectBtn').addEventListener('click', openCollection);
+  $('modal-collection').querySelectorAll('[data-close]').forEach(el => el.addEventListener('click', closeCollection));
+  $('modal-collection').querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => {
+    colTab = t.dataset.tab;
+    $('modal-collection').querySelectorAll('.tab').forEach(x => x.classList.toggle('active', x === t));
+    renderCollection();
+  }));
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('modal-collection').hidden) closeCollection(); });
   $('chantBtn').addEventListener('click', () => S.chanting ? stopChant() : startChant());
   $('bellBtn').addEventListener('click', bell);
   $('stage').addEventListener('pointerdown', e => { if (e.button === 0) { e.preventDefault(); knock(); } });
@@ -905,6 +1340,30 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
   readColors();
   matchMedia('(prefers-color-scheme: dark)').addEventListener('change', readColors);
   new MutationObserver(readColors).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+  // ── Theme theo cảnh giới: đổi màu nhấn + quầng sáng + hạt rơi của cả trang ──
+  function applyRealmTheme(r) {
+    const th = REALMS[r] || REALMS[0];
+    const root = document.documentElement.style;
+    root.setProperty('--realm-accent', th.accent);
+    root.setProperty('--realm-glow', th.glow);
+    root.setProperty('--halo', th.halo);
+    root.setProperty('--halo-wash', th.haloWash);
+    root.setProperty('--stage-glow', th.glow);
+    readColors(); // nạp lại palette cho canvas
+    applyAmbientParticles(r);
+  }
+  // ── Banner thăng cấp ──
+  let realmUpTimer = null;
+  function showRealmUp(name, sub) {
+    const el = $('realm-up'); if (!el) return;
+    $('ru-name').textContent = name;
+    $('ru-sub').textContent = sub || '';
+    el.hidden = false;
+    el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
+    clearTimeout(realmUpTimer);
+    realmUpTimer = setTimeout(() => { el.hidden = true; el.classList.remove('show'); }, 4300);
+  }
 
   function resize() {
     const r = cv.getBoundingClientRect();
@@ -1015,13 +1474,16 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
     });
     if (petals.length > 240) petals.splice(0, petals.length - 240);
   }
-  function burstSparks(n) {
+  function burstSparks(n, glyph) {
     if (!W) return;
+    if (reduce.matches) n = Math.min(n, 3);
     const { cx, cy, s } = geom();
     for (let i = 0; i < n; i++) sparks.push({
       x: cx + (Math.random() - 0.5) * s * 0.8, y: cy - s * 0.25 + (Math.random() - 0.5) * s * 0.3,
       vx: (Math.random() - 0.5) * 36, vy: -45 - Math.random() * 80, life: 1, size: 1.5 + Math.random() * 2.5,
+      glyph: glyph && Math.random() < 0.35 ? glyph : null, gsize: 12 + Math.random() * 10,
     });
+    if (sparks.length > 160) sparks.splice(0, sparks.length - 160);
   }
   function summonBuddha(text, ms) {
     apparition = { t: performance.now(), ms };
@@ -1029,9 +1491,9 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
     showVerdict(text, 'divine', ms * 0.85);
     const f = $('flash'); f.classList.remove('on'); void f.offsetWidth; f.classList.add('on');
     if (ac) {
-      playBell(ac.currentTime + 0.02, 98, 0.6, 10, sfx);
-      playBell(ac.currentTime + 0.7, 146.83, 0.35, 8, sfx);
-      playBell(ac.currentTime + 1.4, 196, 0.22, 6, sfx);
+      playBell(ac.currentTime + 0.02, 98, 0.6, 10, bellBus);
+      playBell(ac.currentTime + 0.7, 146.83, 0.35, 8, bellBus);
+      playBell(ac.currentTime + 1.4, 196, 0.22, 6, bellBus);
     }
   }
   // A seated Buddha in meditation on a lotus throne, built from simple shapes; baseY is the throne.
@@ -1186,6 +1648,12 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
       p.life -= dt * 0.9; p.x += p.vx * dt; p.y += p.vy * dt; p.vy *= 0.985;
       if (p.life <= 0) { sparks.splice(i, 1); continue; }
       g.globalAlpha = p.life;
+      if (p.glyph) { // emoji particle (theo cảnh giới)
+        g.font = p.gsize + 'px serif'; g.textAlign = 'center';
+        g.fillStyle = colors.halo;
+        g.fillText(p.glyph, p.x, p.y);
+        continue;
+      }
       g.beginPath(); g.arc(p.x, p.y, p.size * 2.6, 0, Math.PI * 2); g.fillStyle = colors.halo; g.globalAlpha = p.life * 0.25; g.fill();
       g.beginPath(); g.arc(p.x, p.y, p.size, 0, Math.PI * 2); g.globalAlpha = p.life; g.fill();
     }
@@ -1385,8 +1853,12 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
 
   renderLine();
   renderStats();
+  applyRealmTheme(realmOf(S.merit));
+  applySkin(S.skin);
   resize();
   buildScene();
+  renderStreak();
+  touchDay();
   requestAnimationFrame(frame);
   requestAnimationFrame(sceneFrame);
 })();
