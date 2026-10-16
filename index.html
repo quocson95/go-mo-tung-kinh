@@ -526,7 +526,8 @@ body.calm *, body.calm *::before, body.calm *::after {
 
 /* ── Pháp khí: thẻ trưng bày ── */
 .pk-head { display: flex; align-items: center; gap: 13px; padding: 12px 13px; border: 1px solid var(--line2); border-radius: 14px; background: var(--surface); }
-.pk-head-art { position: relative; width: 54px; height: 54px; flex: 0 0 auto; border-radius: 50%; display: grid; place-items: center; font-size: 26px; background: radial-gradient(75% 75% at 38% 28%, var(--w1), var(--w3) 82%); box-shadow: inset 0 0 0 2px var(--realm-accent, var(--lotus)), 0 0 16px var(--realm-glow, transparent); }
+.pk-head-art { position: relative; overflow: hidden; width: 54px; height: 54px; flex: 0 0 auto; border-radius: 50%; display: grid; place-items: center; font-size: 26px; background: radial-gradient(75% 75% at 38% 28%, var(--w1), var(--w3) 82%); box-shadow: inset 0 0 0 2px var(--realm-accent, var(--lotus)), 0 0 16px var(--realm-glow, transparent); }
+.pk-head-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 .pk-head-tx { flex: 1; min-width: 0; display: grid; gap: 3px; }
 .pk-head-name { font-weight: 600; font-size: 14px; }
 .pk-head-desc { font-size: 12px; color: var(--ink3); }
@@ -542,9 +543,9 @@ body.calm *, body.calm *::before, body.calm *::after {
 .pk-card.equipped { border-color: var(--realm-accent, var(--lotus)); box-shadow: inset 0 0 0 1px var(--realm-accent, var(--lotus)), 0 6px 18px var(--realm-glow, transparent); }
 .pk-card.locked { cursor: default; }
 .pk-art { position: relative; aspect-ratio: 1.5; display: grid; place-items: center; overflow: hidden; background: radial-gradient(90% 80% at 50% 18%, var(--w1), transparent 74%), linear-gradient(165deg, var(--w3), var(--w4)); }
-.pk-art::before { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 30%; background: linear-gradient(var(--c1), var(--c2)); border-radius: 46% 46% 0 0 / 42% 42% 0 0; }
-.pk-emoji { position: relative; z-index: 1; font-size: 38px; line-height: 1; transform: translateY(-8%); filter: drop-shadow(0 6px 12px rgba(0,0,0,.45)); transition: transform .25s ease; }
-.pk-card:not(.locked):hover .pk-emoji { transform: translateY(-14%) scale(1.07); }
+.pk-canvas { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; display: block; }
+.pk-emoji { position: absolute; z-index: 2; left: 7px; bottom: 7px; font-size: 15px; line-height: 1; padding: 4px 7px; border-radius: 999px; background: var(--glass); border: 1px solid var(--line2); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); transition: transform .2s ease; }
+.pk-card:not(.locked):hover .pk-emoji { transform: translateY(-3px) scale(1.08); }
 .pk-chip { position: absolute; z-index: 2; top: 7px; right: 7px; font: 600 10px/1 var(--f-ui); padding: 4px 8px; border-radius: 999px; background: var(--glass); border: 1px solid var(--line2); color: var(--ink2); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
 .pk-card.equipped .pk-chip { background: var(--realm-accent, var(--lotus)); border-color: transparent; color: #fff; }
 .pk-card.locked .pk-art { filter: grayscale(.8) brightness(.55); }
@@ -914,24 +915,24 @@ body.calm *, body.calm *::before, body.calm *::after {
   ];
   const PERFECT = 0.075, GOOD = 0.16; // seconds either side of the beat
 
-  // Pháp khí (skins): đổi màu/dáng mõ vẽ trên canvas + cao độ tiếng gõ. Mở khoá theo cảnh giới.
-  // wood = [sáng, gỗ, tối, lỗ miệng]; cushion = [sáng, nền].
+  // Pháp khí (skins): đổi dáng mõ vẽ trên canvas + màu + cao độ tiếng gõ. Mở khoá theo cảnh giới.
+  // shape = dáng vẽ riêng trên canvas; wood = [sáng, gỗ, tối, lỗ miệng]; cushion = [sáng, nền].
   const SKINS = [
-    { id: 'tre',  name: 'Mõ Tre',  emoji: '🪵', unlock: 0, pitch: 0.95, desc: 'Mộc mạc, ấm — pháp khí khởi đầu',
+    { id: 'tre',  name: 'Mõ Tre',  emoji: '🪵', unlock: 0, pitch: 0.95, shape: 'tre', desc: 'Mộc mạc, ấm — pháp khí khởi đầu',
       wood: ['#e0a062', '#a35a28', '#5a2a0c', '#2a1206'], cushion: ['#c95a4a', '#9c2f2f'] },
-    { id: 'dong', name: 'Mõ Đồng', emoji: '🔔', unlock: 1, pitch: 0.85, desc: 'Vang xa, trong — kim loại sáng',
+    { id: 'dong', name: 'Mõ Đồng', emoji: '🔔', unlock: 1, pitch: 0.85, shape: 'dong', desc: 'Vang xa, trong — kim loại sáng',
       wood: ['#e88f4a', '#b8541e', '#6a2810', '#2a1004'], cushion: ['#d9863f', '#8a4a12'] },
-    { id: 'vang', name: 'Mõ Vàng', emoji: '🪙', unlock: 2, pitch: 1.10, desc: 'Rực rỡ, cao thanh',
+    { id: 'vang', name: 'Mõ Vàng', emoji: '🪙', unlock: 2, pitch: 1.10, shape: 'vang', desc: 'Rực rỡ, cao thanh',
       wood: ['#f7dd9a', '#d4a857', '#8a6a2a', '#3a2515'], cushion: ['#f0d07a', '#a87c2a'] },
-    { id: 'ech',  name: 'Mõ Ếch',  emoji: '🐸', unlock: 3, pitch: 0.70, desc: 'Trầm đục, thân thương',
+    { id: 'ech',  name: 'Mõ Ếch',  emoji: '🐸', unlock: 3, pitch: 0.70, shape: 'ech', desc: 'Trầm đục, thân thương',
       wood: ['#8fd16a', '#4f9a30', '#2a5d1e', '#0e240d'], cushion: ['#a6e07e', '#5a8a2a'] },
-    { id: 'quy',  name: 'Mõ Quy',  emoji: '🐢', unlock: 4, pitch: 0.55, desc: 'Trường thọ, rất trầm',
+    { id: 'quy',  name: 'Mõ Quy',  emoji: '🐢', unlock: 4, pitch: 0.55, shape: 'quy', desc: 'Trường thọ, rất trầm',
       wood: ['#7fc79a', '#3f7a52', '#1d4029', '#0a1c10'], cushion: ['#bfe8a6', '#4a7a3a'] },
-    { id: 'lan',  name: 'Mõ Kỳ Lân', emoji: '🦄', unlock: 5, pitch: 0.85, desc: 'Linh khí, sáng lấp lánh',
+    { id: 'lan',  name: 'Mõ Kỳ Lân', emoji: '🦄', unlock: 5, pitch: 0.85, shape: 'lan', desc: 'Linh khí, sáng lấp lánh',
       wood: ['#f0c86a', '#b8842e', '#6a4a18', '#2a1808'], cushion: ['#ffe0a0', '#a86a1a'] },
-    { id: 'rong', name: 'Mõ Long', emoji: '🐉', unlock: 6, pitch: 0.60, desc: 'Uy mãnh, vang sâu',
+    { id: 'rong', name: 'Mõ Long', emoji: '🐉', unlock: 6, pitch: 0.60, shape: 'rong', desc: 'Uy mãnh, vang sâu',
       wood: ['#e8555a', '#8a1820', '#4a0c14', '#1a0408'], cushion: ['#ffd24a', '#a83a1a'] },
-    { id: 'phat', name: 'Mõ Phật Tối Thượng', emoji: '🪷', unlock: 7, pitch: 0.50, desc: 'Viên mãn — chỉ đạt khi Giác Tỉnh',
+    { id: 'phat', name: 'Mõ Phật Tối Thượng', emoji: '🪷', unlock: 7, pitch: 0.50, shape: 'phat', desc: 'Viên mãn — chỉ đạt khi Giác Tỉnh',
       wood: ['#fff3c8', '#ffd478', '#a8782a', '#3a2818'], cushion: ['#ffe890', '#c09030'] },
   ];
 
@@ -1864,7 +1865,7 @@ body.calm *, body.calm *::before, body.calm *::after {
       head.className = 'pk-head';
       head.style.setProperty('--w1', cur.wood[0]);
       head.style.setProperty('--w3', cur.wood[2]);
-      head.innerHTML = '<span class="pk-head-art">' + cur.emoji + '</span>'
+      head.innerHTML = '<span class="pk-head-art"><canvas class="pk-head-canvas" width="200" height="200" data-skin="' + cur.id + '"></canvas></span>'
         + '<span class="pk-head-tx"><span class="pk-head-name">' + cur.name + '</span>'
         + '<span class="pk-head-desc">' + cur.desc + '</span></span>';
 
@@ -1891,7 +1892,9 @@ body.calm *, body.calm *::before, body.calm *::after {
         card.style.setProperty('--w4', sk.wood[3]);
         card.style.setProperty('--c1', sk.cushion[0]);
         card.style.setProperty('--c2', sk.cushion[1]);
-        card.innerHTML = '<span class="pk-art"><span class="pk-emoji">' + sk.emoji + '</span>'
+        card.innerHTML = '<span class="pk-art">'
+            + '<canvas class="pk-canvas" width="480" height="320" data-skin="' + sk.id + '"></canvas>'
+            + '<span class="pk-emoji">' + sk.emoji + '</span>'
             + '<span class="pk-chip">' + (equipped ? 'Đang dùng' : unlocked ? 'Dùng' : '🔒') + '</span></span>'
           + '<span class="pk-info"><span class="pk-name">' + sk.name + '</span>'
             + '<span class="pk-desc">' + sk.desc + '</span>'
@@ -1901,6 +1904,10 @@ body.calm *, body.calm *::before, body.calm *::after {
         grid.appendChild(card);
       }
       body.replaceChildren(head, prog, grid);
+      for (const cvs of body.querySelectorAll('canvas[data-skin]')) {
+        const sk2 = SKINS.find(s => s.id === cvs.dataset.skin);
+        if (sk2) paintMoPreview(cvs, sk2, cvs.classList.contains('pk-head-canvas') ? 0.68 : 0.5);
+      }
     } else {
       body.replaceChildren(...ACHIEVEMENTS.map(a => {
         const got = S.ach.includes(a.id);
@@ -2561,64 +2568,337 @@ body.calm *, body.calm *::before, body.calm *::after {
   }
   function stagePoint() { const { cx, cy, s } = geom(); return { x: cx, y: cy - s * 0.35 }; }
 
-  function drawMo(cx, cy, s, squash) {
-    const rx = s * 0.5, ry = s * 0.36 * squash;
-    // cushion
-    g.save();
-    g.beginPath(); g.ellipse(cx, cy + s * 0.32, s * 0.6, s * 0.14, 0, 0, Math.PI * 2);
-    const cg = g.createLinearGradient(0, cy + s * 0.18, 0, cy + s * 0.46);
-    cg.addColorStop(0, colors['cushion-hi']); cg.addColorStop(1, colors.cushion);
-    g.fillStyle = cg; g.fill();
-    g.lineWidth = Math.max(1.5, s * 0.008); g.strokeStyle = colors.gold; g.stroke();
-    // tassels at the cushion's corners
+  // ── Dáng mõ cho từng pháp khí: silhouette dựng thẳng bằng canvas, không dùng ảnh ──
+  // Mọi hàm nhận `x` (context) trước tiên để tái dùng được cho cả sân khấu lẫn thẻ xem trước.
+  const skinColors = sk => ({
+    hi:   (sk && sk.wood && sk.wood[0]) || colors['wood-hi'],
+    wood: (sk && sk.wood && sk.wood[1]) || colors.wood,
+    lo:   (sk && sk.wood && sk.wood[2]) || colors['wood-lo'],
+    cut:  (sk && sk.wood && sk.wood[3]) || colors['wood-cut'],
+    cu:   (sk && sk.cushion && sk.cushion[1]) || colors.cushion,
+    cuHi: (sk && sk.cushion && sk.cushion[0]) || colors['cushion-hi'],
+  });
+  function moCushion(x, cx, cy, s, C) {
+    x.save();
+    x.beginPath(); x.ellipse(cx, cy + s * 0.32, s * 0.6, s * 0.14, 0, 0, Math.PI * 2);
+    const cg = x.createLinearGradient(0, cy + s * 0.18, 0, cy + s * 0.46);
+    cg.addColorStop(0, C.cuHi); cg.addColorStop(1, C.cu);
+    x.fillStyle = cg; x.fill();
+    x.lineWidth = Math.max(1.5, s * 0.008); x.strokeStyle = colors.gold; x.stroke();
     for (const dx of [-1, 1]) {
-      g.beginPath(); g.arc(cx + dx * s * 0.6, cy + s * 0.34, s * 0.022, 0, Math.PI * 2);
-      g.fillStyle = colors.gold; g.fill();
+      x.beginPath(); x.arc(cx + dx * s * 0.6, cy + s * 0.34, s * 0.022, 0, Math.PI * 2);
+      x.fillStyle = colors.gold; x.fill();
     }
-    g.restore();
-
-    const by = cy + s * 0.04 + (1 - squash) * s * 0.36;
-    // body
-    g.save();
-    g.beginPath(); g.ellipse(cx, by, rx, ry, 0, 0, Math.PI * 2);
-    const bg = g.createRadialGradient(cx - rx * 0.35, by - ry * 0.55, s * 0.04, cx, by, rx * 1.05);
-    bg.addColorStop(0, colors['wood-hi']); bg.addColorStop(0.55, colors.wood); bg.addColorStop(1, colors['wood-lo']);
-    g.fillStyle = bg; g.fill();
-    g.clip();
-    // carved scales across the crown
-    g.strokeStyle = 'rgba(40,16,4,0.22)'; g.lineWidth = Math.max(1, s * 0.006);
-    for (let row = 0; row < 3; row++) {
+    x.restore();
+  }
+  function moGrad(x, cx, by, rx, ry, s, C) {
+    const bg = x.createRadialGradient(cx - rx * 0.35, by - ry * 0.55, s * 0.04, cx, by, rx * 1.05);
+    bg.addColorStop(0, C.hi); bg.addColorStop(0.55, C.wood); bg.addColorStop(1, C.lo);
+    return bg;
+  }
+  function moSlit(x, cx, sy, w, d, C) {
+    x.beginPath();
+    x.moveTo(cx - w, sy);
+    x.quadraticCurveTo(cx, sy + d, cx + w, sy);
+    x.quadraticCurveTo(cx, sy + d * 0.48, cx - w, sy);
+    x.closePath(); x.fillStyle = C.cut; x.fill();
+  }
+  function moEyes(x, cx, sy, w, s, C) {
+    for (const dx of [-1, 1]) {
+      const ex = cx + dx * w, ey = sy - s * 0.02;
+      x.beginPath(); x.arc(ex, ey, s * 0.032, 0, Math.PI * 2); x.fillStyle = C.cut; x.fill();
+      x.beginPath(); x.arc(ex - s * 0.009, ey - s * 0.009, s * 0.01, 0, Math.PI * 2);
+      x.fillStyle = 'rgba(255,230,200,0.55)'; x.fill();
+    }
+  }
+  function moRim(x, cx, by, rx, ry, s) {
+    x.beginPath(); x.ellipse(cx, by, rx, ry, 0, Math.PI * 1.08, Math.PI * 1.55);
+    x.strokeStyle = 'rgba(255,235,210,0.35)'; x.lineWidth = Math.max(1.2, s * 0.01); x.stroke();
+  }
+  function moScales(x, cx, by, rx, ry, s, rows, alpha) {
+    x.strokeStyle = 'rgba(40,16,4,' + (alpha === undefined ? 0.22 : alpha) + ')';
+    x.lineWidth = Math.max(1, s * 0.006);
+    for (let row = 0; row < rows; row++) {
       const yy = by - ry * (0.62 - row * 0.2), n = 5 + row, w = rx * (1.1 + row * 0.25) / n;
       for (let i = 0; i < n; i++) {
         const xx = cx - (n - 1) * w / 2 + i * w;
-        g.beginPath(); g.arc(xx, yy, w * 0.52, 0.15 * Math.PI, 0.85 * Math.PI); g.stroke();
+        x.beginPath(); x.arc(xx, yy, w * 0.52, 0.15 * Math.PI, 0.85 * Math.PI); x.stroke();
       }
     }
-    // grain
-    g.strokeStyle = 'rgba(255,220,180,0.10)';
+  }
+  function moGrain(x, cx, by, rx, ry) {
+    x.strokeStyle = 'rgba(255,220,180,0.10)';
     for (let i = 0; i < 6; i++) {
-      g.beginPath(); g.ellipse(cx + rx * 0.1, by + ry * 0.1, rx * (0.35 + i * 0.12), ry * (0.2 + i * 0.1), 0.08, Math.PI * 1.05, Math.PI * 1.6); g.stroke();
+      x.beginPath(); x.ellipse(cx + rx * 0.1, by + ry * 0.1, rx * (0.35 + i * 0.12), ry * (0.2 + i * 0.1), 0.08, Math.PI * 1.05, Math.PI * 1.6); x.stroke();
     }
-    g.restore();
+  }
+  function moGlow(x, cx, by, rx, ry, col) {
+    x.beginPath(); x.ellipse(cx, by, rx * 1.55, ry * 1.95, 0, 0, Math.PI * 2);
+    const rg = x.createRadialGradient(cx, by, rx * 0.2, cx, by, rx * 1.6);
+    rg.addColorStop(0, col); rg.addColorStop(1, 'rgba(255,240,190,0)');
+    x.fillStyle = rg; x.fill();
+  }
 
-    // mouth slit — the hollow that sings
-    const sy = by + ry * 0.2;
-    g.beginPath();
-    g.moveTo(cx - rx * 0.72, sy);
-    g.quadraticCurveTo(cx, sy + ry * 0.42, cx + rx * 0.72, sy);
-    g.quadraticCurveTo(cx, sy + ry * 0.2, cx - rx * 0.72, sy);
-    g.closePath();
-    g.fillStyle = colors['wood-cut']; g.fill();
-    // fish eyes at both ends of the slit
-    for (const dx of [-1, 1]) {
-      const ex = cx + dx * rx * 0.78, ey = sy - ry * 0.08;
-      g.beginPath(); g.arc(ex, ey, s * 0.03, 0, Math.PI * 2); g.fillStyle = colors['wood-cut']; g.fill();
-      g.beginPath(); g.arc(ex - s * 0.008, ey - s * 0.008, s * 0.009, 0, Math.PI * 2); g.fillStyle = 'rgba(255,230,200,0.5)'; g.fill();
+  // Trả về `top` (đỉnh mõ) để cây dùi biết chỗ ngồi.
+  function moBody(x, cx, by, rx, ry, s, C, shape) {
+    let top = by - ry;
+
+    if (shape === 'dong') {
+      // Mõ Đồng — chuông đồng: vai xuôi, bụng loe, núm + quai treo
+      const bR = ry * 1.18;
+      x.save();
+      x.beginPath();
+      x.moveTo(cx - rx * 0.4, by - bR * 0.96);
+      x.bezierCurveTo(cx - rx * 1.0, by - bR * 0.76, cx - rx * 1.06, by + bR * 0.5, cx - rx * 1.0, by + bR * 0.9);
+      x.lineTo(cx + rx * 1.0, by + bR * 0.9);
+      x.bezierCurveTo(cx + rx * 1.06, by + bR * 0.5, cx + rx * 1.0, by - bR * 0.76, cx + rx * 0.4, by - bR * 0.96);
+      x.closePath();
+      x.fillStyle = moGrad(x, cx, by, rx, bR, s, C); x.fill(); x.clip();
+      for (let i = -3; i <= 3; i++) {
+        x.beginPath();
+        x.ellipse(cx + i * rx * 0.3, by, rx * 0.06, bR * (1.02 - Math.abs(i) * 0.1), 0, 0, Math.PI * 2);
+        x.fillStyle = i % 2 ? 'rgba(255,245,225,0.14)' : 'rgba(50,16,0,0.13)';
+        x.fill();
+      }
+      x.globalAlpha = 0.5; x.strokeStyle = colors.gold; x.lineWidth = Math.max(1, s * 0.008);
+      x.beginPath(); x.moveTo(cx - rx * 0.82, by - bR * 0.3); x.lineTo(cx + rx * 0.82, by - bR * 0.3); x.stroke();
+      x.globalAlpha = 1;
+      x.restore();
+      x.beginPath(); x.ellipse(cx, by + bR * 0.86, rx * 0.98, ry * 0.15, 0, 0, Math.PI * 2);
+      x.fillStyle = colors.gold; x.globalAlpha = 0.72; x.fill(); x.globalAlpha = 1;
+      x.strokeStyle = C.lo; x.lineWidth = Math.max(1, s * 0.006); x.stroke();
+      x.beginPath(); x.arc(cx, by - bR * 0.98, s * 0.038, 0, Math.PI * 2); x.fillStyle = C.lo; x.fill();
+      x.beginPath(); x.arc(cx, by - bR * 1.16, s * 0.058, 0, Math.PI * 2);
+      x.strokeStyle = colors.gold; x.lineWidth = Math.max(1.5, s * 0.014); x.stroke();
+      top = by - bR * 1.24;
+      moSlit(x, cx, by + ry * 0.14, rx * 0.78, ry * 0.28, C);
+      moEyes(x, cx, by + ry * 0.1, rx * 0.86, s, C);
+      moRim(x, cx, by, rx, bR * 0.92, s);
+    } else if (shape === 'vang') {
+      // Mõ Vàng — quả vàng: gân dọc, ánh kim, cuống nhỏ
+      const bR = ry * 1.06;
+      x.save();
+      x.beginPath(); x.ellipse(cx, by, rx, bR, 0, 0, Math.PI * 2);
+      x.fillStyle = moGrad(x, cx, by, rx, bR, s, C); x.fill(); x.clip();
+      for (let i = -3; i <= 3; i++) {
+        x.beginPath();
+        x.ellipse(cx + (i / 3) * rx * 0.88, by, rx * 0.1, bR, 0, 0, Math.PI * 2);
+        x.fillStyle = i % 2 ? 'rgba(255,252,225,0.18)' : 'rgba(90,50,0,0.16)';
+        x.fill();
+      }
+      x.fillStyle = 'rgba(255,255,240,0.55)';
+      for (const pt of [[-0.42, -0.5], [0.16, -0.66], [0.5, -0.26]]) {
+        x.beginPath(); x.arc(cx + pt[0] * rx, by + pt[1] * bR, s * 0.018, 0, Math.PI * 2); x.fill();
+      }
+      x.restore();
+      x.beginPath();
+      x.moveTo(cx - s * 0.022, by - bR * 0.95);
+      x.lineTo(cx, by - bR * 1.18);
+      x.lineTo(cx + s * 0.022, by - bR * 0.95);
+      x.closePath(); x.fillStyle = C.lo; x.fill();
+      top = by - bR * 1.18;
+      moSlit(x, cx, by + bR * 0.14, rx * 0.66, ry * 0.44, C);
+      moEyes(x, cx, by + bR * 0.12, rx * 0.74, s, C);
+      moRim(x, cx, by, rx, bR, s);
+    } else if (shape === 'ech') {
+      // Mõ Ếch — thân bè, hai mắt lồi, miệng rộng
+      const bR = ry * 0.88, cyb = by + ry * 0.1;
+      x.save();
+      x.beginPath(); x.ellipse(cx, cyb, rx * 1.02, bR, 0, 0, Math.PI * 2);
+      x.fillStyle = moGrad(x, cx, cyb, rx, bR, s, C); x.fill(); x.clip();
+      x.fillStyle = 'rgba(20,50,10,0.20)';
+      for (const pt of [[-0.5, -0.3], [0.14, -0.44], [0.54, 0.06], [-0.2, 0.24], [0.3, 0.5]]) {
+        x.beginPath(); x.ellipse(cx + pt[0] * rx, cyb + pt[1] * bR, s * 0.05, s * 0.034, pt[0], 0, Math.PI * 2); x.fill();
+      }
+      x.restore();
+      for (const dx of [-1, 1]) {
+        const ex = cx + dx * rx * 0.46, ey = by - bR * 0.78;
+        x.beginPath(); x.arc(ex, ey, s * 0.1, 0, Math.PI * 2);
+        x.fillStyle = moGrad(x, ex, ey, s * 0.1, s * 0.1, s, C); x.fill();
+        x.strokeStyle = C.lo; x.lineWidth = Math.max(1, s * 0.006); x.stroke();
+        x.beginPath(); x.arc(ex - dx * s * 0.01, ey - s * 0.012, s * 0.055, 0, Math.PI * 2); x.fillStyle = C.hi; x.fill();
+        x.beginPath(); x.arc(ex - dx * s * 0.022, ey - s * 0.018, s * 0.026, 0, Math.PI * 2); x.fillStyle = C.cut; x.fill();
+      }
+      top = by - bR * 0.78 - s * 0.1;
+      const my = cyb + bR * 0.26;
+      x.beginPath();
+      x.moveTo(cx - rx * 0.78, my);
+      x.quadraticCurveTo(cx, my + ry * 0.5, cx + rx * 0.78, my);
+      x.quadraticCurveTo(cx, my + ry * 0.18, cx - rx * 0.78, my);
+      x.closePath(); x.fillStyle = C.cut; x.fill();
+      moRim(x, cx, cyb, rx * 1.02, bR, s);
+    } else if (shape === 'quy') {
+      // Mõ Quy — mai rùa: ô lục giác, đầu thò ra
+      const bR = ry * 0.84;
+      x.beginPath();
+      x.ellipse(cx - rx * 1.0, by + bR * 0.46, s * 0.1, s * 0.075, -0.18, 0, Math.PI * 2);
+      x.fillStyle = C.wood; x.fill();
+      x.strokeStyle = C.lo; x.lineWidth = Math.max(1, s * 0.006); x.stroke();
+      x.beginPath(); x.arc(cx - rx * 1.1, by + bR * 0.38, s * 0.016, 0, Math.PI * 2); x.fillStyle = C.cut; x.fill();
+      x.save();
+      x.beginPath(); x.ellipse(cx, by, rx * 1.02, bR, 0, 0, Math.PI * 2);
+      x.fillStyle = moGrad(x, cx, by, rx, bR, s, C); x.fill(); x.clip();
+      x.strokeStyle = 'rgba(15,45,25,0.42)'; x.lineWidth = Math.max(1, s * 0.009);
+      const hex = (hx, hy, r) => {
+        x.beginPath();
+        for (let i = 0; i < 6; i++) {
+          const a = Math.PI / 6 + i * Math.PI / 3, px = hx + Math.cos(a) * r, py = hy + Math.sin(a) * r;
+          if (i) x.lineTo(px, py); else x.moveTo(px, py);
+        }
+        x.closePath(); x.stroke();
+      };
+      hex(cx, by, s * 0.15);
+      for (let i = 0; i < 6; i++) {
+        const a = Math.PI / 6 + i * Math.PI / 3;
+        hex(cx + Math.cos(a) * s * 0.3, by + Math.sin(a) * s * 0.24, s * 0.14);
+      }
+      x.restore();
+      top = by - bR;
+      moSlit(x, cx, by + bR * 0.3, rx * 0.58, ry * 0.28, C);
+      moEyes(x, cx, by + bR * 0.24, rx * 0.66, s, C);
+      moRim(x, cx, by, rx * 1.02, bR, s);
+    } else if (shape === 'lan') {
+      // Mõ Kỳ Lân — sừng vàng, bờm lửa hai bên, vảy lấp lánh
+      x.save();
+      x.beginPath(); x.ellipse(cx, by, rx, ry * 1.02, 0, 0, Math.PI * 2);
+      x.fillStyle = moGrad(x, cx, by, rx, ry, s, C); x.fill(); x.clip();
+      moScales(x, cx, by, rx, ry, s, 3, 0.16);
+      x.fillStyle = 'rgba(255,255,220,0.45)';
+      for (const pt of [[-0.45, -0.4], [0.1, -0.6], [0.48, -0.2], [-0.1, 0.35]]) {
+        x.beginPath(); x.arc(cx + pt[0] * rx, by + pt[1] * ry, s * 0.016, 0, Math.PI * 2); x.fill();
+      }
+      x.restore();
+      for (const dx of [-1, 1]) {
+        for (let i = 0; i < 3; i++) {
+          const px = cx + dx * rx * (0.7 + i * 0.12), py = by - ry * (0.5 - i * 0.24);
+          x.beginPath();
+          x.moveTo(px, py + s * 0.05);
+          x.quadraticCurveTo(px + dx * s * 0.08, py - s * 0.04, px + dx * s * 0.012, py - s * 0.12);
+          x.quadraticCurveTo(px + dx * s * 0.03, py - s * 0.02, px, py + s * 0.05);
+          x.closePath();
+          x.fillStyle = i === 1 ? colors.gold : C.wood; x.globalAlpha = 0.92; x.fill(); x.globalAlpha = 1;
+        }
+      }
+      x.beginPath();
+      x.moveTo(cx - s * 0.032, by - ry * 0.9);
+      x.quadraticCurveTo(cx - s * 0.01, by - ry * 1.62, cx + s * 0.07, by - ry * 1.5);
+      x.quadraticCurveTo(cx + s * 0.02, by - ry * 1.0, cx + s * 0.032, by - ry * 0.9);
+      x.closePath(); x.fillStyle = colors.gold; x.fill();
+      x.strokeStyle = C.lo; x.lineWidth = Math.max(1, s * 0.005); x.stroke();
+      top = by - ry * 1.62;
+      moSlit(x, cx, by + ry * 0.2, rx * 0.7, ry * 0.42, C);
+      moEyes(x, cx, by + ry * 0.12, rx * 0.78, s, C);
+      moRim(x, cx, by, rx, ry * 1.02, s);
+    } else if (shape === 'rong') {
+      // Mõ Long — vảy rồng, gai lưng, sừng, râu, nanh
+      x.save();
+      x.beginPath(); x.ellipse(cx, by, rx, ry, 0, 0, Math.PI * 2);
+      x.fillStyle = moGrad(x, cx, by, rx, ry, s, C); x.fill(); x.clip();
+      moScales(x, cx, by, rx, ry, s, 4, 0.28);
+      x.restore();
+      for (let i = 0; i < 5; i++) {
+        const a = Math.PI * (1.06 + i * 0.12);
+        const px = cx + Math.cos(a) * rx * 0.88, py = by + Math.sin(a) * ry * 0.92;
+        x.beginPath();
+        x.moveTo(px, py);
+        x.lineTo(px + Math.cos(a) * s * 0.07, py + Math.sin(a) * s * 0.07);
+        x.lineTo(px + Math.cos(a + 0.34) * s * 0.085, py + Math.sin(a + 0.34) * s * 0.085);
+        x.closePath(); x.fillStyle = C.lo; x.fill();
+      }
+      for (const dx of [-1, 1]) {
+        x.beginPath();
+        x.moveTo(cx + dx * s * 0.075, by - ry * 0.86);
+        x.quadraticCurveTo(cx + dx * s * 0.15, by - ry * 1.52, cx + dx * s * 0.26, by - ry * 1.22);
+        x.quadraticCurveTo(cx + dx * s * 0.15, by - ry * 0.96, cx + dx * s * 0.13, by - ry * 0.84);
+        x.closePath(); x.fillStyle = colors.gold; x.fill();
+      }
+      x.strokeStyle = colors.gold; x.lineWidth = Math.max(1.2, s * 0.009); x.lineCap = 'round';
+      for (const dx of [-1, 1]) {
+        x.beginPath();
+        x.moveTo(cx + dx * rx * 0.6, by + ry * 0.02);
+        x.quadraticCurveTo(cx + dx * rx * 1.24, by - ry * 0.5, cx + dx * rx * 1.34, by + ry * 0.52);
+        x.stroke();
+      }
+      x.lineCap = 'butt';
+      top = by - ry * 1.34;
+      moSlit(x, cx, by + ry * 0.2, rx * 0.8, ry * 0.4, C);
+      x.fillStyle = 'rgba(255,248,235,0.9)';
+      for (const dx of [-1, 1]) {
+        x.beginPath();
+        x.moveTo(cx + dx * rx * 0.6, by + ry * 0.22);
+        x.lineTo(cx + dx * rx * 0.5, by + ry * 0.6);
+        x.lineTo(cx + dx * rx * 0.4, by + ry * 0.22);
+        x.closePath(); x.fill();
+      }
+      moEyes(x, cx, by + ry * 0.12, rx * 0.9, s, C);
+      moRim(x, cx, by, rx, ry, s);
+    } else if (shape === 'phat') {
+      // Mõ Phật — đài sen: hào quang, cánh sau, thân, cánh trước
+      moGlow(x, cx, by, rx, ry, 'rgba(255,240,190,0.16)');
+      x.save();
+      x.lineCap = 'round';
+      for (let i = -4; i <= 4; i++) {
+        const sa = Math.sin(i * 0.3);
+        x.beginPath();
+        x.moveTo(cx, by + ry * 0.5);
+        x.quadraticCurveTo(cx + sa * rx * 1.35, by - ry * 0.9, cx + sa * rx * 0.86, by - ry * 1.62);
+        x.quadraticCurveTo(cx + sa * rx * 0.46, by - ry * 0.78, cx, by + ry * 0.5);
+        x.closePath();
+        x.fillStyle = 'rgba(255,246,214,0.20)'; x.fill();
+        x.strokeStyle = 'rgba(150,105,35,0.45)'; x.lineWidth = Math.max(1, s * 0.005); x.stroke();
+      }
+      x.restore();
+      x.save();
+      x.beginPath(); x.ellipse(cx, by, rx * 0.86, ry * 0.96, 0, 0, Math.PI * 2);
+      x.fillStyle = moGrad(x, cx, by, rx, ry, s, C); x.fill(); x.clip();
+      moScales(x, cx, by, rx, ry, s, 3, 0.14);
+      x.restore();
+      for (let i = -2; i <= 2; i++) {
+        const sa = Math.sin(i * 0.4);
+        x.beginPath();
+        x.moveTo(cx, by + ry * 0.34);
+        x.quadraticCurveTo(cx + sa * rx * 0.8, by - ry * 0.28, cx + sa * rx * 0.56, by - ry * 0.92);
+        x.quadraticCurveTo(cx + sa * rx * 0.3, by - ry * 0.24, cx, by + ry * 0.34);
+        x.closePath();
+        x.fillStyle = 'rgba(255,252,238,0.34)'; x.fill();
+        x.strokeStyle = 'rgba(255,251,240,0.6)'; x.lineWidth = Math.max(1, s * 0.005); x.stroke();
+      }
+      top = by - ry * 1.62;
+      moSlit(x, cx, by + ry * 0.12, rx * 0.5, ry * 0.34, C);
+      moEyes(x, cx, by + ry * 0.06, rx * 0.58, s, C);
+      moRim(x, cx, by, rx * 0.86, ry * 0.96, s);
+    } else {
+      // Mõ Tre — dáng cổ điển: vảy, vân gỗ, lỗ miệng hình con cá
+      x.save();
+      x.beginPath(); x.ellipse(cx, by, rx, ry, 0, 0, Math.PI * 2);
+      x.fillStyle = moGrad(x, cx, by, rx, ry, s, C); x.fill(); x.clip();
+      moScales(x, cx, by, rx, ry, s, 3);
+      moGrain(x, cx, by, rx, ry);
+      x.restore();
+      moSlit(x, cx, by + ry * 0.2, rx * 0.72, ry * 0.42, C);
+      moEyes(x, cx, by + ry * 0.12, rx * 0.78, s, C);
+      moRim(x, cx, by, rx, ry, s);
     }
-    // rim light
-    g.beginPath(); g.ellipse(cx, by, rx, ry, 0, Math.PI * 1.1, Math.PI * 1.55);
-    g.strokeStyle = 'rgba(255,235,210,0.35)'; g.lineWidth = Math.max(1.5, s * 0.01); g.stroke();
-    return { top: by - ry };
+    return top;
+  }
+
+  function drawMoOn(x, cx, cy, s, squash, sk) {
+    const rx = s * 0.5, ry = s * 0.36 * squash;
+    const C = skinColors(sk);
+    moCushion(x, cx, cy, s, C);
+    const by = cy + s * 0.04 + (1 - squash) * s * 0.36;
+    return { top: moBody(x, cx, by, rx, ry, s, C, (sk && sk.shape) || 'tre') };
+  }
+  function drawMo(cx, cy, s, squash) { return drawMoOn(g, cx, cy, s, squash, curSkin()); }
+
+  // Xem trước thu nhỏ cho thẻ Pháp khí (dùng chung hàm vẽ với sân khấu).
+  function paintMoPreview(cv, sk, k) {
+    if (!cv || typeof cv.getContext !== 'function') return;
+    const x = cv.getContext('2d');
+    const w = cv.width, h = cv.height;
+    x.setTransform(1, 0, 0, 1, 0, 0);
+    x.clearRect(0, 0, w, h);
+    drawMoOn(x, w / 2, h * 0.53, Math.min(w, h * 1.44) * (k || 0.5), 1, sk);
   }
 
   function drawMallet(cx, top, s, swing) {
