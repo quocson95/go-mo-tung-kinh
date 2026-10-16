@@ -131,7 +131,7 @@ body {
   line-height: 1;
 }
 .brand span { color: var(--ink3); font-size: 13px; }
-.top-actions { display: flex; gap: 8px; }
+.top-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 
 /* pills */
 .pill {
@@ -358,6 +358,43 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
 #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 #toast[hidden] { display: none; }
 
+/* ── Bảng tin "đạo hữu đang tu" ── */
+#ticker { display: flex; align-items: center; gap: 10px; padding: 8px 14px; border: 1px solid var(--line); border-radius: 14px; background: var(--glass); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); font-size: 13px; color: var(--ink2); overflow: hidden; }
+#ticker .tk-dot { flex: 0 0 auto; width: 7px; height: 7px; border-radius: 50%; background: var(--realm-accent, var(--lotus)); box-shadow: 0 0 8px var(--realm-accent, var(--lotus)); animation: tkPulse 1.8s ease-in-out infinite; }
+@keyframes tkPulse { 0%,100% { opacity: .4; transform: scale(.8); } 50% { opacity: 1; transform: scale(1.15); } }
+#ticker .tk-tx { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: opacity .35s ease; }
+#ticker .tk-tx b { color: var(--ink); font-weight: 600; }
+
+/* ── Ruy-băng ngày lễ ── */
+#festival { display: flex; align-items: center; gap: 10px; padding: 9px 14px; border-radius: 14px; font-size: 13px; color: var(--ink2); background: var(--glass); border: 1px solid var(--festival-accent, var(--gold)); box-shadow: inset 0 0 40px color-mix(in srgb, var(--festival-accent, var(--gold)) 16%, transparent); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+#festival[hidden] { display: none; }
+#festival .fe-ic { font-size: 17px; flex: 0 0 auto; }
+#festival .fe-tx { flex: 1; min-width: 0; }
+#festival .fe-tx b { color: var(--ink); }
+#festival .fe-x { appearance: none; border: 0; background: none; color: var(--ink3); cursor: pointer; font-size: 14px; padding: 4px 6px; }
+
+/* ── Rainbow burst (Mõ Phật Tối Thượng) ── */
+#rainbow-burst { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 4; }
+.rb-ring { position: absolute; left: 50%; top: 50%; width: 60px; height: 60px; margin: -30px 0 0 -30px; border-radius: 50%; border: 3px solid currentColor; animation: rbRing 1000ms ease-out forwards; }
+@keyframes rbRing { from { transform: scale(.3); opacity: .95; } to { transform: scale(6.5); opacity: 0; } }
+.rb-flash { position: absolute; left: 50%; top: 50%; width: 240px; height: 240px; margin: -120px 0 0 -120px; border-radius: 50%; filter: blur(14px); animation: rbFlash 800ms ease-out forwards; }
+@keyframes rbFlash { from { transform: scale(.4); opacity: .55; } to { transform: scale(1.7); opacity: 0; } }
+.rb-petal { position: absolute; left: 50%; top: 50%; width: 10px; height: 10px; border-radius: 50%; animation: rbPetal 1000ms cubic-bezier(.2,.7,.3,1) forwards; }
+@keyframes rbPetal { from { transform: translate(-50%,-50%) scale(.4); opacity: 1; } to { transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) scale(1); opacity: 0; } }
+
+/* ── Bảng xếp hạng ── */
+.lb-tabs { flex-wrap: wrap; }
+.lb-list { display: grid; gap: 6px; }
+.lb-row { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border: 1px solid var(--line); border-radius: 11px; background: var(--surface); font-size: 13.5px; }
+.lb-row.me { border-color: var(--realm-accent, var(--lotus)); box-shadow: inset 0 0 0 1px var(--realm-accent, var(--lotus)); }
+.lb-rank { width: 26px; text-align: right; font: 600 12px/1 var(--f-mono); color: var(--ink3); flex: 0 0 auto; }
+.lb-name { flex: 1; min-width: 0; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lb-prov { font-size: 11.5px; color: var(--ink3); font-weight: 500; }
+.lb-score { font: 600 13px/1 var(--f-mono); color: var(--realm-accent, var(--lotus)); font-variant-numeric: tabular-nums; flex: 0 0 auto; }
+.lb-foot { display: flex; align-items: center; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+.lb-foot select { flex: 1; min-width: 150px; height: 34px; border-radius: 10px; border: 1px solid var(--line2); background: var(--card); color: var(--ink); font: inherit; font-size: 13px; padding: 0 10px; }
+.lb-me-rank { font: 600 13px/1 var(--f-mono); color: var(--ink2); }
+
 @media (max-width: 860px) {
   .stage { min-height: 300px; height: 46vh; flex: none; }
   .side { display: grid; grid-template-columns: minmax(0, 1fr); }
@@ -386,14 +423,27 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
     </div>
     <div class="top-actions">
       <button class="pill" id="collectBtn">📿 Sưu tập</button>
+      <button class="pill" id="lbBtn">🏆 Bảng xếp hạng</button>
       <button class="pill" id="musicBtn" aria-pressed="true"><span class="dot"></span>Nhạc thiền</button>
     </div>
   </header>
+
+  <div id="festival" hidden>
+    <span class="fe-ic" id="fe-ic">🏮</span>
+    <span class="fe-tx" id="fe-tx"></span>
+    <button class="fe-x" id="fe-x" aria-label="Ẩn trang trí lễ">✕</button>
+  </div>
+
+  <div id="ticker">
+    <span class="tk-dot" aria-hidden="true"></span>
+    <span class="tk-tx" id="ticker-tx" aria-live="polite">🙏 Chào mừng đạo hữu</span>
+  </div>
 
   <main class="main">
     <section class="stage-card" aria-label="Mõ">
       <div class="stage" id="stage" tabindex="0" role="button" aria-label="Gõ mõ">
         <canvas id="cv"></canvas>
+        <div id="rainbow-burst" aria-hidden="true"></div>
         <div class="stage-meta"><span id="modeLabel">Gõ tự do</span><span class="combo" id="comboLabel"></span></div>
         <div class="verdict" id="verdict"></div>
       </div>
@@ -485,6 +535,27 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
   </div>
 </div>
 
+<!-- Bảng xếp hạng -->
+<div class="modal" id="modal-leaderboard" hidden>
+  <div class="modal-backdrop" data-close></div>
+  <div class="modal-card">
+    <header class="modal-header">
+      <h2>🏆 Bảng xếp hạng</h2>
+      <button class="icon-btn" data-close aria-label="Đóng">✕</button>
+    </header>
+    <div class="tabs lb-tabs">
+      <button class="tab active" data-lb="daily">Hôm nay</button>
+      <button class="tab" data-lb="alltime">Mọi thời đại</button>
+      <button class="tab" data-lb="province">Theo tỉnh</button>
+    </div>
+    <div class="lb-list" id="lb-list"></div>
+    <div class="lb-foot">
+      <select id="lb-prov" aria-label="Chọn tỉnh thành của bạn"></select>
+      <span class="lb-me-rank" id="lb-me"></span>
+    </div>
+  </div>
+</div>
+
 <div id="toast" hidden role="status" aria-live="polite"></div>
 
 <script>
@@ -561,6 +632,22 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
     { id: 'skins4',  icon: '📿', name: 'Bộ sưu tập',         desc: 'Sở hữu 4 pháp khí',          ok: s => unlockedSkins().length >= 4 },
   ];
 
+  // ── Dữ liệu cho bảng xếp hạng / ticker / ngày lễ ──
+  // Đặt LEADERBOARD_API = 'https://…/board' (trả JSON [{name,province,score}]) để dùng backend thật;
+  // để null thì dùng bảng mô phỏng cố định + điểm của chính bạn (chạy hoàn toàn offline).
+  const LEADERBOARD_API = null;
+  const PROVINCES = ['Hà Nội', 'TP. Hồ Chí Minh', 'Đà Nẵng', 'Huế', 'Hải Phòng', 'Cần Thơ', 'Nghệ An', 'Thanh Hóa', 'Quảng Ninh', 'Khánh Hòa', 'Lâm Đồng', 'Đồng Nai', 'Bình Dương', 'Bà Rịa - Vũng Tàu', 'Bình Định', 'Phú Thọ', 'Thái Nguyên', 'Nam Định', 'An Giang', 'Kiên Giang', 'Đắk Lắk', 'Quảng Nam', 'Hà Tĩnh', 'Ninh Bình'];
+  const DH_NAMES = ['Cụ Ba', 'Bà Tư', 'Chú Sáu', 'Cô Bảy', 'Anh Hai', 'Chị Năm', 'Bác Chín', 'Em Út', 'Sư cô Diệu', 'Thầy Minh', 'Đạo hữu An', 'Bạn Tâm', 'Chị Hoa', 'Anh Khôi', 'Bà Mười', 'Cụ Tám'];
+  const RAINBOW = ['#ff3b3b', '#ff8a3b', '#ffd93b', '#3bff7e', '#3bb6ff', '#5b3bff', '#c83bff'];
+  // Lễ Việt theo dương lịch (gần đúng); Rằm tính theo chu kỳ mặt trăng.
+  const FESTIVALS = [
+    { id: 'tet',     name: 'Tết Nguyên Đán',  ic: '🏮', accent: '#e23b3b', from: [1, 15], to: [2, 20], greet: 'Vạn sự như ý — năm mới an khang' },
+    { id: 'phatdan', name: 'Phật Đản',        ic: '🪷', accent: '#ffb347', from: [4, 25], to: [5, 25], greet: 'Kính mừng Phật Đản — tâm sáng như sen' },
+    { id: 'vulan',   name: 'Vu Lan Báo Hiếu', ic: '🕯️', accent: '#c98bb9', from: [8, 5],  to: [9, 5],  greet: 'Mùa báo hiếu — nhớ ơn cha mẹ' },
+    { id: 'trungthu',name: 'Trung Thu',       ic: '🌕', accent: '#f0a83a', from: [9, 8],  to: [10, 8], greet: 'Đêm rằm phá cỗ — đoàn viên' },
+  ];
+  function seedRng(seed) { return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+
   // ---------- state ----------
   const store = {
     get(k, d) { try { const v = localStorage.getItem('gomo.' + k); return v == null ? d : JSON.parse(v); } catch { return d; } },
@@ -585,13 +672,16 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
     lastDay: store.get('lastDay', ''),
     ach: store.get('ach', []),
     bells: store.get('bells', 0),
+    province: store.get('province', ''),
+    dayMerit: store.get('dayMerit', 0),
+    festivalOff: store.get('festivalOff', ''),
     lineIdx: 0, syl: 0,
     chanting: false, combo: 0, hits: 0, judged: 0,
   };
   if (!SUTRAS.find(s => s.id === S.sutra)) S.sutra = 'adida';
   if (!TEMPOS.find(t => t.bpm === S.bpm)) S.bpm = 76;
   if (!Array.isArray(S.ach)) S.ach = [];
-  const save = () => { for (const k of ['merit', 'knocks', 'lines', 'best', 'sutra', 'bpm', 'music', 'voice', 'volMo', 'volBell', 'volMusic', 'volAmbient', 'ambient', 'skin', 'streak', 'lastDay', 'ach', 'bells']) store.set(k, S[k]); };
+  const save = () => { for (const k of ['merit', 'knocks', 'lines', 'best', 'sutra', 'bpm', 'music', 'voice', 'volMo', 'volBell', 'volMusic', 'volAmbient', 'ambient', 'skin', 'streak', 'lastDay', 'ach', 'bells', 'province', 'dayMerit', 'festivalOff']) store.set(k, S[k]); };
 
   const $ = id => document.getElementById(id);
   const fmt = n => n.toLocaleString('vi-VN');
@@ -969,6 +1059,7 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
   function addMerit(n, x, y, note) {
     const before = realmOf(S.merit);
     S.merit += n;
+    S.dayMerit += n;
     floater('+' + n, x, y, note);
     const after = realmOf(S.merit);
     if (after > before) {
@@ -977,6 +1068,8 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
       rainPetals(80); burstSparks(24, r.particle);
       applyRealmTheme(after);
       showRealmUp(r.name, r.sub);
+      rainbowBurst();
+      pushTicker('🎉 <b>Bạn</b> vừa lên cảnh giới <b>' + r.name + '</b>');
       if (ac) { // ba hồi chuông báo thăng cấp
         playBell(ac.currentTime + 0.05, 130.81, 0.7, 9, bellBus);
         playBell(ac.currentTime + 0.55, 174.61, 0.5, 8, bellBus);
@@ -997,6 +1090,7 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
     strikeAnim = performance.now();
     S.knocks++;
     burstSparks(Math.min(2 + realmOf(S.merit), 8), REALMS[realmOf(S.merit)].particle);
+    if (curSkin().id === 'phat') rainbowBurst();
 
     let gain = 1, note = '';
     if (S.chanting) {
@@ -1238,7 +1332,7 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
     if (S.lastDay === today) return;             // đã tính hôm nay
     const yest = dayKey(new Date(Date.now() - 864e5));
     S.streak = (S.lastDay === yest) ? (S.streak || 0) + 1 : 1;
-    S.lastDay = today; save();
+    S.lastDay = today; S.dayMerit = 0; save();
     renderStreak();
     const p = stagePoint();
     addMerit(Math.max(10, S.streak * 10), p.x, p.y - 30, 'chuỗi ' + S.streak + ' ngày');
@@ -1261,7 +1355,7 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
       if (document.hidden) return;
       const s = document.createElement('span');
       s.className = 'bg-particle';
-      s.textContent = REALMS[ri].particle;
+      s.textContent = (festival && Math.random() < 0.5) ? festival.ic : REALMS[ri].particle;
       s.style.left = (Math.random() * 100) + '%';
       s.style.fontSize = (14 + Math.random() * 14) + 'px';
       s.style.animationDuration = (8 + Math.random() * 6) + 's';
@@ -1313,6 +1407,164 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
     renderCollection();
   }));
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('modal-collection').hidden) closeCollection(); });
+
+  // ── Ngày lễ / trang trí theo mùa ──
+  let festival = null;
+  function inRange(d, from, to) {
+    const x = (d.getMonth() + 1) * 100 + d.getDate(), a = from[0] * 100 + from[1], b = to[0] * 100 + to[1];
+    return x >= a && x <= b;
+  }
+  const NEW_MOON = Date.UTC(2000, 0, 6, 18, 14); // một điểm sóc đã biết
+  function lunarDay(d) {
+    const syn = 29.530588853;
+    const days = (Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) - NEW_MOON) / 864e5;
+    const x = ((days % syn) + syn) % syn;
+    return Math.floor(x) + 1;
+  }
+  function applyFestival() {
+    const now = new Date();
+    let f = FESTIVALS.find(x => inRange(now, x.from, x.to));
+    const ld = lunarDay(now);
+    if (!f && (ld === 14 || ld === 15)) f = { id: 'ram', name: 'Ngày Rằm', ic: '🌕', accent: '#aeb8e0', greet: 'Rằm tháng này — một niệm thanh tịnh' };
+    festival = f || null;
+    if (festival) document.documentElement.style.setProperty('--festival-accent', festival.accent);
+    const bar = $('festival');
+    if (festival && S.festivalOff !== festival.id) {
+      $('fe-ic').textContent = festival.ic;
+      $('fe-tx').innerHTML = '<b>' + festival.name + '</b> · ' + festival.greet;
+      bar.hidden = false;
+    } else bar.hidden = true;
+  }
+  $('fe-x').addEventListener('click', () => { if (festival) { S.festivalOff = festival.id; save(); applyFestival(); } });
+
+  // ── Ticker "đạo hữu đang tu" ──
+  let tickerOn = false, tickerTO = null;
+  function tickerMsg() {
+    const n = DH_NAMES[Math.floor(Math.random() * DH_NAMES.length)];
+    const p = PROVINCES[Math.floor(Math.random() * PROVINCES.length)];
+    const acts = ['vừa gõ mõ', 'vừa thỉnh chuông', 'đang tụng kinh', 'vừa thắp hương', 'vừa ngồi thiền', 'đang niệm Phật', 'vừa hồi hướng công đức'];
+    const a = acts[Math.floor(Math.random() * acts.length)];
+    const t = ['vừa xong', '1 phút trước', '2 phút trước', '3 phút trước', '5 phút trước'][Math.floor(Math.random() * 5)];
+    return '🙏 <b>' + n + '</b> ở ' + p + ' ' + a + ' · ' + t;
+  }
+  function setTicker(html) {
+    const el = $('ticker-tx'); if (!el) return;
+    el.style.opacity = '0';
+    setTimeout(() => { el.innerHTML = html; el.style.opacity = '1'; }, 220);
+  }
+  function scheduleTicker() {
+    clearTimeout(tickerTO);
+    tickerTO = setTimeout(() => {
+      if (!document.hidden) setTicker(tickerMsg());
+      scheduleTicker();
+    }, 6000 + Math.random() * 3000);
+  }
+  function startTicker() {
+    if (tickerOn) return;
+    tickerOn = true;
+    setTicker('🙏 Chào mừng đạo hữu — chúc một ngày an lạc');
+    scheduleTicker();
+  }
+  function pushTicker(html) { setTicker(html); }
+
+  // ── Bảng xếp hạng ──
+  let lbKind = 'daily';
+  function boardRows(kind) {
+    const rr = seedRng(kind === 'daily' ? 7 : kind === 'alltime' ? 13 : 29);
+    const out = [];
+    if (kind === 'province') {
+      for (const p of PROVINCES) {
+        let sc = Math.floor(rr() * 900000) + 1200;
+        if (S.province === p) sc += S.merit;
+        out.push({ name: p, prov: '', score: sc, me: S.province === p });
+      }
+    } else {
+      const cap = kind === 'daily' ? 1400 : 2200000;
+      for (let i = 0; i < 10; i++) out.push({ name: DH_NAMES[i % DH_NAMES.length], prov: PROVINCES[Math.floor(rr() * PROVINCES.length)], score: Math.floor(rr() * cap) + 5 });
+      out.push({ name: 'Bạn', prov: S.province || '—', score: kind === 'daily' ? S.dayMerit : S.merit, me: true });
+    }
+    return out;
+  }
+  async function renderLeaderboard() {
+    const list = $('lb-list');
+    list.innerHTML = '<div class="lb-row">Đang tải…</div>';
+    let rows;
+    if (lbKind === 'province') rows = boardRows('province');
+    else if (LEADERBOARD_API) {
+      try {
+        const r = await fetch(LEADERBOARD_API + '?kind=' + lbKind);
+        const data = r.ok ? await r.json() : null;
+        rows = Array.isArray(data) ? data.map(x => ({ name: x.name || 'Đạo hữu', prov: x.province || '', score: (x.score | 0) })) : boardRows(lbKind);
+      } catch { rows = boardRows(lbKind); }
+    } else rows = boardRows(lbKind);
+    if (lbKind !== 'province' && !rows.some(r => r.me)) rows.push({ name: 'Bạn', prov: S.province || '—', score: lbKind === 'daily' ? S.dayMerit : S.merit, me: true });
+    rows.sort((a, b) => b.score - a.score);
+    list.replaceChildren(...rows.map((r, i) => {
+      const el = document.createElement('div');
+      el.className = 'lb-row' + (r.me ? ' me' : '');
+      el.innerHTML = '<span class="lb-rank">' + (i + 1) + '</span>'
+        + '<span class="lb-name">' + r.name + (r.prov ? ' <span class="lb-prov">' + r.prov + '</span>' : '') + '</span>'
+        + '<span class="lb-score">' + fmt(r.score) + '</span>';
+      return el;
+    }));
+    const meIdx = rows.findIndex(r => r.me);
+    $('lb-me').textContent = meIdx >= 0 ? ('Hạng của bạn: #' + (meIdx + 1)) : 'Chọn tỉnh để xếp hạng theo tỉnh';
+  }
+  function openLeaderboard() { $('modal-leaderboard').hidden = false; renderLeaderboard(); }
+  function closeLeaderboard() { $('modal-leaderboard').hidden = true; }
+  $('lbBtn').addEventListener('click', openLeaderboard);
+  $('modal-leaderboard').querySelectorAll('[data-close]').forEach(el => el.addEventListener('click', closeLeaderboard));
+  $('modal-leaderboard').querySelectorAll('[data-lb]').forEach(t => t.addEventListener('click', () => {
+    lbKind = t.dataset.lb;
+    $('modal-leaderboard').querySelectorAll('[data-lb]').forEach(x => x.classList.toggle('active', x === t));
+    renderLeaderboard();
+  }));
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('modal-leaderboard').hidden) closeLeaderboard(); });
+  // ô chọn tỉnh
+  (() => {
+    const sel = $('lb-prov');
+    if (sel) {
+      sel.appendChild(new Option('— Chọn tỉnh thành —', ''));
+      for (const p of PROVINCES) sel.appendChild(new Option(p, p));
+      sel.value = S.province || '';
+      sel.addEventListener('change', () => { S.province = sel.value; save(); renderLeaderboard(); });
+    }
+  })();
+
+  // ── Rainbow burst: hiệu ứng riêng cho Mõ Phật Tối Thượng ──
+  let rbLast = -1e9;
+  function rainbowBurst() {
+    if (reduce.matches) return;
+    const now = performance.now();
+    if (now - rbLast < 320) return;
+    rbLast = now;
+    const box = $('rainbow-burst'); if (!box) return;
+    RAINBOW.forEach((c, i) => {
+      const ring = document.createElement('span');
+      ring.className = 'rb-ring';
+      ring.style.color = c;
+      ring.style.animationDelay = (i * 38) + 'ms';
+      box.appendChild(ring);
+      setTimeout(() => ring.remove(), 1500 + i * 40);
+    });
+    const flash = document.createElement('span');
+    flash.className = 'rb-flash';
+    flash.style.background = 'conic-gradient(' + RAINBOW.join(', ') + ', ' + RAINBOW[0] + ')';
+    box.appendChild(flash);
+    setTimeout(() => flash.remove(), 900);
+    for (let i = 0; i < 10; i++) {
+      const p = document.createElement('span');
+      p.className = 'rb-petal';
+      const a = Math.random() * Math.PI * 2, d = 80 + Math.random() * 90;
+      p.style.setProperty('--tx', (Math.cos(a) * d) + 'px');
+      p.style.setProperty('--ty', (Math.sin(a) * d) + 'px');
+      p.style.background = RAINBOW[i % RAINBOW.length];
+      p.style.boxShadow = '0 0 10px ' + RAINBOW[i % RAINBOW.length];
+      box.appendChild(p);
+      setTimeout(() => p.remove(), 1200);
+    }
+  }
+
   $('chantBtn').addEventListener('click', () => S.chanting ? stopChant() : startChant());
   $('bellBtn').addEventListener('click', bell);
   $('stage').addEventListener('pointerdown', e => { if (e.button === 0) { e.preventDefault(); knock(); } });
@@ -1853,12 +2105,14 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
 
   renderLine();
   renderStats();
+  applyFestival();
   applyRealmTheme(realmOf(S.merit));
   applySkin(S.skin);
   resize();
   buildScene();
   renderStreak();
   touchDay();
+  startTicker();
   requestAnimationFrame(frame);
   requestAnimationFrame(sceneFrame);
 })();
