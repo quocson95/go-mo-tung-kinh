@@ -345,7 +345,8 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
 .col-list { display: grid; gap: 8px; }
 .col-row { display: flex; align-items: center; gap: 12px; width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); text-align: left; font: inherit; color: var(--ink); }
 .col-row.locked { opacity: .5; cursor: default; }
-.col-row[role="button"] { cursor: pointer; }
+.col-row:not(.locked) { cursor: default; }
+.col-row[role="button"], button.col-row:not(:disabled) { cursor: pointer; }
 .col-row.equipped { border-color: var(--realm-accent, var(--lotus)); box-shadow: inset 0 0 0 1px var(--realm-accent, var(--lotus)); }
 .col-ic { font-size: 22px; width: 30px; text-align: center; flex: 0 0 auto; }
 .col-tx { flex: 1; min-width: 0; }
@@ -357,6 +358,7 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
 #toast { position: fixed; left: 50%; bottom: 24px; z-index: 30; transform: translateX(-50%) translateY(10px); max-width: 90vw; text-align: center; padding: 10px 20px; border-radius: 999px; background: rgba(18,12,6,.94); color: #f5e6c8; border: 1px solid var(--realm-accent, var(--gold)); font-size: 13.5px; opacity: 0; pointer-events: none; transition: opacity .25s ease, transform .25s ease; }
 #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 #toast[hidden] { display: none; }
+[hidden] { display: none !important; }
 
 /* ── Bảng tin "đạo hữu đang tu" ── */
 #ticker { display: flex; align-items: center; gap: 10px; padding: 8px 14px; border: 1px solid var(--line); border-radius: 14px; background: var(--glass); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); font-size: 13px; color: var(--ink2); overflow: hidden; }
@@ -394,6 +396,29 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
 .lb-foot { display: flex; align-items: center; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
 .lb-foot select { flex: 1; min-width: 150px; height: 34px; border-radius: 10px; border: 1px solid var(--line2); background: var(--card); color: var(--ink); font: inherit; font-size: 13px; padding: 0 10px; }
 .lb-me-rank { font: 600 13px/1 var(--f-mono); color: var(--ink2); }
+
+/* ── Nghi lễ theo buổi ── */
+.rit-badge { display: inline-flex; align-items: center; gap: 6px; padding: 5px 11px; border-radius: 999px; border: 1px solid var(--line2); background: var(--surface); font-size: 12px; color: var(--ink2); margin-bottom: 10px; }
+.rit-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.rit-actions .pill { height: 40px; border-radius: 20px; font-size: 13px; padding: 0 10px; }
+.pill.rit-done { opacity: .5; }
+.rit-toggle { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--ink2); margin: 12px 0 10px; cursor: pointer; }
+.rit-toggle input { width: 16px; height: 16px; accent-color: var(--realm-accent, var(--lotus)); }
+.ded-seg { display: flex; flex-wrap: wrap; gap: 6px; }
+.ded-seg button { appearance: none; border: 1px solid var(--line2); background: transparent; color: var(--ink2); font: 500 12px/1 var(--f-ui); height: 30px; padding: 0 12px; border-radius: 15px; cursor: pointer; }
+.ded-seg button:hover { border-color: var(--ink4); }
+.ded-seg button:disabled { opacity: .45; cursor: default; }
+.rit-note { font-size: 11.5px; color: var(--ink3); margin: 8px 0 0; }
+.rit-badge + .rit-badge { margin-top: -6px; }
+.save-code { width: 100%; min-height: 92px; resize: vertical; box-sizing: border-box; font: 500 11.5px/1.5 var(--f-mono); background: var(--surface); color: var(--ink2); border: 1px solid var(--line2); border-radius: 10px; padding: 10px; }
+
+/* ── Thiền định ── */
+.med-stage { position: relative; height: 250px; display: grid; place-items: center; margin: 4px 0; }
+.med-circle { width: 120px; height: 120px; border-radius: 50%; transform: scale(.6); will-change: transform; border: 2px solid var(--realm-accent, var(--lotus)); background: radial-gradient(circle at 40% 34%, color-mix(in srgb, var(--realm-accent, var(--lotus)) 50%, transparent), transparent 70%); box-shadow: 0 0 44px var(--realm-glow, transparent), inset 0 0 26px color-mix(in srgb, var(--realm-accent, var(--lotus)) 26%, transparent); }
+.med-phase { position: absolute; bottom: 34px; font: 600 15px/1 var(--f-ui); color: var(--ink); letter-spacing: .04em; }
+.med-count { position: absolute; bottom: 8px; font: 500 12px/1 var(--f-mono); color: var(--ink3); font-variant-numeric: tabular-nums; }
+.med-hint { font-size: 12.5px; color: var(--ink3); text-align: center; margin: 2px 0 14px; }
+@media (prefers-reduced-motion: reduce) { .med-circle { transition: none; } }
 
 @media (max-width: 860px) {
   .stage { min-height: 300px; height: 46vh; flex: none; }
@@ -513,6 +538,26 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
           <div class="streak-next" id="streak-next">Gõ mỗi ngày để giữ chuỗi</div>
         </div>
       </section>
+
+      <section class="panel">
+        <div class="field">
+          <span class="eyebrow">Nghi lễ theo buổi</span>
+          <div class="rit-badge" id="periodBadge">🌅 Sáng · thưởng ×1.5</div>
+          <div class="rit-badge" id="lunarBadge">📅 —</div>
+          <p class="rit-note" id="lunarNext"></p>
+          <div class="rit-actions">
+            <button class="pill" id="incenseBtn">🪔 Dâng hương</button>
+            <button class="pill" id="repentBtn">🙏 Sám hối</button>
+          </div>
+          <label class="rit-toggle"><input type="checkbox" id="chimeToggle"> Chuông nhắc giờ tu · 5h · 11h · 19h</label>
+        </div>
+        <div class="field">
+          <span class="eyebrow">Hồi hướng công đức</span>
+          <div class="ded-seg" id="dedSeg"></div>
+          <p class="rit-note" id="dedNote">Còn 3 lần hồi hướng hôm nay</p>
+        </div>
+        <button class="pill solid big" id="medBtn">🧘 Thiền định</button>
+      </section>
     </aside>
   </main>
 
@@ -530,8 +575,18 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
     <div class="tabs">
       <button class="tab active" data-tab="skins">Pháp khí</button>
       <button class="tab" data-tab="ach">Thành tựu</button>
+      <button class="tab" data-tab="prog">Tiến trình</button>
     </div>
     <div class="col-list" id="col-body"></div>
+    <div id="prog-body" hidden>
+      <p class="med-hint" style="text-align:left">Sao lưu tiến trình thành một đoạn mã ngắn, dán sang thiết bị khác để khôi phục.</p>
+      <textarea id="saveCode" class="save-code" spellcheck="false" placeholder="Dán mã tiến trình vào đây rồi bấm Nhập…"></textarea>
+      <div class="actions" style="margin-top:12px">
+        <button class="pill" id="exportBtn">📋 Sao chép mã</button>
+        <button class="pill" id="importBtn">⬆️ Nhập</button>
+        <button class="pill" id="resetBtn">♻️ Đặt lại</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -557,6 +612,46 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
 </div>
 
 <div id="toast" hidden role="status" aria-live="polite"></div>
+
+<!-- Sám hối -->
+<div class="modal" id="modal-repent" hidden>
+  <div class="modal-backdrop" data-close></div>
+  <div class="modal-card">
+    <header class="modal-header">
+      <h2>🙏 Sám hối</h2>
+      <button class="icon-btn" data-close aria-label="Đóng">✕</button>
+    </header>
+    <p class="med-hint" style="text-align:left">Thành tâm đọc và quán chiếu ba lời nguyện:</p>
+    <div class="col-list">
+      <div class="col-row" style="align-items:flex-start"><span class="col-ic">1</span><span class="col-tx"><span class="col-name">Thân</span><span class="col-desc">Con xin sám hối những việc làm đã gây khổ đau cho chúng sinh.</span></span></div>
+      <div class="col-row" style="align-items:flex-start"><span class="col-ic">2</span><span class="col-tx"><span class="col-name">Khẩu</span><span class="col-desc">Con xin sám hối những lời nói dối trá, chia rẽ, hơn thua.</span></span></div>
+      <div class="col-row" style="align-items:flex-start"><span class="col-ic">3</span><span class="col-tx"><span class="col-name">Ý</span><span class="col-desc">Con xin sám hối những niệm tham, sân, si khởi lên trong tâm.</span></span></div>
+    </div>
+    <div class="actions" style="margin-top:14px">
+      <button class="pill solid big" id="repentOk">Thành tâm sám hối</button>
+    </div>
+  </div>
+</div>
+
+<!-- Thiền định -->
+<div class="modal" id="modal-meditate" hidden>
+  <div class="modal-backdrop" data-close></div>
+  <div class="modal-card">
+    <header class="modal-header">
+      <h2>🧘 Thiền định</h2>
+      <button class="icon-btn" data-close aria-label="Đóng">✕</button>
+    </header>
+    <div class="med-stage">
+      <div class="med-circle" id="med-circle"></div>
+      <div class="med-phase" id="med-phase">Hít vào</div>
+      <div class="med-count" id="med-count">0 hơi thở</div>
+    </div>
+    <p class="med-hint">Nhịp thở <b>4 · 7 · 8</b> — ngồi thẳng, vai thả lỏng, theo dõi hơi thở đi vào và đi ra.</p>
+    <div class="actions">
+      <button class="pill solid big" id="medBtn2">Bắt đầu</button>
+    </div>
+  </div>
+</div>
 
 <script>
 (() => {
@@ -630,6 +725,13 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
     { id: 'st7',     icon: '🔥', name: 'Bảy ngày',           desc: 'Chuỗi 7 ngày tinh tấn',      ok: s => s.streak >= 7 },
     { id: 'st108',   icon: '🏮', name: 'Nhất Tâm 108',       desc: 'Chuỗi 108 ngày tinh tấn',    ok: s => s.streak >= 108 },
     { id: 'skins4',  icon: '📿', name: 'Bộ sưu tập',         desc: 'Sở hữu 4 pháp khí',          ok: s => unlockedSkins().length >= 4 },
+    { id: 'huong',   icon: '🪔', name: 'Dâng hương',         desc: 'Dâng hương một buổi',        ok: s => (s.ritual && s.ritual.incense ? s.ritual.incense.length : 0) >= 1 },
+    { id: 'samhoi',  icon: '🙏', name: 'Sám hối',            desc: 'Thành tâm sám hối',          ok: s => !!(s.ritual && s.ritual.repent) },
+    { id: 'hoihuong',icon: '🪷', name: 'Hồi hướng',          desc: 'Hồi hướng công đức',         ok: s => (s.ritual && s.ritual.ded ? s.ritual.ded : 0) >= 1 },
+    { id: 'thien5',  icon: '🧘', name: 'Thiền định',         desc: 'Thiền 5 hơi thở',            ok: s => (s.breaths || 0) >= 5 },
+    { id: 'thien108',icon: '🌀', name: 'Nhất tọa',           desc: 'Thiền 108 hơi thở',          ok: s => (s.breaths || 0) >= 108 },
+    { id: 'ram',     icon: '🌕', name: 'Tu ngày Rằm',        desc: 'Gõ mõ ngày Rằm hoặc Mùng Một', ok: s => (s.holyDays || []).length >= 1 },
+    { id: 'via',     icon: '🪷', name: 'Ngày vía Phật',      desc: 'Gõ mõ trong một ngày vía',   ok: s => (s.holyDays || []).some(id => MAJOR_VIA.has(id)) },
   ];
 
   // ── Dữ liệu cho bảng xếp hạng / ticker / ngày lễ ──
@@ -639,13 +741,99 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
   const PROVINCES = ['Hà Nội', 'TP. Hồ Chí Minh', 'Đà Nẵng', 'Huế', 'Hải Phòng', 'Cần Thơ', 'Nghệ An', 'Thanh Hóa', 'Quảng Ninh', 'Khánh Hòa', 'Lâm Đồng', 'Đồng Nai', 'Bình Dương', 'Bà Rịa - Vũng Tàu', 'Bình Định', 'Phú Thọ', 'Thái Nguyên', 'Nam Định', 'An Giang', 'Kiên Giang', 'Đắk Lắk', 'Quảng Nam', 'Hà Tĩnh', 'Ninh Bình'];
   const DH_NAMES = ['Cụ Ba', 'Bà Tư', 'Chú Sáu', 'Cô Bảy', 'Anh Hai', 'Chị Năm', 'Bác Chín', 'Em Út', 'Sư cô Diệu', 'Thầy Minh', 'Đạo hữu An', 'Bạn Tâm', 'Chị Hoa', 'Anh Khôi', 'Bà Mười', 'Cụ Tám'];
   const RAINBOW = ['#ff3b3b', '#ff8a3b', '#ffd93b', '#3bff7e', '#3bb6ff', '#5b3bff', '#c83bff'];
-  // Lễ Việt theo dương lịch (gần đúng); Rằm tính theo chu kỳ mặt trăng.
-  const FESTIVALS = [
-    { id: 'tet',     name: 'Tết Nguyên Đán',  ic: '🏮', accent: '#e23b3b', from: [1, 15], to: [2, 20], greet: 'Vạn sự như ý — năm mới an khang' },
-    { id: 'phatdan', name: 'Phật Đản',        ic: '🪷', accent: '#ffb347', from: [4, 25], to: [5, 25], greet: 'Kính mừng Phật Đản — tâm sáng như sen' },
-    { id: 'vulan',   name: 'Vu Lan Báo Hiếu', ic: '🕯️', accent: '#c98bb9', from: [8, 5],  to: [9, 5],  greet: 'Mùa báo hiếu — nhớ ơn cha mẹ' },
-    { id: 'trungthu',name: 'Trung Thu',       ic: '🌕', accent: '#f0a83a', from: [9, 8],  to: [10, 8], greet: 'Đêm rằm phá cỗ — đoàn viên' },
+
+  // ── Âm lịch Việt Nam (thuật toán Hồ Ngọc Đức, múi giờ +7) ──
+  // Đủ chính xác để xác định Mùng Một, Rằm và các ngày vía Phật.
+  const TZ_VN = 7;
+  function jdFromDate(dd, mm, yy) {
+    const a = Math.floor((14 - mm) / 12), y = yy + 4800 - a, m = mm + 12 * a - 3;
+    let jd = dd + Math.floor((153 * m + 2) / 5) + 365 * y + Math.floor(y / 4) - Math.floor(y / 100) + Math.floor(y / 400) - 32045;
+    if (jd < 2299161) jd = dd + Math.floor((153 * m + 2) / 5) + 365 * y + Math.floor(y / 4) - 32083;
+    return jd;
+  }
+  function newMoon(k) {
+    const T = k / 1236.85, T2 = T * T, T3 = T2 * T, dr = Math.PI / 180;
+    let jd = 2415020.75933 + 29.53058868 * k + 0.0001178 * T2 - 0.000000155 * T3;
+    jd += 0.00033 * Math.sin((166.56 + 132.87 * T - 0.009173 * T2) * dr);
+    const M = 359.2242 + 29.10535608 * k - 0.0000333 * T2 - 0.00000347 * T3;
+    const Mp = 306.0253 + 385.81691806 * k + 0.0107306 * T2 + 0.00001236 * T3;
+    const F = 21.2964 + 390.67050646 * k - 0.0016528 * T2 - 0.00000239 * T3;
+    let c = (0.1734 - 0.000393 * T) * Math.sin(M * dr) + 0.0021 * Math.sin(2 * dr * M);
+    c -= 0.4068 * Math.sin(Mp * dr);
+    c += 0.0161 * Math.sin(2 * dr * Mp);
+    c -= 0.0004 * Math.sin(3 * dr * Mp);
+    c += 0.0104 * Math.sin(2 * dr * F);
+    c -= 0.0051 * Math.sin(dr * (M + Mp));
+    c -= 0.0074 * Math.sin(dr * (M - Mp));
+    c += 0.0004 * Math.sin(dr * (2 * F + M));
+    c -= 0.0004 * Math.sin(dr * (2 * F - M));
+    c -= 0.0006 * Math.sin(dr * (2 * F + Mp));
+    c += 0.0010 * Math.sin(dr * (2 * F - Mp));
+    c += 0.0005 * Math.sin(dr * (2 * Mp + M));
+    const dt = T < -11 ? 0.001 + 0.000839 * T + 0.0002261 * T2 - 0.00000845 * T3 - 0.000000081 * T * T3 : -0.000278 + 0.000265 * T + 0.000262 * T2;
+    return jd + c - dt;
+  }
+  const getNewMoonDay = (k, tz) => Math.floor(newMoon(k) + 0.5 + tz / 24);
+  function sunLongitude(jdn) {
+    const T = (jdn - 2451545) / 36525, T2 = T * T, dr = Math.PI / 180;
+    const M = 357.52910 + 35999.05030 * T - 0.0001559 * T2 - 0.00000048 * T * T2;
+    const L0 = 280.46645 + 36000.76983 * T + 0.0003032 * T2;
+    let dl = (1.914600 - 0.004817 * T - 0.000014 * T2) * Math.sin(dr * M);
+    dl += (0.019993 - 0.000101 * T) * Math.sin(dr * 2 * M) + 0.000290 * Math.sin(dr * 3 * M);
+    let L = (L0 + dl) * dr;
+    return L - Math.PI * 2 * Math.floor(L / (Math.PI * 2));
+  }
+  // Chỉ số tiết khí 0–11 (0 = sau Xuân phân) — dùng để xác định tháng 11 âm.
+  const getSunLongitude = (d, tz) => Math.floor((sunLongitude(d - 0.5 - tz / 24) / Math.PI) * 6);
+  function lunarMonth11(yy, tz) {
+    const off = jdFromDate(31, 12, yy) - 2415021;
+    const k = Math.floor(off / 29.530588853);
+    let nm = getNewMoonDay(k, tz);
+    if (getSunLongitude(nm, tz) >= 9) nm = getNewMoonDay(k - 1, tz);
+    return nm;
+  }
+  function leapMonthOffset(a11, tz) {
+    const k = Math.floor((a11 - 2415021.076998695) / 29.530588853 + 0.5);
+    let last = 0, i = 1, arc = getSunLongitude(getNewMoonDay(k + i, tz), tz);
+    do { last = arc; i++; arc = getSunLongitude(getNewMoonDay(k + i, tz), tz); } while (arc !== last && i < 14);
+    return i - 1;
+  }
+  function solarToLunar(dd, mm, yy, tz) {
+    const dayNum = jdFromDate(dd, mm, yy);
+    const k = Math.floor((dayNum - 2415021.076998695) / 29.530588853);
+    let monthStart = getNewMoonDay(k + 1, tz);
+    if (monthStart > dayNum) monthStart = getNewMoonDay(k, tz);
+    let a11 = lunarMonth11(yy, tz), b11 = a11, lunarYear;
+    if (a11 >= monthStart) { lunarYear = yy; a11 = lunarMonth11(yy - 1, tz); }
+    else { lunarYear = yy + 1; b11 = lunarMonth11(yy + 1, tz); }
+    const lunarDay = dayNum - monthStart + 1;
+    const diff = Math.floor((monthStart - a11) / 29);
+    let leap = 0, lunarMonth = diff + 11;
+    if (b11 - a11 > 365) {
+      const lmo = leapMonthOffset(a11, tz);
+      if (diff >= lmo) { lunarMonth = diff + 10; if (diff === lmo) leap = 1; }
+    }
+    if (lunarMonth > 12) lunarMonth -= 12;
+    if (lunarMonth >= 11 && diff < 4) lunarYear -= 1;
+    return { day: lunarDay, month: lunarMonth, year: lunarYear, leap };
+  }
+  const lunarToday = () => { const n = new Date(); return solarToLunar(n.getDate(), n.getMonth() + 1, n.getFullYear(), TZ_VN); };
+
+  // Ngày vía & lễ lớn theo âm lịch (d = ngày, m = tháng âm).
+  const VIA_PHAT = [
+    { d: 1,  m: 1,  id: 'tet',       name: 'Tết Nguyên Đán',   ic: '🏮', accent: '#e23b3b', greet: 'Vạn sự như ý — năm mới an khang', major: true },
+    { d: 15, m: 1,  id: 'nguyentieu',name: 'Rằm tháng Giêng',  ic: '🏮', accent: '#e0673b', greet: 'Nguyên Tiêu — cầu một năm an lành', major: true },
+    { d: 19, m: 2,  id: 'quanam1',   name: 'Vía Quán Thế Âm',  ic: '🪷', accent: '#7fc7e8', greet: 'Vía Đức Quán Thế Âm — lòng từ bi', major: true },
+    { d: 8,  m: 4,  id: 'phatdan',   name: 'Phật Đản',         ic: '🪷', accent: '#ffb347', greet: 'Kính mừng Phật Đản — tâm sáng như sen', major: true },
+    { d: 19, m: 6,  id: 'quanam2',   name: 'Vía Quán Thế Âm',  ic: '🪷', accent: '#7fc7e8', greet: 'Vía Quán Thế Âm thành đạo', major: true },
+    { d: 15, m: 7,  id: 'vulan',     name: 'Vu Lan Báo Hiếu',  ic: '🕯️', accent: '#c98bb9', greet: 'Mùa báo hiếu — nhớ ơn cha mẹ', major: true },
+    { d: 15, m: 8,  id: 'trungthu',  name: 'Trung Thu',        ic: '🌕', accent: '#f0a83a', greet: 'Đêm rằm phá cỗ — đoàn viên', major: true },
+    { d: 19, m: 9,  id: 'quanam3',   name: 'Vía Quán Thế Âm',  ic: '🪷', accent: '#7fc7e8', greet: 'Vía Quán Thế Âm xuất gia', major: true },
+    { d: 17, m: 11, id: 'adida',     name: 'Vía Phật A Di Đà', ic: '🙏', accent: '#f0c86a', greet: 'Vía Đức Phật A Di Đà', major: true },
+    { d: 8,  m: 12, id: 'thanhdao',  name: 'Phật Thành Đạo',   ic: '✨', accent: '#d4a857', greet: 'Ngày Phật thành đạo — tinh tấn tu tập', major: true },
   ];
+  const MAJOR_VIA = new Set(VIA_PHAT.map(v => v.id));
+
   function seedRng(seed) { return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
 
   // ---------- state ----------
@@ -675,13 +863,25 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
     province: store.get('province', ''),
     dayMerit: store.get('dayMerit', 0),
     festivalOff: store.get('festivalOff', ''),
+    ritual: store.get('ritual', { incense: [], repent: false, ded: 0 }),
+    breaths: store.get('breaths', 0),
+    ritualBell: store.get('ritualBell', false),
+    chimeDay: store.get('chimeDay', ''),
+    chimeDone: store.get('chimeDone', []),
+    holyDays: store.get('holyDays', []),
     lineIdx: 0, syl: 0,
     chanting: false, combo: 0, hits: 0, judged: 0,
   };
   if (!SUTRAS.find(s => s.id === S.sutra)) S.sutra = 'adida';
   if (!TEMPOS.find(t => t.bpm === S.bpm)) S.bpm = 76;
   if (!Array.isArray(S.ach)) S.ach = [];
-  const save = () => { for (const k of ['merit', 'knocks', 'lines', 'best', 'sutra', 'bpm', 'music', 'voice', 'volMo', 'volBell', 'volMusic', 'volAmbient', 'ambient', 'skin', 'streak', 'lastDay', 'ach', 'bells', 'province', 'dayMerit', 'festivalOff']) store.set(k, S[k]); };
+  if (!S.ritual || typeof S.ritual !== 'object' || Array.isArray(S.ritual)) S.ritual = { incense: [], repent: false, ded: 0 };
+  if (!Array.isArray(S.ritual.incense)) S.ritual.incense = [];
+  if (!Array.isArray(S.chimeDone)) S.chimeDone = [];
+  if (!Array.isArray(S.holyDays)) S.holyDays = [];
+  // Danh sách khoá được lưu (cũng dùng cho sao lưu / khôi phục tiến trình).
+  const SAVE_KEYS = ['merit', 'knocks', 'lines', 'best', 'sutra', 'bpm', 'music', 'voice', 'volMo', 'volBell', 'volMusic', 'volAmbient', 'ambient', 'skin', 'streak', 'lastDay', 'ach', 'bells', 'province', 'dayMerit', 'festivalOff', 'ritual', 'breaths', 'ritualBell', 'chimeDay', 'chimeDone', 'holyDays'];
+  const save = () => { for (const k of SAVE_KEYS) store.set(k, S[k]); };
 
   const $ = id => document.getElementById(id);
   const fmt = n => n.toLocaleString('vi-VN');
@@ -1113,9 +1313,12 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
       }
       updateCombo();
     }
+    gain = Math.max(1, Math.round(gain * periodOf().mult)); // thưởng theo buổi (sáng sớm / khuya tinh tấn)
     const p = stagePoint();
     addMerit(gain, p.x, p.y, note);
     if (!S.chanting && S.knocks % 108 === 0) { summonBuddha('Viên mãn 108 tiếng mõ', 3200); rainPetals(40); }
+    // đánh dấu đã tu trong ngày lễ / ngày vía
+    if (festival && !S.holyDays.includes(festival.id)) { S.holyDays.push(festival.id); }
     advanceSyllable();
     save();
   }
@@ -1288,13 +1491,13 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
   }
 
   // ── Toast ──
-  let toastTimer = null;
+  let toastTimer = null, toastHide = null;
   function toast(msg, ms = 2600) {
     const el = $('toast'); if (!el) return;
     el.textContent = msg; el.hidden = false;
     el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => { el.classList.remove('show'); setTimeout(() => { el.hidden = true; }, 300); }, ms);
+    clearTimeout(toastTimer); clearTimeout(toastHide);
+    toastTimer = setTimeout(() => { el.classList.remove('show'); toastHide = setTimeout(() => { el.hidden = true; }, 300); }, ms);
   }
 
   // ── Thành tựu ──
@@ -1332,7 +1535,9 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
     if (S.lastDay === today) return;             // đã tính hôm nay
     const yest = dayKey(new Date(Date.now() - 864e5));
     S.streak = (S.lastDay === yest) ? (S.streak || 0) + 1 : 1;
-    S.lastDay = today; S.dayMerit = 0; save();
+    S.lastDay = today; S.dayMerit = 0;
+    S.ritual = { incense: [], repent: false, ded: 0 };
+    save();
     renderStreak();
     const p = stagePoint();
     addMerit(Math.max(10, S.streak * 10), p.x, p.y - 30, 'chuỗi ' + S.streak + ' ngày');
@@ -1369,6 +1574,10 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
   let colTab = 'skins';
   function renderCollection() {
     const body = $('col-body'); if (!body) return;
+    const prog = $('prog-body');
+    if (prog) prog.hidden = colTab !== 'prog';
+    body.hidden = colTab === 'prog';
+    if (colTab === 'prog') { refreshExport(); return; }
     if (colTab === 'skins') {
       body.replaceChildren(...SKINS.map(sk => {
         const unlocked = realmOf(S.merit) >= sk.unlock;
@@ -1408,24 +1617,13 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
   }));
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('modal-collection').hidden) closeCollection(); });
 
-  // ── Ngày lễ / trang trí theo mùa ──
-  let festival = null;
-  function inRange(d, from, to) {
-    const x = (d.getMonth() + 1) * 100 + d.getDate(), a = from[0] * 100 + from[1], b = to[0] * 100 + to[1];
-    return x >= a && x <= b;
-  }
-  const NEW_MOON = Date.UTC(2000, 0, 6, 18, 14); // một điểm sóc đã biết
-  function lunarDay(d) {
-    const syn = 29.530588853;
-    const days = (Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) - NEW_MOON) / 864e5;
-    const x = ((days % syn) + syn) % syn;
-    return Math.floor(x) + 1;
-  }
+  // ── Ngày lễ / trang trí theo âm lịch ──
+  let festival = null, viaSoon = null;
   function applyFestival() {
-    const now = new Date();
-    let f = FESTIVALS.find(x => inRange(now, x.from, x.to));
-    const ld = lunarDay(now);
-    if (!f && (ld === 14 || ld === 15)) f = { id: 'ram', name: 'Ngày Rằm', ic: '🌕', accent: '#aeb8e0', greet: 'Rằm tháng này — một niệm thanh tịnh' };
+    const l = lunarToday();
+    let f = !l.leap ? VIA_PHAT.find(x => x.d === l.day && x.m === l.month) : null;
+    if (!f && l.day === 15) f = { id: 'ram' + l.month, name: 'Ngày Rằm', ic: '🌕', accent: '#aeb8e0', greet: 'Rằm tháng ' + l.month + ' âm — một niệm thanh tịnh' };
+    else if (!f && l.day === 1) f = { id: 'mongmot' + l.month, name: 'Mùng Một', ic: '🌒', accent: '#b8b0e0', greet: 'Đầu tháng âm lịch — khởi đầu thanh tịnh' };
     festival = f || null;
     if (festival) document.documentElement.style.setProperty('--festival-accent', festival.accent);
     const bar = $('festival');
@@ -1436,6 +1634,65 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
     } else bar.hidden = true;
   }
   $('fe-x').addEventListener('click', () => { if (festival) { S.festivalOff = festival.id; save(); applyFestival(); } });
+
+  // ── Sao lưu / khôi phục tiến trình ──
+  const b64 = {
+    enc: s => btoa(unescape(encodeURIComponent(s))),
+    dec: s => decodeURIComponent(escape(atob(s))),
+  };
+  function exportCode() {
+    const o = {}; for (const k of SAVE_KEYS) o[k] = S[k];
+    return 'GOMO1:' + b64.enc(JSON.stringify(o));
+  }
+  function refreshExport() { const ta = $('saveCode'); if (ta && !ta.value) ta.value = exportCode(); }
+  function copyExport() {
+    const code = exportCode();
+    const ta = $('saveCode'); if (ta) ta.value = code;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(code).then(() => toast('📋 Đã sao chép mã tiến trình'), () => toast('Mã đã hiện trong ô — hãy sao chép tay'));
+    } else toast('Mã đã hiện trong ô — hãy sao chép tay');
+  }
+  function importProgress() {
+    const ta = $('saveCode');
+    const raw = (ta ? ta.value : '').trim();
+    if (!raw) { toast('Chưa có mã để nhập'); return; }
+    try {
+      const body = raw.startsWith('GOMO1:') ? raw.slice(6) : raw;
+      const obj = JSON.parse(b64.dec(body.replace(/\s+/g, '')));
+      let n = 0;
+      for (const k of SAVE_KEYS) if (Object.prototype.hasOwnProperty.call(obj, k)) { store.set(k, obj[k]); n++; }
+      if (!n) throw new Error('empty');
+      toast('⬆️ Đã nhập tiến trình — đang tải lại…');
+      setTimeout(() => location.reload(), 700);
+    } catch { toast('⚠️ Mã tiến trình không hợp lệ'); }
+  }
+  function resetProgress() {
+    if (!confirm('Xoá toàn bộ tiến trình (công đức, chuỗi ngày, thành tựu…)? Không thể hoàn tác.')) return;
+    for (const k of SAVE_KEYS) { try { localStorage.removeItem('gomo.' + k); } catch {} }
+    toast('♻️ Đã đặt lại — đang tải lại…');
+    setTimeout(() => location.reload(), 600);
+  }
+  $('exportBtn').addEventListener('click', copyExport);
+  $('importBtn').addEventListener('click', importProgress);
+  $('resetBtn').addEventListener('click', resetProgress);
+
+  function nextVia() {
+    const t0 = Date.now();
+    for (let i = 1; i <= 400; i++) {
+      const d = new Date(t0 + i * 864e5);
+      const l = solarToLunar(d.getDate(), d.getMonth() + 1, d.getFullYear(), TZ_VN);
+      const f = !l.leap && VIA_PHAT.find(x => x.d === l.day && x.m === l.month);
+      if (f) return { f, days: i };
+    }
+    return null;
+  }
+  function renderLunar() {
+    const l = lunarToday();
+    const el = $('lunarBadge');
+    if (el) el.textContent = '📅 ' + l.day + '/' + l.month + ' âm' + (l.leap ? ' (nhuận)' : '') + (festival ? ' · ' + festival.name : '');
+    const nx = $('lunarNext');
+    if (nx) nx.textContent = viaSoon ? ('Sắp tới: ' + viaSoon.f.name + ' — ' + (viaSoon.days === 1 ? 'ngày mai' : 'còn ' + viaSoon.days + ' ngày')) : '';
+  }
 
   // ── Ticker "đạo hữu đang tu" ──
   let tickerOn = false, tickerTO = null;
@@ -1564,6 +1821,177 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
       setTimeout(() => p.remove(), 1200);
     }
   }
+
+  // ── Nghi lễ theo buổi ──
+  function periodOf(d) {
+    const h = (d || new Date()).getHours();
+    if (h >= 5 && h < 11) return { id: 'sang', name: 'Sáng', ic: '🌅', mult: 1.5 };
+    if (h >= 11 && h < 14) return { id: 'trua', name: 'Trưa', ic: '☀️', mult: 1 };
+    if (h >= 14 && h < 18) return { id: 'chieu', name: 'Chiều', ic: '🌇', mult: 1.1 };
+    if (h >= 18 && h < 23) return { id: 'toi', name: 'Tối', ic: '🌙', mult: 1.25 };
+    return { id: 'khuya', name: 'Khuya', ic: '🌌', mult: 2 };
+  }
+  const DEDICATIONS = [
+    { label: 'Cha mẹ' }, { label: 'Ông bà tổ tiên' },
+    { label: 'Chúng sinh' }, { label: 'Hương linh' },
+  ];
+  function renderRitual() {
+    const p = periodOf();
+    const badge = $('periodBadge');
+    if (badge) badge.textContent = p.ic + ' ' + p.name + ' · thưởng ×' + p.mult;
+    const inc = $('incenseBtn');
+    if (inc) {
+      const done = (S.ritual.incense || []).includes(p.id);
+      inc.disabled = done;
+      inc.classList.toggle('rit-done', done);
+      inc.textContent = done ? ('🪔 Đã dâng hương ' + p.name.toLowerCase()) : '🪔 Dâng hương';
+    }
+    const rp = $('repentBtn');
+    if (rp) {
+      rp.disabled = !!S.ritual.repent;
+      rp.classList.toggle('rit-done', !!S.ritual.repent);
+      rp.textContent = S.ritual.repent ? '🙏 Đã sám hối' : '🙏 Sám hối';
+    }
+    const box = $('dedSeg');
+    if (box) box.querySelectorAll('button').forEach(b => { b.disabled = (S.ritual.ded || 0) >= 3; });
+    const note = $('dedNote');
+    if (note) {
+      const left = Math.max(0, 3 - (S.ritual.ded || 0));
+      note.textContent = left ? ('Còn ' + left + ' lần hồi hướng hôm nay') : 'Đã hồi hướng đủ hôm nay — thành tâm lành thay';
+    }
+  }
+  function lightIncense() {
+    const p = periodOf();
+    if (S.ritual.incense.includes(p.id)) { renderRitual(); toast('Buổi ' + p.name.toLowerCase() + ' đã dâng hương rồi'); return; }
+    S.ritual.incense.push(p.id);
+    const pt = stagePoint();
+    burstSparks(16, '🕯️'); rainPetals(24);
+    if (ac) playBell(ac.currentTime + 0.02, 261.63, 0.32, 5, bellBus);
+    addMerit(108, pt.x, pt.y - 20, 'dâng hương');
+    toast('🪔 Dâng hương buổi ' + p.name + ' — tâm thành kính');
+    save(); renderRitual();
+  }
+  function openRepent() { $('modal-repent').hidden = false; }
+  function closeRepent() { $('modal-repent').hidden = true; }
+  function confirmRepent() {
+    if (S.ritual.repent) { closeRepent(); toast('Hôm nay đã sám hối rồi'); return; }
+    S.ritual.repent = true;
+    const pt = stagePoint();
+    if (ac) playBell(ac.currentTime + 0.02, 174.61, 0.3, 6, bellBus);
+    rainPetals(20);
+    addMerit(54, pt.x, pt.y - 20, 'sám hối');
+    toast('🙏 Sám hối xong — lòng nhẹ nhõm');
+    save(); closeRepent(); renderRitual();
+  }
+  function dedicate(who) {
+    if ((S.ritual.ded || 0) >= 3) { toast('Hôm nay đã hồi hướng đủ 3 lần'); return; }
+    S.ritual.ded = (S.ritual.ded || 0) + 1;
+    const bonus = Math.max(27, Math.round(Math.min(S.merit + 27, 32400) * 0.02));
+    const pt = stagePoint();
+    rainPetals(30); burstSparks(10, '🪷');
+    if (ac) playBell(ac.currentTime + 0.02, 329.63, 0.26, 5, bellBus);
+    addMerit(bonus, pt.x, pt.y - 20, 'hồi hướng');
+    toast('🪷 Hồi hướng đến ' + who + ' — +' + fmt(bonus) + ' công đức');
+    save(); renderRitual();
+  }
+  // Chuông nhắc giờ tu (chỉ khi trang đang mở)
+  const CHIME_HOURS = [5, 11, 19];
+  function chimeTick() {
+    if (!S.ritualBell) return;
+    const now = new Date(), today = dayKey(now);
+    if (S.chimeDay !== today) { S.chimeDay = today; S.chimeDone = []; save(); }
+    const h = now.getHours(), m = now.getMinutes();
+    if (m === 0 && CHIME_HOURS.includes(h) && !S.chimeDone.includes(h)) {
+      S.chimeDone.push(h); save();
+      toast('🔔 Giờ tu ' + h + ':00 — thỉnh chuông, tịnh tâm');
+      pushTicker('🔔 Đã đến giờ tu ' + h + ':00');
+      if (ensureAudio()) { playBell(ac.currentTime + 0.03, 130.81, 0.7, 9, bellBus); bellAnim = performance.now(); }
+    }
+  }
+  $('incenseBtn').addEventListener('click', lightIncense);
+  $('repentBtn').addEventListener('click', openRepent);
+  $('modal-repent').querySelectorAll('[data-close]').forEach(el => el.addEventListener('click', closeRepent));
+  $('repentOk').addEventListener('click', confirmRepent);
+  $('chimeToggle').addEventListener('change', e => {
+    S.ritualBell = e.target.checked; save();
+    toast(S.ritualBell ? '🔔 Đã bật nhắc giờ tu 5h · 11h · 19h' : 'Đã tắt nhắc giờ tu');
+  });
+  (() => {
+    const box = $('dedSeg'); if (!box) return;
+    for (const d of DEDICATIONS) {
+      const b = document.createElement('button');
+      b.type = 'button'; b.textContent = d.label;
+      b.addEventListener('click', () => dedicate(d.label));
+      box.appendChild(b);
+    }
+  })();
+
+  // ── Thiền định tương tác: nhịp thở 4 · 7 · 8 ──
+  const MED_PHASES = [
+    { k: 'in',   label: 'Hít vào', dur: 4 },
+    { k: 'hold', label: 'Giữ',     dur: 7 },
+    { k: 'out',  label: 'Thở ra',  dur: 8 },
+  ];
+  let medOn = false, medPhase = 0, medPhaseStart = 0, medBreaths = 0, medTimer = null;
+  function medPaint() {
+    const ph = MED_PHASES[medPhase];
+    const el = $('med-phase'), cir = $('med-circle'), cnt = $('med-count');
+    if (el) el.textContent = ph.label;
+    if (cnt) cnt.textContent = medBreaths + ' hơi thở · ' + fmt(S.breaths || 0) + ' tổng';
+    if (cir) {
+      const k = Math.min(1, (performance.now() - medPhaseStart) / (ph.dur * 1000));
+      const sc = ph.k === 'in' ? 0.6 + 0.4 * k : ph.k === 'hold' ? 1 : 1 - 0.4 * k;
+      cir.style.transform = 'scale(' + sc.toFixed(3) + ')';
+    }
+  }
+  function medAdvance() {
+    const ph = MED_PHASES[medPhase];
+    if (ph.k === 'out') {
+      medBreaths++; S.breaths = (S.breaths || 0) + 1;
+      const pt = stagePoint();
+      const five = medBreaths % 5 === 0;
+      if (ac) playBell(ac.currentTime + 0.01, five ? 261.63 : 392, five ? 0.22 : 0.07, five ? 4 : 1.6, bellBus);
+      addMerit(12, pt.x, pt.y - 20, 'thiền');
+      save();
+      if (five) { rainPetals(16); toast('🧘 ' + medBreaths + ' hơi thở — tâm lắng dịu'); }
+    } else if (ph.k === 'in' && ac) {
+      playBell(ac.currentTime + 0.01, 196, 0.05, 1.6, bellBus);
+    }
+    medPhase = (medPhase + 1) % MED_PHASES.length;
+    medPhaseStart = performance.now();
+  }
+  function medTick() {
+    if (document.hidden) { stopMeditate(); return; }
+    if (performance.now() - medPhaseStart >= MED_PHASES[medPhase].dur * 1000) medAdvance();
+    medPaint();
+  }
+  function startMeditate() {
+    if (medOn) return;
+    if (S.chanting) stopChant();
+    ensureAudio();
+    medOn = true; medPhase = 0; medBreaths = 0; medPhaseStart = performance.now();
+    $('medBtn2').textContent = 'Dừng';
+    if (ac && S.music) startDrone();
+    if (ac) playBell(ac.currentTime + 0.02, 196, 0.18, 5, bellBus);
+    medPaint();
+    medTimer = setInterval(medTick, 90);
+  }
+  function stopMeditate() {
+    if (!medOn) return;
+    medOn = false;
+    clearInterval(medTimer); medTimer = null;
+    const b = $('medBtn2'); if (b) b.textContent = 'Bắt đầu';
+    const cir = $('med-circle'); if (cir) cir.style.transform = 'scale(.6)';
+    const el = $('med-phase'); if (el) el.textContent = 'Hít vào';
+    if (droneNodes && !S.chanting) stopDrone();
+  }
+  function openMeditate() { $('modal-meditate').hidden = false; if (medOn) medPaint(); }
+  function closeMeditate() { stopMeditate(); $('modal-meditate').hidden = true; }
+  $('medBtn').addEventListener('click', openMeditate);
+  $('modal-meditate').querySelectorAll('[data-close]').forEach(el => el.addEventListener('click', closeMeditate));
+  $('medBtn2').addEventListener('click', () => { medOn ? stopMeditate() : startMeditate(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('modal-meditate').hidden) closeMeditate(); });
+  $('chimeToggle').checked = !!S.ritualBell;
 
   $('chantBtn').addEventListener('click', () => S.chanting ? stopChant() : startChant());
   $('bellBtn').addEventListener('click', bell);
@@ -2112,6 +2540,11 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
   buildScene();
   renderStreak();
   touchDay();
+  renderRitual();
+  viaSoon = nextVia();
+  renderLunar();
+  chimeTick();
+  setInterval(() => { renderRitual(); renderLunar(); chimeTick(); }, 30000);
   startTicker();
   requestAnimationFrame(frame);
   requestAnimationFrame(sceneFrame);
