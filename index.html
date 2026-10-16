@@ -1,0 +1,1393 @@
+<title>Gõ Mõ Tụng Kinh</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap&subset=vietnamese">
+<style>
+/* Layout: one-screen temple stage — the mõ on its cushion holds the centre, the chant line
+   runs beneath it like a sutra page, a quiet ledger of công đức sits beside (stacked on phones).
+   Tokens: ZEN.Kaiz semantic neutrals + Zen pink (read as lotus) from the Figma design system. */
+:root {
+  --bg: #f7f7f7;            /* Background/Canvas/Default */
+  --card: #ffffff;          /* Background/Surface/Default */
+  --surface: #efefef;       /* recessed tracks */
+  --line: #02020215;        /* Neutral-Alpha/4 */
+  --line2: #01010124;
+  --glass-stage: #ffffff66;
+  --ink: #0d0d0d;           /* Content/Neutral/Strongest */
+  --ink2: #5c5c5c;
+  --ink3: #707070;
+  --ink4: #8a8a8a;
+  --solid: #0d0d0d;         /* Background/Neutral/Solid */
+  --on-solid: #ffffff;
+  --lotus: #f263ca;         /* Zen/9 */
+  --lotus-ink: #901d77;     /* Zen/11 */
+  --lotus-wash: #f263ca1f;
+  --good: #006425;
+  --warn: #8a5a00;
+  --bad: #941b00;
+  --stage-glow: #f263ca14;
+  /* object colours: the wood and the cushion look the same in either theme */
+  --wood-hi: #e0a062;
+  --wood: #a35a28;
+  --wood-lo: #5a2a0c;
+  --wood-cut: #2a1206;
+  --cushion: #9c2f2f;
+  --cushion-hi: #c95a4a;
+  --gold: #d6a84a;
+  /* scene behind the game: dawn over the temple hills (light), moonlit night (dark) */
+  --glass: #ffffffc7;
+  --sky-top: #f3dde6; --sky-mid: #fbebe3; --sky-bot: #fdf4ea;
+  --orb: #ffdcae; --orb-glow: #ffc58a59;
+  --mtn-far: #e6d3da; --mtn-mid: #cfb6c3; --mtn-near: #ad91a2; --pagoda: #8f7284;
+  --mist: #fff8f48c;
+  --water-top: #e8d4dc; --water-bot: #d4bcc7;
+  --lantern-flame: #ffcf7a;
+  --stars: 0;
+  --buddha-sky: #ecd5cf; --halo: #f0b040; --halo-wash: #ffd27a73;
+
+  --f-display: "Cormorant Garamond", "Noto Serif", Georgia, serif;
+  --f-ui: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --r-card: 20px;
+  --r-tile: 16px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111111; --card: #191919; --surface: #212121;
+    --line: #ffffff1a; --line2: #ffffff2a; --glass-stage: #17171b59;
+    --ink: #f5f5f5; --ink2: #cecece; --ink3: #959595; --ink4: #6e6e6e;
+    --solid: #f5f5f5; --on-solid: #111111;
+    --lotus: #f263ca; --lotus-ink: #ff80da; --lotus-wash: #f263ca29;
+    --good: #5bd27f; --warn: #f0c04a; --bad: #fb6743;
+    --stage-glow: #f263ca1c;
+    --glass: #17171bb8;
+    --sky-top: #090b17; --sky-mid: #141829; --sky-bot: #271f35;
+    --orb: #f3ead2; --orb-glow: #f3ead22e;
+    --mtn-far: #24233a; --mtn-mid: #1a1a2c; --mtn-near: #121220; --pagoda: #0d0d19;
+    --mist: #c8bee612;
+    --water-top: #161628; --water-bot: #0b0b16;
+    --stars: 0.9;
+    --buddha-sky: #201f38; --halo: #ffd27a; --halo-wash: #ffd27a3d;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111111; --card: #191919; --surface: #212121;
+  --line: #ffffff1a; --line2: #ffffff2a; --glass-stage: #17171b59;
+  --ink: #f5f5f5; --ink2: #cecece; --ink3: #959595; --ink4: #6e6e6e;
+  --solid: #f5f5f5; --on-solid: #111111;
+  --lotus: #f263ca; --lotus-ink: #ff80da; --lotus-wash: #f263ca29;
+  --good: #5bd27f; --warn: #f0c04a; --bad: #fb6743;
+  --stage-glow: #f263ca1c;
+  --glass: #17171bb8;
+  --sky-top: #090b17; --sky-mid: #141829; --sky-bot: #271f35;
+  --orb: #f3ead2; --orb-glow: #f3ead22e;
+  --mtn-far: #24233a; --mtn-mid: #1a1a2c; --mtn-near: #121220; --pagoda: #0d0d19;
+  --mist: #c8bee612;
+  --water-top: #161628; --water-bot: #0b0b16;
+  --stars: 0.9;
+  --buddha-sky: #201f38; --halo: #ffd27a; --halo-wash: #ffd27a3d;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+#flash { position: fixed; inset: 0; z-index: 3; pointer-events: none; opacity: 0; background: radial-gradient(60% 50% at 50% 42%, var(--halo-wash), transparent 72%); }
+#flash.on { animation: flash 2600ms ease-out; }
+@keyframes flash { 0% { opacity: 0; } 14% { opacity: 1; } 100% { opacity: 0; } }
+#scene { position: fixed; inset: 0; width: 100%; height: 100%; display: block; z-index: 0; pointer-events: none; }
+html, body { height: 100%; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--f-ui);
+  font-size: 14px;
+  line-height: 1.45;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  -webkit-tap-highlight-color: transparent;
+}
+.app {
+  position: relative;
+  z-index: 1;
+  max-width: 1120px;
+  margin: 0 auto;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-block: 16px 20px;
+}
+
+/* header */
+.top { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.brand { display: flex; align-items: baseline; gap: 12px; min-width: 0; }
+.brand h1 {
+  margin: 0;
+  font-family: var(--f-display);
+  font-weight: 600;
+  font-size: clamp(26px, 4vw, 34px);
+  letter-spacing: 0.01em;
+  line-height: 1;
+}
+.brand span { color: var(--ink3); font-size: 13px; }
+.top-actions { display: flex; gap: 8px; }
+
+/* pills */
+.pill {
+  appearance: none;
+  border: 1px solid var(--line2);
+  background: var(--card);
+  color: var(--ink);
+  font: 500 14px/1 var(--f-ui);
+  height: 40px;
+  padding: 0 18px;
+  border-radius: 20px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  cursor: pointer;
+  transition: transform 80ms ease, background 140ms ease, border-color 140ms ease;
+  white-space: nowrap;
+}
+.pill:hover { border-color: var(--ink4); }
+.pill:active { transform: scale(0.97); }
+.pill:focus-visible, .seg button:focus-visible, .stage:focus-visible { outline: 2px solid var(--lotus); outline-offset: 2px; }
+.pill.solid { background: var(--solid); color: var(--on-solid); border-color: var(--solid); }
+.pill.big { height: 48px; border-radius: 24px; font-size: 15px; padding: 0 22px; }
+.pill[aria-pressed="true"] .dot { background: var(--lotus); }
+.dot { width: 8px; height: 8px; border-radius: 4px; background: var(--ink4); }
+.pill:disabled { opacity: 0.45; cursor: default; }
+
+/* main grid */
+.main { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 16px; flex: 1; min-height: 0; }
+@media (max-width: 860px) { .main { grid-template-columns: minmax(0, 1fr); } }
+
+.stage-card {
+  background: var(--glass-stage);
+  -webkit-backdrop-filter: blur(5px) saturate(1.1);
+  backdrop-filter: blur(5px) saturate(1.1);
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  display: flex; flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+}
+.stage {
+  position: relative;
+  flex: 1;
+  min-height: 340px;
+  background: radial-gradient(60% 55% at 50% 52%, var(--stage-glow), transparent 70%);
+  cursor: pointer;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.stage-meta {
+  position: absolute; top: 14px; left: 16px; right: 16px;
+  display: flex; justify-content: space-between; align-items: center; gap: 8px;
+  pointer-events: none;
+  font: 500 12px/1 var(--f-mono);
+  color: var(--ink3);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.combo { color: var(--lotus-ink); }
+.verdict {
+  position: absolute; left: 50%; top: 18%;
+  transform: translateX(-50%);
+  font: 600 13px/1 var(--f-ui);
+  letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 8px 14px; border-radius: 16px;
+  background: var(--surface);
+  pointer-events: none;
+  opacity: 0;
+  white-space: nowrap;
+}
+.verdict.show { animation: verdict 700ms ease-out; }
+.verdict[data-k="perfect"] { color: var(--lotus-ink); background: var(--lotus-wash); }
+.verdict[data-k="good"] { color: var(--good); }
+.verdict[data-k="off"], .verdict[data-k="miss"] { color: var(--bad); }
+.verdict[data-k="divine"] { font: 600 20px/1.1 var(--f-display); letter-spacing: 0.02em; text-transform: none; color: var(--ink); background: var(--glass); border: 1px solid var(--halo); top: 8%; }
+.verdict[data-k="count"] { color: var(--ink2); font-family: var(--f-mono); }
+@keyframes verdict { 0% { opacity: 0; transform: translate(-50%, 6px); } 15% { opacity: 1; transform: translate(-50%, 0); } 75% { opacity: 1; } 100% { opacity: 0; } }
+.floater {
+  position: absolute;
+  font: 600 18px/1 var(--f-mono);
+  color: var(--lotus-ink);
+  pointer-events: none;
+  animation: floatUp 900ms ease-out forwards;
+  white-space: nowrap;
+}
+.floater small { font: 500 11px/1 var(--f-ui); color: var(--ink3); margin-left: 4px; }
+@keyframes floatUp { from { opacity: 1; transform: translate(-50%, 0); } to { opacity: 0; transform: translate(-50%, -56px); } }
+
+/* chant line */
+.sutra {
+  border-top: 1px solid var(--line);
+  background: var(--glass);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  padding: 18px 20px 20px;
+  display: grid; gap: 6px;
+  text-align: center;
+}
+.sutra-label { font: 500 11px/1 var(--f-ui); letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink3); }
+.line {
+  font-family: var(--f-display);
+  font-size: clamp(24px, 3.4vw, 34px);
+  font-weight: 500;
+  line-height: 1.25;
+  text-wrap: balance;
+  min-height: 1.25em;
+}
+.line .syl { color: var(--ink4); transition: color 160ms ease; }
+.line .syl.done { color: var(--ink); }
+.line .syl.now { color: var(--lotus-ink); text-decoration: underline; text-decoration-color: var(--lotus); text-decoration-thickness: 2px; text-underline-offset: 6px; }
+.next-line { font-family: var(--f-display); font-style: italic; font-size: 17px; color: var(--ink3); min-height: 1.3em; }
+
+/* side ledger */
+.side { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.panel { background: var(--glass); -webkit-backdrop-filter: blur(14px) saturate(1.1); backdrop-filter: blur(14px) saturate(1.1); border: 1px solid var(--line); border-radius: var(--r-card); padding: 18px; display: grid; gap: 14px; }
+.eyebrow { font: 500 11px/1 var(--f-ui); letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink3); }
+.merit { display: grid; gap: 4px; }
+.merit-num { font: 600 40px/1 var(--f-mono); font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+.realm { display: grid; gap: 8px; }
+.realm-row { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.realm-name { font-family: var(--f-display); font-size: 22px; font-weight: 600; }
+.realm-next { font: 500 12px/1 var(--f-mono); color: var(--ink3); font-variant-numeric: tabular-nums; }
+.bar { height: 6px; border-radius: 3px; background: var(--surface); overflow: hidden; }
+.bar > i { display: block; height: 100%; width: 0; background: var(--lotus); border-radius: 3px; transition: width 240ms ease; }
+.stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 16px; margin: 0; }
+.stats div { display: grid; gap: 4px; }
+.stats dt { font-size: 12px; color: var(--ink3); }
+.stats dd { margin: 0; font: 600 18px/1 var(--f-mono); font-variant-numeric: tabular-nums; }
+
+.field { display: grid; gap: 8px; }
+.seg { display: flex; flex-wrap: wrap; gap: 6px; }
+.seg button {
+  appearance: none; border: 1px solid var(--line2); background: transparent; color: var(--ink2);
+  font: 500 13px/1 var(--f-ui); height: 32px; padding: 0 12px; border-radius: 16px; cursor: pointer;
+}
+.seg button[aria-pressed="true"] { background: var(--solid); color: var(--on-solid); border-color: var(--solid); }
+.actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.actions .pill { width: 100%; }
+.hint { font-size: 12px; color: var(--ink3); margin: 0; }
+kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; border: 1px solid var(--line2); background: var(--surface); color: var(--ink2); }
+.foot { font-size: 12px; color: var(--ink2); text-align: center; margin: 0 auto; padding: 8px 14px; border-radius: 16px; background: var(--glass); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); max-width: 100%; }
+.brand span { background: var(--glass); padding: 4px 10px; border-radius: 12px; color: var(--ink2); }
+.seg button:disabled { opacity: 0.4; cursor: default; }
+
+@media (max-width: 860px) {
+  .stage { min-height: 300px; height: 46vh; flex: none; }
+  .side { display: grid; grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 420px) {
+  .brand span { display: none; }
+  .merit-num { font-size: 34px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .floater, .verdict.show { animation-duration: 1ms; }
+}
+</style>
+
+<canvas id="scene" aria-hidden="true"></canvas>
+<div id="flash" aria-hidden="true"></div>
+<div class="app">
+  <header class="top">
+    <div class="brand">
+      <h1>Gõ Mõ Tụng Kinh</h1>
+      <span>Mỗi tiếng mõ, một chữ kinh</span>
+    </div>
+    <div class="top-actions">
+      <button class="pill" id="musicBtn" aria-pressed="true"><span class="dot"></span>Nhạc thiền</button>
+    </div>
+  </header>
+
+  <main class="main">
+    <section class="stage-card" aria-label="Mõ">
+      <div class="stage" id="stage" tabindex="0" role="button" aria-label="Gõ mõ">
+        <canvas id="cv"></canvas>
+        <div class="stage-meta"><span id="modeLabel">Gõ tự do</span><span class="combo" id="comboLabel"></span></div>
+        <div class="verdict" id="verdict"></div>
+      </div>
+      <div class="sutra" aria-live="polite">
+        <div class="sutra-label" id="sutraName">Niệm Phật A Di Đà</div>
+        <div class="line" id="line"></div>
+        <div class="next-line" id="nextLine"></div>
+      </div>
+    </section>
+
+    <aside class="side">
+      <section class="panel">
+        <div class="merit">
+          <span class="eyebrow">Công đức</span>
+          <span class="merit-num" id="merit">0</span>
+        </div>
+        <div class="realm">
+          <div class="realm-row"><span class="realm-name" id="realmName">Sơ Tâm</span><span class="realm-next" id="realmNext">0 / 108</span></div>
+          <div class="bar"><i id="realmBar"></i></div>
+        </div>
+        <dl class="stats">
+          <div><dt>Tiếng mõ</dt><dd id="sKnocks">0</dd></div>
+          <div><dt>Câu kinh trọn</dt><dd id="sLines">0</dd></div>
+          <div><dt>Chuẩn nhịp</dt><dd id="sAcc">–</dd></div>
+          <div><dt>Chuỗi dài nhất</dt><dd id="sBest">0</dd></div>
+        </dl>
+      </section>
+
+      <section class="panel">
+        <div class="field">
+          <span class="eyebrow">Bài kinh</span>
+          <div class="seg" id="sutraSeg"></div>
+        </div>
+        <div class="field">
+          <span class="eyebrow">Nhịp mõ</span>
+          <div class="seg" id="tempoSeg"></div>
+        </div>
+        <div class="field">
+          <span class="eyebrow">Giọng tụng</span>
+          <div class="seg" id="voiceSeg"></div>
+        </div>
+        <div class="actions">
+          <button class="pill solid big" id="chantBtn">Bắt đầu tụng</button>
+          <button class="pill big" id="bellBtn">Thỉnh chuông</button>
+        </div>
+        <p class="hint"><kbd>Space</kbd> gõ mõ · <kbd>B</kbd> thỉnh chuông · <kbd>Enter</kbd> bắt đầu / dừng tụng. Khi tụng, gõ đúng lúc vòng hồng chạm mõ để được nhân công đức.</p>
+      </section>
+    </aside>
+  </main>
+
+  <p class="foot">Trò chơi giải trí, không thuộc tổ chức tôn giáo nào. Tiếng mõ, chuông và nhạc thiền được tổng hợp trực tiếp trong trình duyệt.</p>
+</div>
+
+<script>
+(() => {
+  'use strict';
+
+  // ---------- content ----------
+  const SUTRAS = [
+    { id: 'adida', short: 'A Di Đà', name: 'Niệm Phật A Di Đà', lines: ['Nam Mô A Di Đà Phật'] },
+    { id: 'thichca', short: 'Thích Ca', name: 'Niệm Phật Bổn Sư', lines: ['Nam Mô Bổn Sư Thích Ca Mâu Ni Phật'] },
+    { id: 'quanam', short: 'Quán Âm', name: 'Niệm Bồ Tát Quán Thế Âm', lines: ['Nam Mô Đại Bi Quán Thế Âm Bồ Tát'] },
+    { id: 'batnha', short: 'Bát Nhã', name: 'Bát Nhã Tâm Kinh', lines: [
+      'Quán Tự Tại Bồ Tát hành thâm Bát Nhã Ba La Mật Đa thời',
+      'chiếu kiến ngũ uẩn giai không độ nhất thiết khổ ách',
+      'Xá Lợi Tử sắc bất dị không không bất dị sắc',
+      'sắc tức thị không không tức thị sắc',
+      'thọ tưởng hành thức diệc phục như thị',
+    ] },
+  ];
+  const TEMPOS = [{ bpm: 60, label: 'Chậm · 60' }, { bpm: 76, label: 'Vừa · 76' }, { bpm: 96, label: 'Nhanh · 96' }];
+  // Realms of practice, thresholds in công đức (108 is the count of a prayer-bead string).
+  const REALMS = [
+    ['Sơ Tâm', 0], ['Tịnh Tâm', 108], ['An Lạc', 540], ['Nhập Định', 1080],
+    ['Khai Tuệ', 3240], ['Từ Bi', 6480], ['Hỷ Xả', 10800], ['Giác Tỉnh', 32400],
+  ];
+  const PERFECT = 0.075, GOOD = 0.16; // seconds either side of the beat
+
+  // ---------- state ----------
+  const store = {
+    get(k, d) { try { const v = localStorage.getItem('gomo.' + k); return v == null ? d : JSON.parse(v); } catch { return d; } },
+    set(k, v) { try { localStorage.setItem('gomo.' + k, JSON.stringify(v)); } catch {} },
+  };
+  const S = {
+    merit: store.get('merit', 0),
+    knocks: store.get('knocks', 0),
+    lines: store.get('lines', 0),
+    best: store.get('best', 0),
+    sutra: store.get('sutra', 'adida'),
+    bpm: store.get('bpm', 76),
+    music: store.get('music', true),
+    voice: store.get('voice', 'ngan'),
+    lineIdx: 0, syl: 0,
+    chanting: false, combo: 0, hits: 0, judged: 0,
+  };
+  if (!SUTRAS.find(s => s.id === S.sutra)) S.sutra = 'adida';
+  if (!TEMPOS.find(t => t.bpm === S.bpm)) S.bpm = 76;
+  const save = () => { for (const k of ['merit', 'knocks', 'lines', 'best', 'sutra', 'bpm', 'music', 'voice']) store.set(k, S[k]); };
+
+  const $ = id => document.getElementById(id);
+  const fmt = n => n.toLocaleString('vi-VN');
+
+  // ---------- audio ----------
+  let ac = null, master, sfx, music, wet, droneNodes = null;
+
+  function impulse(ctx, secs, decay) {
+    const len = Math.floor(ctx.sampleRate * secs);
+    const buf = ctx.createBuffer(2, len, ctx.sampleRate);
+    for (let ch = 0; ch < 2; ch++) {
+      const d = buf.getChannelData(ch);
+      for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, decay);
+    }
+    return buf;
+  }
+  function ensureAudio() {
+    if (ac) { if (ac.state === 'suspended') ac.resume(); return ac; }
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return null;
+    ac = new AC();
+    master = ac.createGain(); master.gain.value = 0.9;
+    const comp = ac.createDynamicsCompressor();
+    comp.threshold.value = -14; comp.ratio.value = 3;
+    master.connect(comp).connect(ac.destination);
+    const verb = ac.createConvolver(); verb.buffer = impulse(ac, 3.6, 2.6);
+    wet = ac.createGain(); wet.gain.value = 0.55;
+    verb.connect(wet).connect(master);
+    sfx = ac.createGain(); sfx.gain.value = 1; sfx.connect(master);
+    music = ac.createGain(); music.gain.value = S.music ? 1 : 0; music.connect(master);
+    sfx.verb = verb; music.verb = verb;
+    return ac;
+  }
+  function send(node, bus, amt) {
+    node.connect(bus);
+    if (amt) { const g = ac.createGain(); g.gain.value = amt; node.connect(g).connect(bus.verb); }
+  }
+  const latency = () => ac ? (ac.outputLatency || ac.baseLatency || 0) : 0;
+
+  // Mõ: a hollow wooden block — short pitched knock plus a breathy click from the slit.
+  function playMo(t, vel = 1) {
+    const out = ac.createGain(); out.gain.value = 0.9 * vel; send(out, sfx, 0.18);
+    for (const [f, g, d] of [[520, 1, 0.16], [1240, 0.35, 0.07], [1880, 0.12, 0.04]]) {
+      const o = ac.createOscillator(), e = ac.createGain();
+      o.type = 'sine';
+      o.frequency.setValueAtTime(f * 1.12, t);
+      o.frequency.exponentialRampToValueAtTime(f, t + 0.02);
+      e.gain.setValueAtTime(0.0001, t);
+      e.gain.exponentialRampToValueAtTime(g, t + 0.002);
+      e.gain.exponentialRampToValueAtTime(0.0001, t + d);
+      o.connect(e).connect(out); o.start(t); o.stop(t + d + 0.02);
+    }
+    const n = ac.createBufferSource();
+    n.buffer = noiseBuf();
+    const bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 2400; bp.Q.value = 3;
+    const ne = ac.createGain();
+    ne.gain.setValueAtTime(0.5, t); ne.gain.exponentialRampToValueAtTime(0.0001, t + 0.03);
+    n.connect(bp).connect(ne).connect(out); n.start(t); n.stop(t + 0.05);
+  }
+  let _noise = null;
+  function noiseBuf() {
+    if (_noise) return _noise;
+    _noise = ac.createBuffer(1, ac.sampleRate * 0.1, ac.sampleRate);
+    const d = _noise.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    return _noise;
+  }
+  // Bronze bell: inharmonic partials with long, staggered decays.
+  function playBell(t, f, gain, len, bus) {
+    const out = ac.createGain(); out.gain.value = gain; send(out, bus, 0.7);
+    const partials = [[0.5, 0.5], [1, 1], [2.01, 0.55], [2.76, 0.4], [4.07, 0.22], [5.43, 0.14], [8.93, 0.06]];
+    for (const [m, g] of partials) {
+      const o = ac.createOscillator(), e = ac.createGain();
+      o.frequency.value = f * m;
+      const d = len / Math.sqrt(m);
+      e.gain.setValueAtTime(0.0001, t);
+      e.gain.exponentialRampToValueAtTime(g * 0.4, t + 0.006);
+      e.gain.exponentialRampToValueAtTime(0.0001, t + d);
+      o.connect(e).connect(out); o.start(t); o.stop(t + d + 0.05);
+    }
+  }
+  // Flute-like voice for the melody (sine + soft triangle, slow vibrato).
+  function playFlute(t, f, dur) {
+    const out = ac.createGain(); send(out, music, 0.6);
+    const e = out.gain;
+    e.setValueAtTime(0.0001, t);
+    e.linearRampToValueAtTime(0.085, t + Math.min(0.25, dur * 0.3));
+    e.setValueAtTime(0.085, t + dur * 0.75);
+    e.exponentialRampToValueAtTime(0.0001, t + dur + 0.6);
+    const vib = ac.createOscillator(), vg = ac.createGain();
+    vib.frequency.value = 5.2; vg.gain.setValueAtTime(0, t); vg.gain.linearRampToValueAtTime(f * 0.008, t + 0.5);
+    vib.connect(vg);
+    const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 2600;
+    lp.connect(out);
+    for (const [type, g] of [['sine', 1], ['triangle', 0.25]]) {
+      const o = ac.createOscillator(), og = ac.createGain();
+      o.type = type; o.frequency.value = f; og.gain.value = g;
+      vg.connect(o.frequency);
+      o.connect(og).connect(lp); o.start(t); o.stop(t + dur + 0.7);
+    }
+    vib.start(t); vib.stop(t + dur + 0.7);
+  }
+  // Drone: D and A held under everything, breathing slowly.
+  function startDrone() {
+    if (droneNodes) return;
+    const t = ac.currentTime;
+    const out = ac.createGain(); out.gain.setValueAtTime(0.0001, t); out.gain.exponentialRampToValueAtTime(0.16, t + 4);
+    const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 520; lp.Q.value = 0.6;
+    lp.connect(out); send(out, music, 0.5);
+    const lfo = ac.createOscillator(), lfoG = ac.createGain();
+    lfo.frequency.value = 0.07; lfoG.gain.value = 180; lfo.connect(lfoG).connect(lp.frequency); lfo.start();
+    const oscs = [];
+    for (const [f, type, g, det] of [[73.42, 'sawtooth', 0.35, -4], [73.42, 'sawtooth', 0.35, 5], [110, 'triangle', 0.5, 0], [146.83, 'sine', 0.45, 2], [220, 'sine', 0.12, 0]]) {
+      const o = ac.createOscillator(), og = ac.createGain();
+      o.type = type; o.frequency.value = f; o.detune.value = det; og.gain.value = g;
+      o.connect(og).connect(lp); o.start(); oscs.push(o);
+    }
+    droneNodes = { out, oscs: [...oscs, lfo] };
+  }
+  function stopDrone() {
+    if (!droneNodes) return;
+    const { out, oscs } = droneNodes, t = ac.currentTime;
+    out.gain.cancelScheduledValues(t); out.gain.setValueAtTime(out.gain.value, t);
+    out.gain.exponentialRampToValueAtTime(0.0001, t + 2.5);
+    oscs.forEach(o => o.stop(t + 2.6));
+    droneNodes = null;
+  }
+
+  // Melody: four 16-beat phrases in the D pentatonic (D F G A C), one note per beat or longer.
+  const N = { D4: 293.66, F4: 349.23, G4: 392, A4: 440, C5: 523.25, D5: 587.33 };
+  const PHRASES = [
+    [['A4', 2], ['G4', 1], ['A4', 1], ['C5', 2], ['A4', 2], ['G4', 2], ['F4', 1], ['G4', 1], ['D4', 4]],
+    [['F4', 2], ['G4', 2], ['A4', 1], ['C5', 1], ['D5', 2], ['C5', 2], ['A4', 2], ['G4', 4]],
+    [['D5', 3], ['C5', 1], ['A4', 2], ['G4', 2], ['A4', 2], ['F4', 2], ['D4', 4]],
+    [['F4', 2], ['G4', 2], ['A4', 4], ['G4', 2], ['F4', 2], ['D4', 4]],
+  ];
+  const MELODY = new Map(); // beat index in the 64-beat loop -> [freq, beats]
+  { let b = 0; for (const p of PHRASES) for (const [n, d] of p) { MELODY.set(b, [N[n], d]); b += d; } }
+  const LOOP = 64, COUNT_IN = 4;
+
+  // ---------- chanting voice ----------
+  // "Ngân": a sung syllable from formant synthesis. The vowel picks the mouth shape and the
+  // Vietnamese tone mark bends the pitch, so "Nam Mô A Di Đà Phật" rises and falls like speech.
+  const FORMANTS = { a: [730, 1090, 2440], e: [530, 1840, 2480], i: [280, 2250, 2890], o: [570, 840, 2410], u: [310, 870, 2240] };
+  const NASAL = [250, 1000, 2300];
+  const TONES = { // pitch multipliers over the syllable: start, middle, end
+    ngang: [1, 1, 1], huyen: [0.98, 0.9, 0.84], sac: [1, 1.08, 1.26], hoi: [0.96, 0.84, 0.98],
+    nga: [1, 0.9, 1.32], nang: [0.94, 0.84, 0.78],
+  };
+  function parseSyl(word) {
+    const nfd = word.toLowerCase().normalize('NFD');
+    let tone = 'ngang';
+    if (nfd.includes('̀')) tone = 'huyen';
+    else if (nfd.includes('́')) tone = 'sac';
+    else if (nfd.includes('̉')) tone = 'hoi';
+    else if (nfd.includes('̃')) tone = 'nga';
+    else if (nfd.includes('̣')) tone = 'nang';
+    const base = nfd.replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd').replace(/[^a-z]/g, '');
+    const m = base.match(/^([^aeiouy]*)(.*?)([^aeiouy]*)$/);
+    let onset = m[1], nucleus = m[2], coda = m[3];
+    if (onset === 'q' && nucleus[0] === 'u') { onset = 'qu'; nucleus = nucleus.slice(1); }
+    if (onset === 'g' && nucleus[0] === 'i' && nucleus.length > 1) { onset = 'gi'; nucleus = nucleus.slice(1); }
+    const rank = 'aeoui';
+    let vowel = 'a';
+    for (const c of rank) if (nucleus.replace(/y/g, 'i').includes(c)) { vowel = c; break; }
+    return { onset, vowel, coda, tone };
+  }
+  function chantSyl(word, t, dur) {
+    const { onset, vowel, coda, tone } = parseSyl(word);
+    const stop = /^(t|c|p|ch)$/.test(coda) || tone === 'nang';
+    const len = stop ? Math.min(dur, 0.32) : dur;
+    const f0 = 138.6; // a low monk's voice around C#3
+    const [p0, p1, p2] = TONES[tone];
+    const out = ac.createGain(); send(out, sfx, 0.55);
+    out.gain.setValueAtTime(0.0001, t);
+    out.gain.exponentialRampToValueAtTime(0.5, t + 0.04);
+    out.gain.setValueAtTime(0.5, t + len * 0.8);
+    out.gain.exponentialRampToValueAtTime(0.0001, t + len + (stop ? 0.03 : 0.18));
+
+    const src = ac.createOscillator(); src.type = 'sawtooth';
+    src.frequency.setValueAtTime(f0 * p0, t);
+    src.frequency.linearRampToValueAtTime(f0 * p1, t + len * 0.5);
+    src.frequency.linearRampToValueAtTime(f0 * p2, t + len);
+    const vib = ac.createOscillator(), vg = ac.createGain();
+    vib.frequency.value = 4.8; vg.gain.value = 1.4; vib.connect(vg).connect(src.frequency);
+    const tilt = ac.createBiquadFilter(); tilt.type = 'lowpass'; tilt.frequency.value = 3200;
+    src.connect(tilt);
+    const nasalOn = /^(m|n|nh|ng|ngh)$/.test(onset), nasalOff = /^(m|n|ng|nh)$/.test(coda);
+    const target = FORMANTS[vowel];
+    target.forEach((f, i) => {
+      const bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 9 + i * 3;
+      bp.frequency.setValueAtTime(nasalOn ? NASAL[i] : f, t);
+      bp.frequency.linearRampToValueAtTime(f, t + (nasalOn ? 0.07 : 0.01));
+      if (nasalOff) {
+        bp.frequency.setValueAtTime(f, t + len * 0.62);
+        bp.frequency.linearRampToValueAtTime(NASAL[i], t + len * 0.85);
+      }
+      const fg = ac.createGain(); fg.gain.value = [1.6, 0.9, 0.35][i];
+      tilt.connect(bp).connect(fg).connect(out);
+    });
+    const end = t + len + 0.25;
+    src.start(t); src.stop(end); vib.start(t); vib.stop(end);
+    // consonant onset: a breath of noise (hiss for s/x, a puff for stops)
+    if (onset && !nasalOn && !/^(l|v|d|gi|r)$/.test(onset)) {
+      const n = ac.createBufferSource(); n.buffer = noiseBuf();
+      const f = ac.createBiquadFilter();
+      const hiss = /^(s|x|ch|tr)$/.test(onset);
+      f.type = hiss ? 'highpass' : 'bandpass'; f.frequency.value = hiss ? 3500 : 1600;
+      const e = ac.createGain();
+      e.gain.setValueAtTime(hiss ? 0.25 : 0.4, t - 0.005);
+      e.gain.exponentialRampToValueAtTime(0.0001, t + (hiss ? 0.07 : 0.035));
+      n.connect(f).connect(e).connect(out); n.start(Math.max(ac.currentTime, t - 0.005)); n.stop(t + 0.09);
+    }
+  }
+  // "Đọc": the browser's own Vietnamese voice, when the device has one.
+  let viVoice = null;
+  function findVoice() {
+    if (!('speechSynthesis' in window)) return;
+    viVoice = speechSynthesis.getVoices().find(v => /^vi/i.test(v.lang)) || null;
+    renderVoiceSeg();
+  }
+  function speakSyl(word) {
+    if (!viVoice) return false;
+    try {
+      speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(word);
+      u.voice = viVoice; u.lang = viVoice.lang; u.rate = 0.9; u.pitch = 0.7; u.volume = 1;
+      speechSynthesis.speak(u);
+      return true;
+    } catch { return false; }
+  }
+  function voiceFor(word) {
+    if (S.voice === 'off' || !ac) return;
+    if (S.voice === 'doc' && speakSyl(word)) return;
+    const dur = S.chanting ? Math.min(0.75, beatDur() * 0.8) : 0.5;
+    chantSyl(word, ac.currentTime + 0.02, dur);
+  }
+
+  // ---------- rhythm scheduler ----------
+  let beats = [], nextBeat = 0, beatNo = 0, schedTimer = null;
+  const beatDur = () => 60 / S.bpm;
+
+  function schedule() {
+    const horizon = ac.currentTime + 0.15;
+    while (nextBeat < horizon) {
+      const t = nextBeat, i = beatNo;
+      if (i < COUNT_IN) {
+        playBell(t, i === COUNT_IN - 1 ? 1320 : 990, 0.18, 0.9, sfx);
+        beats.push({ t, i, count: COUNT_IN - i, judged: true });
+      } else {
+        const k = (i - COUNT_IN) % LOOP;
+        if (k === 0) playBell(t, 196, 0.5, 7, music);           // great bell opens each round
+        else if (k % 4 === 0) playBell(t, 880, 0.07, 1.4, music); // small khánh marks the bar
+        const m = MELODY.get(k);
+        if (m) playFlute(t, m[0], m[1] * beatDur());
+        beats.push({ t, i, judged: false });
+      }
+      beatNo++;
+      nextBeat += beatDur();
+    }
+    const now = ac.currentTime - latency();
+    beats = beats.filter(b => b.t > now - 2);
+  }
+  function startChant() {
+    if (!ensureAudio()) return;
+    S.chanting = true; S.combo = 0;
+    beats = []; beatNo = 0; nextBeat = ac.currentTime + 0.35;
+    if (S.music) startDrone();
+    schedule();
+    schedTimer = setInterval(schedule, 25);
+    $('chantBtn').textContent = 'Dừng tụng';
+    $('modeLabel').textContent = 'Tụng theo nhịp · ' + S.bpm + ' bpm';
+    updateCombo();
+  }
+  function stopChant() {
+    S.chanting = false;
+    clearInterval(schedTimer); schedTimer = null;
+    beats = [];
+    stopDrone();
+    $('chantBtn').textContent = 'Bắt đầu tụng';
+    $('modeLabel').textContent = 'Gõ tự do';
+    S.combo = 0; updateCombo();
+  }
+
+  // ---------- game ----------
+  const sutra = () => SUTRAS.find(s => s.id === S.sutra);
+  const syllables = i => sutra().lines[i % sutra().lines.length].split(/\s+/);
+  const mult = () => 1 + Math.min(3, Math.floor(S.combo / 12));
+
+  function realmOf(m) {
+    let i = 0; while (i + 1 < REALMS.length && m >= REALMS[i + 1][1]) i++;
+    return i;
+  }
+  function addMerit(n, x, y, note) {
+    const before = realmOf(S.merit);
+    S.merit += n;
+    floater('+' + n, x, y, note);
+    if (realmOf(S.merit) > before) {
+      summonBuddha('Phật quang phổ chiếu · đạt ' + REALMS[realmOf(S.merit)][0], 3800);
+      rainPetals(60);
+    }
+    renderStats();
+  }
+
+  let lastKnock = 0;
+  function knock() {
+    if (!ensureAudio()) return;
+    const now = ac.currentTime;
+    if (now - lastKnock < 0.06) return; // one strike, not a double-bounce
+    lastKnock = now;
+    playMo(now);
+    strikeAnim = performance.now();
+    S.knocks++;
+
+    let gain = 1, note = '';
+    if (S.chanting) {
+      const heard = now - latency();
+      let best = null;
+      for (const b of beats) if (!b.judged && Math.abs(b.t - heard) <= GOOD && (!best || Math.abs(b.t - heard) < Math.abs(best.t - heard))) best = b;
+      if (best) {
+        best.judged = true; S.judged++; S.hits++;
+        const perfect = Math.abs(best.t - heard) <= PERFECT;
+        S.combo++; if (S.combo > S.best) S.best = S.combo;
+        gain = (perfect ? 3 : 2) * mult();
+        note = perfect ? 'chuẩn' : 'gần';
+        showVerdict(perfect ? 'Chuẩn nhịp' : 'Gần nhịp', perfect ? 'perfect' : 'good');
+        ringAnim = performance.now();
+        if (perfect) { rayPulse = ringAnim; burstSparks(7); } else burstSparks(2);
+        if (S.combo % 27 === 0) summonBuddha('Chư Phật gia hộ · chuỗi ' + S.combo, 2800);
+      } else {
+        S.combo = 0;
+        showVerdict('Lệch nhịp', 'off');
+      }
+      updateCombo();
+    }
+    const p = stagePoint();
+    addMerit(gain, p.x, p.y, note);
+    if (!S.chanting && S.knocks % 108 === 0) { summonBuddha('Viên mãn 108 tiếng mõ', 3200); rainPetals(40); }
+    advanceSyllable();
+    save();
+  }
+  function advanceSyllable() {
+    const syl = syllables(S.lineIdx);
+    voiceFor(syl[S.syl]);
+    S.syl++;
+    if (S.syl >= syl.length) {
+      S.lines++;
+      const bonus = syl.length * (S.chanting ? 2 : 1);
+      const p = stagePoint();
+      setTimeout(() => addMerit(bonus, p.x, p.y - 30, 'trọn câu'), 180);
+      if (ac) playBell(ac.currentTime + 0.12, 392, 0.22, 3.5, sfx);
+      rainPetals(16);
+      S.lineIdx = (S.lineIdx + 1) % sutra().lines.length;
+      S.syl = 0;
+    }
+    renderLine();
+  }
+  function bell() {
+    if (!ensureAudio()) return;
+    const b = $('bellBtn');
+    if (b.disabled) return;
+    playBell(ac.currentTime + 0.01, 130.81, 0.9, 10, sfx);
+    bellAnim = performance.now();
+    rayPulse = bellAnim; divineSpike = Math.max(divineSpike, 0.7);
+    rainPetals(28);
+    const p = stagePoint();
+    addMerit(9, p.x, p.y - 40, 'chuông');
+    save();
+    b.disabled = true;
+    setTimeout(() => { b.disabled = false; }, 4000);
+  }
+
+  // ---------- UI ----------
+  function renderLine() {
+    const syl = syllables(S.lineIdx);
+    const el = $('line');
+    el.replaceChildren(...syl.flatMap((w, i) => {
+      const s = document.createElement('span');
+      s.className = 'syl' + (i < S.syl ? ' done' : i === S.syl ? ' now' : '');
+      s.textContent = w;
+      return i ? [document.createTextNode(' '), s] : [s];
+    }));
+    const lines = sutra().lines;
+    $('nextLine').textContent = lines.length > 1 ? lines[(S.lineIdx + 1) % lines.length] : 'Mỗi tiếng mõ, tụng một chữ.';
+    $('sutraName').textContent = sutra().name;
+  }
+  function renderStats() {
+    $('merit').textContent = fmt(S.merit);
+    $('sKnocks').textContent = fmt(S.knocks);
+    $('sLines').textContent = fmt(S.lines);
+    $('sBest').textContent = fmt(S.best);
+    $('sAcc').textContent = S.judged ? Math.round(100 * S.hits / S.judged) + '%' : '–';
+    const r = realmOf(S.merit);
+    $('realmName').textContent = REALMS[r][0];
+    if (r + 1 < REALMS.length) {
+      const lo = REALMS[r][1], hi = REALMS[r + 1][1];
+      $('realmNext').textContent = fmt(S.merit) + ' / ' + fmt(hi);
+      $('realmBar').style.width = (100 * (S.merit - lo) / (hi - lo)).toFixed(1) + '%';
+    } else {
+      $('realmNext').textContent = 'viên mãn';
+      $('realmBar').style.width = '100%';
+    }
+  }
+  function updateCombo() {
+    $('comboLabel').textContent = S.chanting && S.combo > 1 ? 'Chuỗi ' + S.combo + ' · x' + mult() : '';
+  }
+  let verdictTimer = null;
+  function showVerdict(text, kind, ms = 700) {
+    const v = $('verdict');
+    v.textContent = text; v.dataset.k = kind;
+    v.classList.remove('show'); void v.offsetWidth;
+    v.style.animationDuration = ms + 'ms';
+    v.classList.add('show');
+    clearTimeout(verdictTimer);
+    verdictTimer = setTimeout(() => v.classList.remove('show'), ms);
+  }
+  function floater(text, x, y, note) {
+    const f = document.createElement('div');
+    f.className = 'floater';
+    f.style.left = (x + (Math.random() * 40 - 20)) + 'px';
+    f.style.top = (y - 20) + 'px';
+    f.textContent = text;
+    if (note) { const s = document.createElement('small'); s.textContent = note; f.append(s); }
+    $('stage').append(f);
+    setTimeout(() => f.remove(), 950);
+  }
+  function seg(el, items, isOn, onPick) {
+    el.replaceChildren(...items.map(it => {
+      const b = document.createElement('button');
+      b.type = 'button'; b.textContent = it.label;
+      if (it.disabled) { b.disabled = true; b.title = it.disabled; }
+      b.setAttribute('aria-pressed', String(isOn(it)));
+      b.addEventListener('click', () => { onPick(it); seg(el, items, isOn, onPick); });
+      return b;
+    }));
+  }
+  seg($('sutraSeg'), SUTRAS.map(s => ({ ...s, label: s.short })), it => it.id === S.sutra, it => {
+    S.sutra = it.id; S.lineIdx = 0; S.syl = 0; renderLine(); save();
+  });
+  seg($('tempoSeg'), TEMPOS, it => it.bpm === S.bpm, it => {
+    S.bpm = it.bpm; save();
+    if (S.chanting) { stopChant(); startChant(); }
+  });
+
+  function renderVoiceSeg() {
+    if (S.voice === 'doc' && !viVoice) S.voice = 'ngan';
+    seg($('voiceSeg'), [
+      { id: 'ngan', label: 'Ngân' },
+      { id: 'doc', label: 'Đọc', disabled: viVoice ? '' : 'Thiết bị chưa có giọng đọc tiếng Việt' },
+      { id: 'off', label: 'Tắt' },
+    ], it => it.id === S.voice, it => {
+      S.voice = it.id; save();
+      if (it.id !== 'off' && ensureAudio()) voiceFor(it.id === 'doc' ? 'Mô' : 'Nam');
+    });
+  }
+  const wantedVoice = S.voice;
+  renderVoiceSeg();
+  if ('speechSynthesis' in window) {
+    const retry = () => { if (wantedVoice === 'doc' && viVoice) S.voice = 'doc'; findVoice(); };
+    findVoice(); retry();
+    speechSynthesis.addEventListener?.('voiceschanged', retry);
+  }
+
+  $('musicBtn').setAttribute('aria-pressed', String(S.music));
+  $('musicBtn').addEventListener('click', () => {
+    S.music = !S.music; save();
+    $('musicBtn').setAttribute('aria-pressed', String(S.music));
+    if (ensureAudio()) {
+      music.gain.setTargetAtTime(S.music ? 1 : 0, ac.currentTime, 0.3);
+      if (S.music && S.chanting) startDrone();
+      if (!S.music) stopDrone();
+    }
+  });
+  $('chantBtn').addEventListener('click', () => S.chanting ? stopChant() : startChant());
+  $('bellBtn').addEventListener('click', bell);
+  $('stage').addEventListener('pointerdown', e => { if (e.button === 0) { e.preventDefault(); knock(); } });
+  document.addEventListener('keydown', e => {
+    if (e.repeat || e.metaKey || e.ctrlKey || e.altKey) return;
+    const tag = e.target.tagName;
+    if (e.code === 'Space' && tag !== 'BUTTON') { e.preventDefault(); knock(); }
+    else if (e.code === 'Space' && tag === 'BUTTON' && e.target.closest('.seg')) { /* let buttons work */ }
+    else if (e.key === 'b' || e.key === 'B') bell();
+    else if (e.key === 'Enter' && tag !== 'BUTTON') { e.preventDefault(); S.chanting ? stopChant() : startChant(); }
+  });
+  document.addEventListener('visibilitychange', () => { if (document.hidden && S.chanting) stopChant(); });
+
+  // ---------- drawing ----------
+  const cv = $('cv'), g = cv.getContext('2d');
+  let W = 0, H = 0, DPR = 1, strikeAnim = -1e9, ringAnim = -1e9, bellAnim = -1e9;
+  const ripples = [];
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+  let colors = {};
+  function readColors() {
+    const cs = getComputedStyle(document.documentElement);
+    for (const k of ['ink', 'ink3', 'ink4', 'lotus', 'halo', 'wood-hi', 'wood', 'wood-lo', 'wood-cut', 'cushion', 'cushion-hi', 'gold', 'line2'])
+      colors[k] = cs.getPropertyValue('--' + k).trim();
+  }
+  readColors();
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', readColors);
+  new MutationObserver(readColors).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+  function resize() {
+    const r = cv.getBoundingClientRect();
+    DPR = Math.min(2, window.devicePixelRatio || 1);
+    W = r.width; H = r.height;
+    cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR);
+  }
+  new ResizeObserver(resize).observe(cv);
+
+  function geom() {
+    const s = Math.min(W * 0.62, H * 0.62, 340);
+    return { cx: W / 2, cy: H * 0.56, s };
+  }
+  function stagePoint() { const { cx, cy, s } = geom(); return { x: cx, y: cy - s * 0.35 }; }
+
+  function drawMo(cx, cy, s, squash) {
+    const rx = s * 0.5, ry = s * 0.36 * squash;
+    // cushion
+    g.save();
+    g.beginPath(); g.ellipse(cx, cy + s * 0.32, s * 0.6, s * 0.14, 0, 0, Math.PI * 2);
+    const cg = g.createLinearGradient(0, cy + s * 0.18, 0, cy + s * 0.46);
+    cg.addColorStop(0, colors['cushion-hi']); cg.addColorStop(1, colors.cushion);
+    g.fillStyle = cg; g.fill();
+    g.lineWidth = Math.max(1.5, s * 0.008); g.strokeStyle = colors.gold; g.stroke();
+    // tassels at the cushion's corners
+    for (const dx of [-1, 1]) {
+      g.beginPath(); g.arc(cx + dx * s * 0.6, cy + s * 0.34, s * 0.022, 0, Math.PI * 2);
+      g.fillStyle = colors.gold; g.fill();
+    }
+    g.restore();
+
+    const by = cy + s * 0.04 + (1 - squash) * s * 0.36;
+    // body
+    g.save();
+    g.beginPath(); g.ellipse(cx, by, rx, ry, 0, 0, Math.PI * 2);
+    const bg = g.createRadialGradient(cx - rx * 0.35, by - ry * 0.55, s * 0.04, cx, by, rx * 1.05);
+    bg.addColorStop(0, colors['wood-hi']); bg.addColorStop(0.55, colors.wood); bg.addColorStop(1, colors['wood-lo']);
+    g.fillStyle = bg; g.fill();
+    g.clip();
+    // carved scales across the crown
+    g.strokeStyle = 'rgba(40,16,4,0.22)'; g.lineWidth = Math.max(1, s * 0.006);
+    for (let row = 0; row < 3; row++) {
+      const yy = by - ry * (0.62 - row * 0.2), n = 5 + row, w = rx * (1.1 + row * 0.25) / n;
+      for (let i = 0; i < n; i++) {
+        const xx = cx - (n - 1) * w / 2 + i * w;
+        g.beginPath(); g.arc(xx, yy, w * 0.52, 0.15 * Math.PI, 0.85 * Math.PI); g.stroke();
+      }
+    }
+    // grain
+    g.strokeStyle = 'rgba(255,220,180,0.10)';
+    for (let i = 0; i < 6; i++) {
+      g.beginPath(); g.ellipse(cx + rx * 0.1, by + ry * 0.1, rx * (0.35 + i * 0.12), ry * (0.2 + i * 0.1), 0.08, Math.PI * 1.05, Math.PI * 1.6); g.stroke();
+    }
+    g.restore();
+
+    // mouth slit — the hollow that sings
+    const sy = by + ry * 0.2;
+    g.beginPath();
+    g.moveTo(cx - rx * 0.72, sy);
+    g.quadraticCurveTo(cx, sy + ry * 0.42, cx + rx * 0.72, sy);
+    g.quadraticCurveTo(cx, sy + ry * 0.2, cx - rx * 0.72, sy);
+    g.closePath();
+    g.fillStyle = colors['wood-cut']; g.fill();
+    // fish eyes at both ends of the slit
+    for (const dx of [-1, 1]) {
+      const ex = cx + dx * rx * 0.78, ey = sy - ry * 0.08;
+      g.beginPath(); g.arc(ex, ey, s * 0.03, 0, Math.PI * 2); g.fillStyle = colors['wood-cut']; g.fill();
+      g.beginPath(); g.arc(ex - s * 0.008, ey - s * 0.008, s * 0.009, 0, Math.PI * 2); g.fillStyle = 'rgba(255,230,200,0.5)'; g.fill();
+    }
+    // rim light
+    g.beginPath(); g.ellipse(cx, by, rx, ry, 0, Math.PI * 1.1, Math.PI * 1.55);
+    g.strokeStyle = 'rgba(255,235,210,0.35)'; g.lineWidth = Math.max(1.5, s * 0.01); g.stroke();
+    return { top: by - ry };
+  }
+
+  function drawMallet(cx, top, s, swing) {
+    // pivot sits up and to the right; swing 0 = resting raised, 1 = striking the crown
+    const px = cx + s * 0.62, py = top - s * 0.28;
+    const rest = -0.55, hit = 0.12;
+    const a = rest + (hit - rest) * swing;
+    g.save();
+    g.translate(px, py); g.rotate(Math.PI + a);
+    const len = s * 0.62;
+    g.lineCap = 'round';
+    g.strokeStyle = colors['wood-lo']; g.lineWidth = s * 0.035;
+    g.beginPath(); g.moveTo(0, 0); g.lineTo(len, 0); g.stroke();
+    g.strokeStyle = 'rgba(255,220,180,0.25)'; g.lineWidth = s * 0.01;
+    g.beginPath(); g.moveTo(s * 0.02, -s * 0.008); g.lineTo(len - s * 0.02, -s * 0.008); g.stroke();
+    g.beginPath(); g.arc(len, 0, s * 0.065, 0, Math.PI * 2);
+    const hg = g.createRadialGradient(len - s * 0.02, -s * 0.025, s * 0.01, len, 0, s * 0.07);
+    hg.addColorStop(0, colors['cushion-hi']); hg.addColorStop(1, colors.cushion);
+    g.fillStyle = hg; g.fill();
+    g.restore();
+  }
+
+  // ---------- gods and Buddhas ----------
+  // Halo rays behind the mõ, a Buddha who rises in golden light at milestones, a rain of
+  // lotus petals (thiên hoa) and motes of light on perfect strikes.
+  const petals = [], sparks = [];
+  let rayPulse = -1e9, apparition = null, divineSpike = 0, lastFrame = 0;
+  function rainPetals(n) {
+    if (!W) return;
+    if (reduce.matches) n = Math.min(n, 8);
+    for (let i = 0; i < n; i++) petals.push({
+      x: Math.random() * W, y: -20 - Math.random() * H * 0.7,
+      vy: 28 + Math.random() * 40, sway: Math.random() * 6, amp: 10 + Math.random() * 26,
+      rot: Math.random() * 6, vr: (Math.random() - 0.5) * 2.4, size: 5 + Math.random() * 6, gold: Math.random() < 0.3,
+    });
+    if (petals.length > 240) petals.splice(0, petals.length - 240);
+  }
+  function burstSparks(n) {
+    if (!W) return;
+    const { cx, cy, s } = geom();
+    for (let i = 0; i < n; i++) sparks.push({
+      x: cx + (Math.random() - 0.5) * s * 0.8, y: cy - s * 0.25 + (Math.random() - 0.5) * s * 0.3,
+      vx: (Math.random() - 0.5) * 36, vy: -45 - Math.random() * 80, life: 1, size: 1.5 + Math.random() * 2.5,
+    });
+  }
+  function summonBuddha(text, ms) {
+    apparition = { t: performance.now(), ms };
+    divineSpike = 1;
+    showVerdict(text, 'divine', ms * 0.85);
+    const f = $('flash'); f.classList.remove('on'); void f.offsetWidth; f.classList.add('on');
+    if (ac) {
+      playBell(ac.currentTime + 0.02, 98, 0.6, 10, sfx);
+      playBell(ac.currentTime + 0.7, 146.83, 0.35, 8, sfx);
+      playBell(ac.currentTime + 1.4, 196, 0.22, 6, sfx);
+    }
+  }
+  // A seated Buddha in meditation on a lotus throne, built from simple shapes; baseY is the throne.
+  function drawBuddha(c, x, baseY, h, fill) {
+    const u = h / 10;
+    c.fillStyle = fill;
+    c.beginPath();
+    for (let i = -4; i <= 4; i++) { // throne petals
+      c.moveTo(x + i * 0.85 * u + 0.5 * u, baseY);
+      c.ellipse(x + i * 0.85 * u, baseY - 0.25 * u, 0.5 * u, 0.85 * u, 0, 0, Math.PI * 2);
+    }
+    c.fill();
+    c.beginPath(); c.ellipse(x, baseY - 1.35 * u, 3.5 * u, 1.15 * u, 0, 0, Math.PI * 2); c.fill(); // crossed legs
+    c.beginPath(); // torso and arms
+    c.moveTo(x - 0.55 * u, baseY - 7.0 * u);
+    c.quadraticCurveTo(x - 2.1 * u, baseY - 6.9 * u, x - 2.3 * u, baseY - 5.6 * u);
+    c.quadraticCurveTo(x - 2.9 * u, baseY - 3.2 * u, x - 2.7 * u, baseY - 1.7 * u);
+    c.lineTo(x + 2.7 * u, baseY - 1.7 * u);
+    c.quadraticCurveTo(x + 2.9 * u, baseY - 3.2 * u, x + 2.3 * u, baseY - 5.6 * u);
+    c.quadraticCurveTo(x + 2.1 * u, baseY - 6.9 * u, x + 0.55 * u, baseY - 7.0 * u);
+    c.closePath(); c.fill();
+    c.fillRect(x - 0.45 * u, baseY - 7.4 * u, 0.9 * u, 0.6 * u); // neck
+    c.beginPath(); c.ellipse(x, baseY - 8.1 * u, 0.95 * u, 1.15 * u, 0, 0, Math.PI * 2); c.fill(); // head
+    c.beginPath(); c.arc(x, baseY - 9.3 * u, 0.48 * u, 0, Math.PI * 2); c.fill(); // ushnisha
+    for (const d of [-1, 1]) { c.beginPath(); c.ellipse(x + d * 0.98 * u, baseY - 7.85 * u, 0.24 * u, 0.62 * u, 0, 0, Math.PI * 2); c.fill(); } // long ears
+  }
+  // Radiating light: a soft glow plus slowly turning rays.
+  function drawAura(c, x, y, r, alpha, rot, color) {
+    if (alpha <= 0.01) return;
+    c.save();
+    c.globalAlpha = Math.min(1, alpha);
+    const gl = c.createRadialGradient(x, y, 0, x, y, r);
+    gl.addColorStop(0, color); gl.addColorStop(1, 'transparent');
+    c.fillStyle = gl;
+    c.beginPath(); c.arc(x, y, r, 0, Math.PI * 2); c.fill();
+    c.translate(x, y); c.rotate(rot);
+    c.globalAlpha = Math.min(1, alpha) * 0.55;
+    c.beginPath();
+    const n = 24;
+    for (let i = 0; i < n; i++) {
+      const a = i / n * Math.PI * 2, w = Math.PI / n * 0.35;
+      c.moveTo(0, 0);
+      c.lineTo(Math.cos(a - w) * r * 1.25, Math.sin(a - w) * r * 1.25);
+      c.lineTo(Math.cos(a + w) * r * 1.25, Math.sin(a + w) * r * 1.25);
+    }
+    const rg = c.createRadialGradient(0, 0, r * 0.2, 0, 0, r * 1.25);
+    rg.addColorStop(0, color); rg.addColorStop(1, 'transparent');
+    c.fillStyle = rg; c.fill();
+    c.restore();
+  }
+  const chainGlow = () => S.chanting ? Math.min(1, S.combo / 36) : 0;
+
+  function frame(tms) {
+    requestAnimationFrame(frame);
+    if (!W) return;
+    g.setTransform(DPR, 0, 0, DPR, 0, 0);
+    g.clearRect(0, 0, W, H);
+    const { cx, cy, s } = geom();
+    const still = reduce.matches;
+    const dt = Math.min(0.05, (tms - lastFrame) / 1000 || 0);
+    lastFrame = tms;
+
+    // halo behind the mõ: brighter as the chain grows, flaring on a perfect strike or the bell
+    const pulse = Math.max(0, 1 - (tms - rayPulse) / 800);
+    drawAura(g, cx, cy, s * (0.95 + 0.2 * pulse), 0.1 + 0.35 * chainGlow() + 0.45 * pulse, still ? 0 : tms / 9000, colors.halo);
+
+    // the Buddha rises behind the mõ, holds, and fades
+    if (apparition) {
+      const k = (tms - apparition.t) / apparition.ms;
+      if (k >= 1) apparition = null;
+      else {
+        const a = k < 0.2 ? k / 0.2 : k > 0.7 ? (1 - k) / 0.3 : 1;
+        const rise = still ? 0 : (1 - Math.min(1, k / 0.3)) ** 2 * s * 0.25;
+        const base = cy + s * 0.12 + rise;
+        const h = Math.min(s * 1.35, base * 0.92);
+        drawAura(g, cx, base - h * 0.81, h * 0.55, 0.85 * a, still ? 0 : -tms / 7000, colors.halo);
+        drawAura(g, cx, base - h * 0.5, h * 0.75, 0.4 * a, still ? 0 : tms / 11000, colors.halo);
+        const gold = g.createLinearGradient(0, base - h, 0, base);
+        gold.addColorStop(0, colors.halo); gold.addColorStop(1, colors.gold);
+        g.globalAlpha = 0.8 * a;
+        drawBuddha(g, cx, base, h, gold);
+        g.globalAlpha = 1;
+      }
+    }
+
+    const since = tms - strikeAnim;
+    const swing = since < 70 ? since / 70 : since < 260 ? 1 - (since - 70) / 190 : 0;
+    const squash = still ? 1 : 1 - 0.035 * Math.max(0, 1 - Math.abs(since - 70) / 90);
+
+    // bell: a slow golden halo
+    const bs = (tms - bellAnim) / 2400;
+    if (bs < 1) {
+      g.beginPath(); g.arc(cx, cy, s * (0.55 + bs * 0.5), 0, Math.PI * 2);
+      g.strokeStyle = colors.gold; g.globalAlpha = 0.5 * (1 - bs); g.lineWidth = 3; g.stroke(); g.globalAlpha = 1;
+    }
+
+    // approach rings: each beat closes in on the mõ and lands at its rim
+    if (S.chanting && ac) {
+      const now = ac.currentTime - latency(), bd = beatDur();
+      for (const b of beats) {
+        const dt = b.t - now;
+        if (dt < -0.12 || dt > bd * 1.6) continue;
+        const k = Math.max(0, dt) / (bd * 1.6);
+        const r = s * (0.56 + k * 0.7);
+        g.beginPath(); g.arc(cx, cy, r, 0, Math.PI * 2);
+        g.strokeStyle = b.count ? colors.ink3 : colors.lotus;
+        g.globalAlpha = (b.judged && !b.count) ? 0.12 : Math.min(1, (1 - k) * 1.4) * (dt < 0 ? 1 + dt / 0.12 : 1);
+        g.lineWidth = b.count ? 1.5 : 2.5;
+        g.stroke();
+        if (b.count && dt > 0 && dt < bd) {
+          g.globalAlpha = 1; g.fillStyle = colors.ink3;
+          g.font = '600 ' + Math.round(s * 0.09) + 'px ' + getComputedStyle(document.body).getPropertyValue('--f-mono');
+          g.textAlign = 'center'; g.fillText(String(b.count), cx, cy - s * 0.62);
+        }
+      }
+      g.globalAlpha = 1;
+      // the target rim
+      g.beginPath(); g.arc(cx, cy, s * 0.56, 0, Math.PI * 2);
+      g.strokeStyle = colors.line2; g.lineWidth = 1; g.stroke();
+
+      // missed beats break the chain
+      for (const b of beats) if (!b.judged && now > b.t + GOOD) {
+        b.judged = true; S.judged++;
+        if (S.combo) showVerdict('Lỡ nhịp', 'miss');
+        S.combo = 0; updateCombo(); renderStats();
+      }
+    }
+
+    const hitRing = (tms - ringAnim) / 360;
+    if (hitRing < 1 && !still) {
+      g.beginPath(); g.arc(cx, cy, s * (0.56 + hitRing * 0.12), 0, Math.PI * 2);
+      g.strokeStyle = colors.lotus; g.globalAlpha = 1 - hitRing; g.lineWidth = 4 * (1 - hitRing) + 1; g.stroke(); g.globalAlpha = 1;
+    }
+
+    const { top } = drawMo(cx, cy, s, squash);
+
+    // ripples from the strike point
+    if (since < 30 && !ripples.some(r => r.t === strikeAnim)) ripples.push({ t: strikeAnim });
+    for (let i = ripples.length - 1; i >= 0; i--) {
+      const k = (tms - ripples[i].t) / 650;
+      if (k >= 1) { ripples.splice(i, 1); continue; }
+      if (still) continue;
+      g.beginPath(); g.ellipse(cx, top + s * 0.04, s * (0.08 + k * 0.5), s * (0.03 + k * 0.16), 0, Math.PI, Math.PI * 2);
+      g.strokeStyle = colors.ink4; g.globalAlpha = 0.6 * (1 - k); g.lineWidth = 1.5; g.stroke(); g.globalAlpha = 1;
+    }
+
+    drawMallet(cx, top, s, still ? 0 : swing);
+
+    // motes of light rising from the mõ
+    for (let i = sparks.length - 1; i >= 0; i--) {
+      const p = sparks[i];
+      p.life -= dt * 0.9; p.x += p.vx * dt; p.y += p.vy * dt; p.vy *= 0.985;
+      if (p.life <= 0) { sparks.splice(i, 1); continue; }
+      g.globalAlpha = p.life;
+      g.beginPath(); g.arc(p.x, p.y, p.size * 2.6, 0, Math.PI * 2); g.fillStyle = colors.halo; g.globalAlpha = p.life * 0.25; g.fill();
+      g.beginPath(); g.arc(p.x, p.y, p.size, 0, Math.PI * 2); g.globalAlpha = p.life; g.fill();
+    }
+    g.globalAlpha = 1;
+    // lotus petals falling from the sky
+    for (let i = petals.length - 1; i >= 0; i--) {
+      const p = petals[i];
+      p.y += p.vy * dt; p.rot += p.vr * dt; p.sway += dt * 1.6;
+      if (p.y > H + 20) { petals.splice(i, 1); continue; }
+      if (p.y < -10) continue;
+      g.save();
+      g.translate(p.x + Math.sin(p.sway) * p.amp, p.y); g.rotate(p.rot);
+      g.beginPath(); g.moveTo(0, -p.size);
+      g.quadraticCurveTo(p.size * 0.7, 0, 0, p.size);
+      g.quadraticCurveTo(-p.size * 0.7, 0, 0, -p.size);
+      g.fillStyle = p.gold ? colors.halo : colors.lotus; g.globalAlpha = 0.85; g.fill();
+      g.restore();
+    }
+    g.globalAlpha = 1;
+  }
+
+  // ---------- scene: temple hills at dawn (light) or under the moon (dark) ----------
+  const sc = $('scene'), sx = sc.getContext('2d');
+  let sW = 0, sH = 0, sDPR = 1, sceneBase = null, sc_ = {};
+  const lanterns = [];
+  function rng(seed) { return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  function readScene() {
+    const cs = getComputedStyle(document.documentElement);
+    for (const k of ['sky-top', 'sky-mid', 'sky-bot', 'orb', 'orb-glow', 'mtn-far', 'mtn-mid', 'mtn-near', 'pagoda', 'mist', 'water-top', 'water-bot', 'lantern-flame', 'lotus', 'stars', 'buddha-sky', 'halo'])
+      sc_[k] = cs.getPropertyValue('--' + k).trim();
+  }
+  function ridge(r, x, base, amp) {
+    return base - amp * (0.55 * Math.sin(x * r.f1 + r.p1) + 0.3 * Math.sin(x * r.f2 + r.p2) + 0.15 * Math.abs(Math.sin(x * r.f3 + r.p3)));
+  }
+  function buildScene() {
+    readScene();
+    const r = sc.getBoundingClientRect();
+    sDPR = Math.min(2, window.devicePixelRatio || 1);
+    sW = r.width; sH = r.height;
+    if (!sW || !sH) return;
+    sc.width = Math.round(sW * sDPR); sc.height = Math.round(sH * sDPR);
+    const off = document.createElement('canvas');
+    off.width = sc.width; off.height = sc.height;
+    let o = off.getContext('2d');
+    o.scale(sDPR, sDPR);
+    const rand = rng(108);
+    const waterY = sH * 0.86;
+
+    const sky = o.createLinearGradient(0, 0, 0, waterY);
+    sky.addColorStop(0, sc_['sky-top']); sky.addColorStop(0.55, sc_['sky-mid']); sky.addColorStop(1, sc_['sky-bot']);
+    o.fillStyle = sky; o.fillRect(0, 0, sW, waterY);
+
+    const stars = parseFloat(sc_.stars) || 0;
+    if (stars) {
+      o.fillStyle = sc_.orb;
+      for (let i = 0; i < 160; i++) {
+        const x = rand() * sW, y = rand() * waterY * 0.6, a = rand();
+        o.globalAlpha = stars * a * 0.8; o.fillRect(x, y, a > 0.85 ? 1.6 : 1, a > 0.85 ? 1.6 : 1);
+      }
+      o.globalAlpha = 1;
+    }
+
+    const ox = sW * 0.76, oy = sH * 0.24, orr = Math.max(26, Math.min(sW, sH) * 0.065);
+    const glow = o.createRadialGradient(ox, oy, orr * 0.6, ox, oy, orr * 5);
+    glow.addColorStop(0, sc_['orb-glow']); glow.addColorStop(1, 'transparent');
+    o.fillStyle = glow; o.fillRect(0, 0, sW, waterY);
+    o.beginPath(); o.arc(ox, oy, orr, 0, Math.PI * 2); o.fillStyle = sc_.orb; o.fill();
+
+    // everything from the hills forward goes on its own layer, so the sky Buddha sits between
+    const front = document.createElement('canvas');
+    front.width = sc.width; front.height = sc.height;
+    o = front.getContext('2d');
+    o.scale(sDPR, sDPR);
+
+    const layers = [
+      { c: sc_['mtn-far'], base: 0.56, amp: 0.1, k: 1 },
+      { c: sc_['mtn-mid'], base: 0.68, amp: 0.09, k: 1.7 },
+      { c: sc_['mtn-near'], base: 0.8, amp: 0.06, k: 2.6 },
+    ];
+    let pagodaAt = null;
+    layers.forEach((L, li) => {
+      const R = { f1: (2.2 + rand()) * L.k / sW * Math.PI, f2: (5 + rand() * 3) * L.k / sW * Math.PI, f3: (13 + rand() * 6) * L.k / sW * Math.PI, p1: rand() * 6, p2: rand() * 6, p3: rand() * 6 };
+      o.beginPath(); o.moveTo(0, waterY);
+      for (let x = 0; x <= sW + 8; x += 8) o.lineTo(x, ridge(R, x, sH * L.base, sH * L.amp));
+      o.lineTo(sW, waterY); o.closePath();
+      o.fillStyle = L.c; o.fill();
+      if (li === 1) {
+        const px = sW * 0.17;
+        pagodaAt = { x: px, y: ridge(R, px, sH * L.base, sH * L.amp) };
+      }
+      // mist sitting in each valley
+      const m = o.createLinearGradient(0, sH * L.base - sH * 0.02, 0, sH * L.base + sH * 0.08);
+      m.addColorStop(0, 'transparent'); m.addColorStop(1, sc_.mist);
+      o.fillStyle = m; o.fillRect(0, sH * L.base - sH * 0.02, sW, sH * 0.1);
+    });
+
+    // a five-tier stupa on the middle hill
+    if (pagodaAt) {
+      const u = Math.max(10, Math.min(sW, sH) * 0.022);
+      let y = pagodaAt.y + u * 0.6;
+      o.fillStyle = sc_.pagoda;
+      for (let i = 0; i < 5; i++) {
+        const w = u * (3.4 - i * 0.48), h = u * (1.25 - i * 0.08);
+        o.fillRect(pagodaAt.x - w * 0.32, y - h, w * 0.64, h);
+        const ry = y - h, ew = w * 0.62;
+        o.beginPath();
+        o.moveTo(pagodaAt.x - ew, ry - u * 0.32);
+        o.quadraticCurveTo(pagodaAt.x - ew * 0.7, ry + u * 0.12, pagodaAt.x - w * 0.3, ry + u * 0.06);
+        o.lineTo(pagodaAt.x + w * 0.3, ry + u * 0.06);
+        o.quadraticCurveTo(pagodaAt.x + ew * 0.7, ry + u * 0.12, pagodaAt.x + ew, ry - u * 0.32);
+        o.quadraticCurveTo(pagodaAt.x, ry - u * 0.05, pagodaAt.x - ew, ry - u * 0.32);
+        o.fill();
+        y = ry - u * 0.02;
+      }
+      o.fillRect(pagodaAt.x - u * 0.08, y - u * 1.4, u * 0.16, u * 1.4);
+      o.beginPath(); o.arc(pagodaAt.x, y - u * 1.45, u * 0.18, 0, Math.PI * 2); o.fill();
+    }
+
+    // still water with the orb's reflection
+    const wg = o.createLinearGradient(0, waterY, 0, sH);
+    wg.addColorStop(0, sc_['water-top']); wg.addColorStop(1, sc_['water-bot']);
+    o.fillStyle = wg; o.fillRect(0, waterY, sW, sH - waterY);
+    o.fillStyle = sc_.orb;
+    for (let i = 0; i < 14; i++) {
+      const y = waterY + 4 + i * (sH - waterY) / 15, w = orr * (1.6 - i * 0.07) * (0.6 + rand() * 0.6);
+      o.globalAlpha = 0.35 * (1 - i / 15); o.fillRect(ox - w / 2, y, w, 1.5);
+    }
+    o.globalAlpha = 1;
+    sceneBase = { sky: off, front };
+
+    if (!lanterns.length) {
+      const lr = rng(7);
+      for (let i = 0; i < 7; i++) lanterns.push({ x: lr(), d: lr(), v: 0.004 + lr() * 0.006, ph: lr() * 6 });
+    }
+  }
+  function drawLantern(x, y, s, t, ph) {
+    const flick = 0.85 + 0.15 * Math.sin(t * 7 + ph * 3);
+    const gl = sx.createRadialGradient(x, y - s * 0.6, 0, x, y - s * 0.6, s * 4);
+    gl.addColorStop(0, sc_['lantern-flame']); gl.addColorStop(1, 'transparent');
+    sx.globalAlpha = 0.35 * flick; sx.fillStyle = gl; sx.fillRect(x - s * 4, y - s * 4.6, s * 8, s * 8);
+    // reflection
+    sx.globalAlpha = 0.25 * flick; sx.fillStyle = sc_['lantern-flame'];
+    sx.fillRect(x - s * 0.5, y + s * 0.5, s, s * 2.2);
+    sx.globalAlpha = 1;
+    // lotus petals
+    sx.fillStyle = sc_.lotus;
+    for (const [a, k] of [[-0.9, 0.8], [0.9, 0.8], [-0.45, 1], [0.45, 1], [0, 1.1]]) {
+      sx.save(); sx.translate(x, y); sx.rotate(a);
+      sx.beginPath(); sx.ellipse(0, -s * 0.55 * k, s * 0.28, s * 0.6 * k, 0, 0, Math.PI * 2);
+      sx.globalAlpha = 0.9; sx.fill(); sx.restore();
+    }
+    sx.globalAlpha = 1;
+    sx.beginPath(); sx.arc(x, y - s * 0.75, s * 0.18 * flick, 0, Math.PI * 2);
+    sx.fillStyle = sc_['lantern-flame']; sx.fill();
+  }
+  let lastScene = 0;
+  function sceneFrame(tms) {
+    requestAnimationFrame(sceneFrame);
+    if (!sceneBase || tms - lastScene < 33) return;
+    const dt = Math.min(0.1, (tms - lastScene) / 1000);
+    lastScene = tms;
+    const still = reduce.matches, t = tms / 1000;
+    sx.setTransform(1, 0, 0, 1, 0, 0);
+    sx.drawImage(sceneBase.sky, 0, 0);
+    sx.setTransform(sDPR, 0, 0, sDPR, 0, 0);
+    // a great Buddha seated beyond the far hills; chanting in rhythm lights him up
+    divineSpike = Math.max(0, divineSpike - dt * 0.22);
+    const lit = Math.max(chainGlow(), divineSpike);
+    const bx = sW * 0.5, bBase = sH * 0.6, bh = Math.min(sH * 0.42, sW * 0.55);
+    drawAura(sx, bx, bBase - bh * 0.81, bh * 0.45, 0.18 + 0.6 * lit, still ? 0 : t / 14, sc_.halo);
+    drawBuddha(sx, bx, bBase, bh, sc_['buddha-sky']);
+    if (lit > 0.02) { sx.globalAlpha = lit * 0.5; drawBuddha(sx, bx, bBase, bh, sc_.halo); sx.globalAlpha = 1; }
+    sx.setTransform(1, 0, 0, 1, 0, 0);
+    sx.drawImage(sceneBase.front, 0, 0);
+    sx.setTransform(sDPR, 0, 0, sDPR, 0, 0);
+    // drifting mist bands
+    for (let i = 0; i < 3; i++) {
+      const y = sH * (0.6 + i * 0.09), x = ((still ? 0.3 : t * (0.006 + i * 0.004)) + i * 0.37) % 1.6 - 0.3;
+      const cx = x * sW, w = sW * 0.6;
+      const mg = sx.createRadialGradient(cx, y, 0, cx, y, w);
+      mg.addColorStop(0, sc_.mist); mg.addColorStop(1, 'transparent');
+      sx.save(); sx.translate(cx, y); sx.scale(1, 0.12); sx.translate(-cx, -y);
+      sx.fillStyle = mg; sx.fillRect(cx - w, y - w, w * 2, w * 2); sx.restore();
+    }
+    // lotus lanterns floating on the water
+    const waterY = sH * 0.86, s = Math.max(6, Math.min(sW, sH) * 0.012);
+    for (const L of lanterns) {
+      if (!still) L.x = (L.x + L.v * dt) % 1.1;
+      const y = waterY + 10 + L.d * (sH - waterY - 22) + (still ? 0 : Math.sin(t * 1.3 + L.ph) * 1.5);
+      drawLantern(L.x * sW * 1.1 - sW * 0.05, y, s * (0.7 + L.d * 0.6), t, L.ph);
+    }
+  }
+  const rebuild = () => { buildScene(); lastScene = 0; };
+  new ResizeObserver(rebuild).observe(sc);
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', rebuild);
+  new MutationObserver(rebuild).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+  renderLine();
+  renderStats();
+  resize();
+  buildScene();
+  requestAnimationFrame(frame);
+  requestAnimationFrame(sceneFrame);
+})();
+</script>
