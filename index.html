@@ -444,6 +444,124 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
 @media (prefers-reduced-motion: reduce) {
   .floater, .verdict.show { animation-duration: 1ms; }
 }
+
+/* ── Bảng điều khiển thu gọn (details/summary) ── */
+details.panel > summary {
+  list-style: none;
+  cursor: pointer;
+  display: flex; align-items: center; gap: 10px;
+  margin: -4px; padding: 4px;
+  border-radius: 8px;
+}
+details.panel > summary::-webkit-details-marker { display: none; }
+details.panel > summary .eyebrow { margin-right: auto; }
+details.panel > summary::after {
+  content: '▾'; color: var(--ink4); font-size: 12px; line-height: 1;
+  transform: rotate(-90deg); transition: transform .2s ease;
+}
+details.panel[open] > summary::after { transform: rotate(0deg); }
+details.panel > summary:hover .eyebrow { color: var(--ink); }
+details.panel > summary:focus-visible { outline: 2px solid var(--lotus); outline-offset: 2px; }
+.panel-hint { font: 500 11.5px/1 var(--f-mono); color: var(--ink4); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.panel-hint:empty { display: none; }
+
+/* ── Thanh bên dính & cuộn được (màn hình lớn) ── */
+@media (min-width: 861px) {
+  .side {
+    position: sticky; top: 16px; align-self: start;
+    max-height: calc(100vh - 32px);
+    overflow-y: auto; overscroll-behavior: contain;
+    scrollbar-width: thin;
+  }
+  .side::-webkit-scrollbar { width: 8px; }
+  .side::-webkit-scrollbar-thumb { background: var(--line2); border-radius: 4px; }
+}
+
+/* ── Chế độ tập trung ── */
+body.zen .side, body.zen #ticker, body.zen #festival, body.zen .foot, body.zen .brand span { display: none; }
+body.zen .app { max-width: 960px; }
+body.zen .main { grid-template-columns: minmax(0, 1fr); }
+body.zen .stage-card { flex: 1; }
+body.zen .stage { min-height: 58vh; }
+@media (max-width: 860px) {
+  body.zen .stage { height: auto; min-height: 52vh; flex: 1; }
+}
+
+/* ── Gọn gàng trên màn hình hẹp ── */
+@media (max-width: 560px) {
+  .top-actions { gap: 6px; }
+  .top-actions .pill { height: 36px; padding: 0 12px; font-size: 13px; }
+  #themeTx, #zenTx { display: none; }
+}
+
+/* ── Thanh tiến trình công đức trên sân khấu ── */
+.stage-prog {
+  position: absolute; left: 14px; right: 14px; bottom: 12px;
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 12px; border-radius: 14px;
+  background: var(--glass); border: 1px solid var(--line);
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  pointer-events: none;
+  font: 500 11.5px/1 var(--f-mono); color: var(--ink3);
+}
+.stage-prog[hidden] { display: none; }
+.sp-realm { font-family: var(--f-ui); font-weight: 600; font-size: 12px; color: var(--realm-accent, var(--lotus)); white-space: nowrap; }
+.sp-bar { flex: 1; min-width: 40px; height: 5px; border-radius: 3px; background: var(--surface); overflow: hidden; }
+.sp-bar > i { display: block; height: 100%; width: 0; border-radius: 3px; background: linear-gradient(90deg, var(--realm-accent, var(--lotus)), var(--gold)); box-shadow: 0 0 8px var(--realm-glow, transparent); transition: width .4s ease; }
+.sp-val { font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+/* ── Công tắc hiển thị ── */
+.set-row { display: flex; align-items: center; gap: 10px; padding: 5px 0; font-size: 12.5px; color: var(--ink2); cursor: pointer; }
+.set-row input { width: 16px; height: 16px; flex: 0 0 auto; accent-color: var(--realm-accent, var(--lotus)); }
+.set-row:hover { color: var(--ink); }
+
+/* ── Giảm chuyển động (bật thủ công) ── */
+body.calm *, body.calm *::before, body.calm *::after {
+  animation-duration: 1ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 1ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* ── Pháp khí: thẻ trưng bày ── */
+.pk-head { display: flex; align-items: center; gap: 13px; padding: 12px 13px; border: 1px solid var(--line2); border-radius: 14px; background: var(--surface); }
+.pk-head-art { position: relative; width: 54px; height: 54px; flex: 0 0 auto; border-radius: 50%; display: grid; place-items: center; font-size: 26px; background: radial-gradient(75% 75% at 38% 28%, var(--w1), var(--w3) 82%); box-shadow: inset 0 0 0 2px var(--realm-accent, var(--lotus)), 0 0 16px var(--realm-glow, transparent); }
+.pk-head-tx { flex: 1; min-width: 0; display: grid; gap: 3px; }
+.pk-head-name { font-weight: 600; font-size: 14px; }
+.pk-head-desc { font-size: 12px; color: var(--ink3); }
+.pk-prog { display: flex; align-items: center; gap: 9px; margin: 0 2px; font: 500 11px/1 var(--f-mono); color: var(--ink3); }
+.pk-prog .bar { flex: 1; }
+.pk-prog .bar > i { background: linear-gradient(90deg, var(--realm-accent, var(--lotus)), var(--gold)); }
+
+.pk-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(146px, 1fr)); gap: 10px; }
+.pk-card { position: relative; appearance: none; padding: 0; display: grid; overflow: hidden; text-align: left; cursor: pointer; background: var(--card); color: var(--ink); font: inherit; border: 1px solid var(--line2); border-radius: 14px; transition: transform .12s ease, border-color .14s ease, box-shadow .14s ease; }
+.pk-card:not(.locked):hover { transform: translateY(-2px); border-color: var(--ink4); }
+.pk-card:not(.locked):active { transform: scale(.985); }
+.pk-card:focus-visible { outline: 2px solid var(--lotus); outline-offset: 2px; }
+.pk-card.equipped { border-color: var(--realm-accent, var(--lotus)); box-shadow: inset 0 0 0 1px var(--realm-accent, var(--lotus)), 0 6px 18px var(--realm-glow, transparent); }
+.pk-card.locked { cursor: default; }
+.pk-art { position: relative; aspect-ratio: 1.5; display: grid; place-items: center; overflow: hidden; background: radial-gradient(90% 80% at 50% 18%, var(--w1), transparent 74%), linear-gradient(165deg, var(--w3), var(--w4)); }
+.pk-art::before { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 30%; background: linear-gradient(var(--c1), var(--c2)); border-radius: 46% 46% 0 0 / 42% 42% 0 0; }
+.pk-emoji { position: relative; z-index: 1; font-size: 38px; line-height: 1; transform: translateY(-8%); filter: drop-shadow(0 6px 12px rgba(0,0,0,.45)); transition: transform .25s ease; }
+.pk-card:not(.locked):hover .pk-emoji { transform: translateY(-14%) scale(1.07); }
+.pk-chip { position: absolute; z-index: 2; top: 7px; right: 7px; font: 600 10px/1 var(--f-ui); padding: 4px 8px; border-radius: 999px; background: var(--glass); border: 1px solid var(--line2); color: var(--ink2); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+.pk-card.equipped .pk-chip { background: var(--realm-accent, var(--lotus)); border-color: transparent; color: #fff; }
+.pk-card.locked .pk-art { filter: grayscale(.8) brightness(.55); }
+.pk-info { display: grid; gap: 3px; padding: 9px 11px 11px; }
+.pk-name { font-weight: 600; font-size: 13px; }
+.pk-desc { font-size: 11.5px; line-height: 1.35; color: var(--ink3); min-height: 2.7em; }
+.pk-need { font: 500 10.5px/1.3 var(--f-mono); color: var(--ink4); }
+.pk-need:empty { display: none; }
+
+/* ── Bảng bên 2 cột trên màn hình rộng ── */
+@media (min-width: 1200px) {
+  .app { max-width: 1340px; }
+  .main { grid-template-columns: minmax(0, 1fr) clamp(470px, 44vw, 620px); }
+  .side { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-content: start; }
+  .side > .panel:first-child,
+  .side > [data-panel="sutra"],
+  .side > [data-panel="mixer"] { grid-column: 1 / -1; }
+}
 </style>
 
 <canvas id="scene" aria-hidden="true"></canvas>
@@ -463,6 +581,8 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
       <button class="pill" id="collectBtn">📿 Sưu tập</button>
       <button class="pill" id="lbBtn">🏆 Bảng xếp hạng</button>
       <button class="pill" id="musicBtn" aria-pressed="true"><span class="dot"></span>Nhạc thiền</button>
+      <button class="pill" id="themeBtn" title="Giao diện: Tự động"><span id="themeTx">Tự động</span></button>
+      <button class="pill" id="zenBtn" aria-pressed="false" title="Chế độ tập trung">🎯 <span id="zenTx">Tập trung</span></button>
     </div>
   </header>
 
@@ -484,6 +604,11 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
         <div id="rainbow-burst" aria-hidden="true"></div>
         <div class="stage-meta"><span id="modeLabel">Gõ tự do</span><span class="combo" id="comboLabel"></span></div>
         <div class="verdict" id="verdict"></div>
+        <div class="stage-prog" id="stageProgWrap">
+          <span class="sp-realm" id="spRealm">Sơ Tâm</span>
+          <span class="sp-bar"><i id="spBar"></i></span>
+          <span class="sp-val" id="spVal">0 / 108</span>
+        </div>
       </div>
       <div class="sutra" aria-live="polite">
         <div class="sutra-label" id="sutraName">Niệm Phật A Di Đà</div>
@@ -510,7 +635,8 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
         </dl>
       </section>
 
-      <section class="panel">
+      <details class="panel" data-panel="sutra" open>
+        <summary class="panel-head"><span class="eyebrow">Tụng kinh</span><span class="panel-hint" id="sutraBrief"></span></summary>
         <div class="field">
           <span class="eyebrow">Bài kinh</span>
           <div class="seg" id="sutraSeg"></div>
@@ -527,12 +653,12 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
           <button class="pill solid big" id="chantBtn">Bắt đầu tụng</button>
           <button class="pill big" id="bellBtn">Thỉnh chuông</button>
         </div>
-        <p class="hint"><kbd>Space</kbd> gõ mõ · <kbd>B</kbd> thỉnh chuông · <kbd>Enter</kbd> bắt đầu / dừng tụng. Khi tụng, gõ đúng lúc vòng hồng chạm mõ để được nhân công đức.</p>
-      </section>
+        <p class="hint"><kbd>Space</kbd> gõ mõ · <kbd>B</kbd> thỉnh chuông · <kbd>Enter</kbd> bắt đầu / dừng tụng · <kbd>F</kbd> tập trung · <kbd>T</kbd> giao diện. Khi tụng, gõ đúng lúc vòng hồng chạm mõ để được nhân công đức.</p>
+      </details>
 
-      <section class="panel">
+      <details class="panel" data-panel="mixer">
+        <summary class="panel-head"><span class="eyebrow">Âm thanh</span><span class="panel-hint">Trộn 4 kênh</span></summary>
         <div class="field">
-          <span class="eyebrow">Âm thanh</span>
           <div class="mixer">
             <label class="mix-row"><span>Tiếng mõ</span><input type="range" id="volMo" min="0" max="1" step="0.02" aria-label="Âm lượng tiếng mõ"><span class="mix-val" id="mvalMo">100%</span></label>
             <label class="mix-row"><span>Chuông &amp; tụng</span><input type="range" id="volBell" min="0" max="1" step="0.02" aria-label="Âm lượng chuông và giọng tụng"><span class="mix-val" id="mvalBell">90%</span></label>
@@ -540,21 +666,29 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
             <label class="mix-row"><span>Tiếng suối</span><input type="range" id="volAmbient" min="0" max="1" step="0.02" aria-label="Âm lượng tiếng suối nền"><span class="mix-val" id="mvalAmbient">50%</span></label>
           </div>
         </div>
-      </section>
+      </details>
 
-      <section class="panel">
+      <details class="panel" data-panel="view" open>
+        <summary class="panel-head"><span class="eyebrow">Hiển thị</span><span class="panel-hint" id="viewBrief"></span></summary>
         <div class="field">
-          <span class="eyebrow">Chuỗi tinh tấn</span>
+          <label class="set-row"><input type="checkbox" id="calmToggle"> Giảm chuyển động — dịu mắt, đỡ mỏi</label>
+          <label class="set-row"><input type="checkbox" id="spToggle"> Thanh công đức trên sân khấu</label>
+        </div>
+      </details>
+
+      <details class="panel" data-panel="streak">
+        <summary class="panel-head"><span class="eyebrow">Chuỗi tinh tấn</span><span class="panel-hint" id="streakBrief"></span></summary>
+        <div class="field">
           <div class="streak-row"><span class="streak-flame">🔥</span><span class="streak-num" id="streak-num">0</span><span class="streak-unit">ngày liên tiếp</span></div>
           <div class="streak-tier" id="streak-tier">Sơ Phát Tâm</div>
           <div class="bar"><i id="streak-bar"></i></div>
           <div class="streak-next" id="streak-next">Gõ mỗi ngày để giữ chuỗi</div>
         </div>
-      </section>
+      </details>
 
-      <section class="panel">
+      <details class="panel" data-panel="ritual">
+        <summary class="panel-head"><span class="eyebrow">Nghi lễ theo buổi</span><span class="panel-hint" id="ritualBrief"></span></summary>
         <div class="field">
-          <span class="eyebrow">Nghi lễ theo buổi</span>
           <div class="rit-badge" id="periodBadge">🌅 Sáng · thưởng ×1.5</div>
           <div class="rit-badge" id="lunarBadge">📅 —</div>
           <p class="rit-note" id="lunarNext"></p>
@@ -562,7 +696,7 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
             <button class="pill" id="incenseBtn">🪔 Dâng hương</button>
             <button class="pill" id="repentBtn">🙏 Sám hối</button>
           </div>
-          <label class="rit-toggle"><input type="checkbox" id="chimeToggle"> Chuông nhắc giờ tu · 5h · 11h · 19h</label>
+          <label class="rit-toggle"><input type="checkbox" id="chimeToggle"> Chuông nhắc giờ tu · 5h · 11h · 17h · 23h</label>
         </div>
         <div class="field">
           <span class="eyebrow">Hồi hướng công đức</span>
@@ -570,9 +704,10 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
           <p class="rit-note" id="dedNote">Còn 3 lần hồi hướng hôm nay</p>
         </div>
         <button class="pill solid big" id="medBtn">🧘 Thiền định</button>
-      </section>
+      </details>
 
-      <section class="panel">
+      <details class="panel" data-panel="wl" open>
+        <summary class="panel-head"><span class="eyebrow">Thời khóa &amp; Bố thí</span><span class="panel-hint" id="wlBrief"></span></summary>
         <div class="field">
           <span class="eyebrow">Thời khóa hôm nay</span>
           <div class="wl-list" id="wlList"></div>
@@ -583,7 +718,7 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
           <button class="pill big" id="danaBtn">🍚 Bố thí</button>
           <p class="rit-note" id="danaNote"></p>
         </div>
-      </section>
+      </details>
     </aside>
   </main>
 
@@ -1403,6 +1538,7 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
     const lines = sutra().lines;
     $('nextLine').textContent = lines.length > 1 ? lines[(S.lineIdx + 1) % lines.length] : 'Mỗi tiếng mõ, tụng một chữ.';
     $('sutraName').textContent = sutra().name;
+    const sb = $('sutraBrief'); if (sb) sb.textContent = sutra().short;
   }
   function renderStats() {
     $('merit').textContent = fmt(S.merit);
@@ -1413,13 +1549,19 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
     const r = realmOf(S.merit);
     const cur = REALMS[r];
     $('realmName').textContent = cur.name;
+    const spRealm = $('spRealm'); if (spRealm) spRealm.textContent = cur.name;
     if (r + 1 < REALMS.length) {
       const hi = REALMS[r + 1].cost;
+      const pct = (100 * (S.merit - cur.cost) / (hi - cur.cost)).toFixed(1) + '%';
       $('realmNext').textContent = fmt(S.merit) + ' / ' + fmt(hi);
-      $('realmBar').style.width = (100 * (S.merit - cur.cost) / (hi - cur.cost)).toFixed(1) + '%';
+      $('realmBar').style.width = pct;
+      const b = $('spBar'); if (b) b.style.width = pct;
+      const v = $('spVal'); if (v) v.textContent = fmt(S.merit) + ' / ' + fmt(hi);
     } else {
       $('realmNext').textContent = 'viên mãn';
       $('realmBar').style.width = '100%';
+      const b = $('spBar'); if (b) b.style.width = '100%';
+      const v = $('spVal'); if (v) v.textContent = 'viên mãn';
     }
   }
   function updateCombo() {
@@ -1565,6 +1707,7 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
       $('streak-bar').style.width = (100 * (n - prev) / (next - prev)).toFixed(1) + '%';
       $('streak-next').textContent = 'Còn ' + (next - n) + ' ngày → ' + STREAK_TIERS[ti];
     }
+    const sb = $('streakBrief'); if (sb) sb.textContent = n ? ('🔥 ' + fmt(n) + ' ngày') : 'Chưa có';
   }
   function touchDay() {
     const today = dayKey(new Date());
@@ -1617,20 +1760,50 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
     body.hidden = colTab === 'prog';
     if (colTab === 'prog') { refreshExport(); return; }
     if (colTab === 'skins') {
-      body.replaceChildren(...SKINS.map(sk => {
-        const unlocked = realmOf(S.merit) >= sk.unlock;
-        const equipped = S.skin === sk.id;
-        const row = document.createElement('button');
-        row.type = 'button';
-        row.className = 'col-row' + (unlocked ? '' : ' locked') + (equipped ? ' equipped' : '');
-        row.innerHTML = '<span class="col-ic">' + sk.emoji + '</span>'
-          + '<span class="col-tx"><span class="col-name">' + sk.name + '</span>'
-          + '<span class="col-desc">' + (unlocked ? sk.desc : ('🔒 Cần cảnh giới ' + REALMS[sk.unlock].name)) + '</span></span>'
-          + '<span class="col-act">' + (equipped ? 'Đang dùng' : unlocked ? 'Dùng ›' : '🔒') + '</span>';
-        if (unlocked && !equipped) row.addEventListener('click', () => { applySkin(sk.id); renderCollection(); toast(sk.emoji + ' Đã dùng ' + sk.name); });
-        if (!unlocked) row.disabled = true;
-        return row;
-      }));
+      const r = realmOf(S.merit), cur = curSkin();
+      const next = SKINS.find(s => s.unlock > r);
+
+      const head = document.createElement('div');
+      head.className = 'pk-head';
+      head.style.setProperty('--w1', cur.wood[0]);
+      head.style.setProperty('--w3', cur.wood[2]);
+      head.innerHTML = '<span class="pk-head-art">' + cur.emoji + '</span>'
+        + '<span class="pk-head-tx"><span class="pk-head-name">' + cur.name + '</span>'
+        + '<span class="pk-head-desc">' + cur.desc + '</span></span>';
+
+      const prog = document.createElement('div');
+      prog.className = 'pk-prog';
+      if (next) {
+        const need = REALMS[next.unlock].cost, prev = cur.cost, span = Math.max(1, need - prev);
+        const pct = Math.max(0, Math.min(100, 100 * (S.merit - prev) / span));
+        prog.innerHTML = '<span>Pháp khí kế tiếp</span><span class="bar"><i style="width:' + pct.toFixed(1) + '%"></i></span>'
+          + '<span>' + fmt(S.merit) + ' / ' + fmt(need) + '</span>';
+      } else {
+        prog.innerHTML = '<span>Đã mở khoá tất cả pháp khí</span><span class="bar"><i style="width:100%"></i></span><span>🎉</span>';
+      }
+
+      const grid = document.createElement('div');
+      grid.className = 'pk-grid';
+      for (const sk of SKINS) {
+        const unlocked = r >= sk.unlock, equipped = S.skin === sk.id;
+        const card = document.createElement('button');
+        card.type = 'button';
+        card.className = 'pk-card' + (unlocked ? '' : ' locked') + (equipped ? ' equipped' : '');
+        card.style.setProperty('--w1', sk.wood[0]);
+        card.style.setProperty('--w3', sk.wood[2]);
+        card.style.setProperty('--w4', sk.wood[3]);
+        card.style.setProperty('--c1', sk.cushion[0]);
+        card.style.setProperty('--c2', sk.cushion[1]);
+        card.innerHTML = '<span class="pk-art"><span class="pk-emoji">' + sk.emoji + '</span>'
+            + '<span class="pk-chip">' + (equipped ? 'Đang dùng' : unlocked ? 'Dùng' : '🔒') + '</span></span>'
+          + '<span class="pk-info"><span class="pk-name">' + sk.name + '</span>'
+            + '<span class="pk-desc">' + sk.desc + '</span>'
+            + '<span class="pk-need">' + (unlocked ? '' : ('Cần cảnh giới ' + REALMS[sk.unlock].name)) + '</span></span>';
+        if (unlocked && !equipped) card.addEventListener('click', () => { applySkin(sk.id); renderCollection(); toast(sk.emoji + ' Đã dùng ' + sk.name); });
+        if (!unlocked) card.disabled = true;
+        grid.appendChild(card);
+      }
+      body.replaceChildren(head, prog, grid);
     } else {
       body.replaceChildren(...ACHIEVEMENTS.map(a => {
         const got = S.ach.includes(a.id);
@@ -1880,6 +2053,7 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
     const p = periodOf();
     const badge = $('periodBadge');
     if (badge) badge.textContent = p.ic + ' ' + p.name + ' · thưởng ×' + p.mult;
+    const rb = $('ritualBrief'); if (rb) rb.textContent = p.ic + ' ×' + p.mult;
     const inc = $('incenseBtn');
     if (inc) {
       const done = (S.ritual.incense || []).includes(p.id);
@@ -2077,10 +2251,9 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
       return row;
     }));
     const note = $('wlNote');
-    if (note) {
-      const n = SLOTS.filter(s => S.wl.done[s.id]).length;
-      note.textContent = n === SLOTS.length ? '🎉 Trọn thời khóa hôm nay — thật tinh tấn!' : ('Đã xong ' + n + '/' + SLOTS.length + ' buổi hôm nay');
-    }
+    const n = SLOTS.filter(s => S.wl.done[s.id]).length;
+    if (note) note.textContent = n === SLOTS.length ? '🎉 Trọn thời khóa hôm nay — thật tinh tấn!' : ('Đã xong ' + n + '/' + SLOTS.length + ' buổi hôm nay');
+    const wb = $('wlBrief'); if (wb) wb.textContent = n + '/' + SLOTS.length + ' buổi';
   }
 
   // ── Bố thí: 3 lần/ngày, mở phước báo ×1.5 trong 10 phút ──
@@ -2117,10 +2290,13 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
   document.addEventListener('keydown', e => {
     if (e.repeat || e.metaKey || e.ctrlKey || e.altKey) return;
     const tag = e.target.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || e.target.isContentEditable) return;
     if (e.code === 'Space' && tag !== 'BUTTON') { e.preventDefault(); knock(); }
     else if (e.code === 'Space' && tag === 'BUTTON' && e.target.closest('.seg')) { /* let buttons work */ }
     else if (e.key === 'b' || e.key === 'B') bell();
     else if (e.key === 'Enter' && tag !== 'BUTTON') { e.preventDefault(); S.chanting ? stopChant() : startChant(); }
+    else if (e.key === 'f' || e.key === 'F') applyZen(!document.body.classList.contains('zen'), true);
+    else if (e.key === 't' || e.key === 'T') { const cur = store.get('theme', 'auto'); applyTheme(THEME_CYCLE[(THEME_CYCLE.indexOf(cur) + 1) % THEME_CYCLE.length]); }
   });
   document.addEventListener('visibilitychange', () => { if (document.hidden && S.chanting) stopChant(); });
 
@@ -2128,7 +2304,10 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
   const cv = $('cv'), g = cv.getContext('2d');
   let W = 0, H = 0, DPR = 1, strikeAnim = -1e9, ringAnim = -1e9, bellAnim = -1e9;
   const ripples = [];
-  const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+  // Giảm chuyển động: theo hệ thống, hoặc bật thủ công trong bảng "Hiển thị".
+  let calm = store.get('calm', false);
+  const reduceMQ = matchMedia('(prefers-reduced-motion: reduce)');
+  const reduce = { get matches() { return calm || reduceMQ.matches; } };
   let colors = {};
   function readColors() {
     const cs = getComputedStyle(document.documentElement);
@@ -2648,6 +2827,88 @@ kbd { font: 500 11px/1 var(--f-mono); padding: 3px 6px; border-radius: 6px; bord
   new ResizeObserver(rebuild).observe(sc);
   matchMedia('(prefers-color-scheme: dark)').addEventListener('change', rebuild);
   new MutationObserver(rebuild).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+  // ── Giao diện: sáng/tối, chế độ tập trung, thu gọn bảng ──
+  const THEME_CYCLE = ['auto', 'light', 'dark'];
+  const THEME_META = { auto: ['🌗', 'Tự động'], light: ['☀️', 'Sáng'], dark: ['🌙', 'Tối'] };
+  function applyTheme(t) {
+    if (!THEME_CYCLE.includes(t)) t = 'auto';
+    if (t === 'auto') document.documentElement.removeAttribute('data-theme');
+    else document.documentElement.setAttribute('data-theme', t);
+    const m = THEME_META[t], btn = $('themeBtn');
+    if (btn) {
+      btn.innerHTML = m[0] + ' <span id="themeTx">' + m[1] + '</span>';
+      btn.title = 'Giao diện: ' + m[1] + ' — bấm để đổi';
+    }
+    store.set('theme', t);
+  }
+  $('themeBtn').addEventListener('click', () => {
+    const cur = store.get('theme', 'auto');
+    applyTheme(THEME_CYCLE[(THEME_CYCLE.indexOf(cur) + 1) % THEME_CYCLE.length]);
+  });
+
+  function applyZen(on, fromClick) {
+    on = !!on;
+    document.body.classList.toggle('zen', on);
+    const btn = $('zenBtn');
+    if (btn) {
+      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+      btn.innerHTML = (on ? '✕' : '🎯') + ' <span id="zenTx">' + (on ? 'Thoát' : 'Tập trung') + '</span>';
+      btn.title = on ? 'Thoát chế độ tập trung' : 'Chế độ tập trung — ẩn bảng bên, rộng chỗ tụng';
+    }
+    store.set('zen', on);
+    if (fromClick) {
+      try {
+        if (on && document.documentElement.requestFullscreen) {
+          const p = document.documentElement.requestFullscreen(); if (p && p.catch) p.catch(() => {});
+        } else if (!on && document.exitFullscreen) {
+          const p = document.exitFullscreen(); if (p && p.catch) p.catch(() => {});
+        }
+      } catch {}
+    }
+    requestAnimationFrame(() => window.dispatchEvent(new Event('resize')));
+  }
+  $('zenBtn').addEventListener('click', () => applyZen(!document.body.classList.contains('zen'), true));
+  document.addEventListener('fullscreenchange', () => {
+    if (!document.fullscreenElement && document.body.classList.contains('zen')) applyZen(false, false);
+  });
+
+  const PANEL_DEFAULTS = { sutra: true, mixer: false, streak: false, ritual: false, wl: true };
+  document.querySelectorAll('details.panel[data-panel]').forEach(d => {
+    const saved = store.get('panels', {})[d.dataset.panel];
+    d.open = saved === undefined ? !!PANEL_DEFAULTS[d.dataset.panel] : !!saved;
+    d.addEventListener('toggle', () => {
+      const p = store.get('panels', {}); p[d.dataset.panel] = d.open; store.set('panels', p);
+    });
+  });
+
+  applyTheme(store.get('theme', 'auto'));
+  applyZen(store.get('zen', false), false);
+
+  // ── Hiển thị: giảm chuyển động, thanh công đức trên sân khấu ──
+  let spBar = store.get('spBar', true);
+  function renderViewPrefs() {
+    const c = $('calmToggle'), s = $('spToggle');
+    if (c) c.checked = !!calm;
+    if (s) s.checked = !!spBar;
+    document.body.classList.toggle('calm', !!calm);
+    const wrap = $('stageProgWrap'); if (wrap) wrap.hidden = !spBar;
+    const vb = $('viewBrief'); if (vb) vb.textContent = calm ? '🌙 Tĩnh' : (spBar ? '' : 'Ẩn thanh');
+  }
+  $('calmToggle').addEventListener('change', () => {
+    calm = $('calmToggle').checked;
+    store.set('calm', calm);
+    renderViewPrefs();
+    applyRealmTheme(realmOf(S.merit));
+    toast(calm ? '🌙 Đã bật giảm chuyển động' : '✨ Đã tắt giảm chuyển động');
+  });
+  $('spToggle').addEventListener('change', () => {
+    spBar = $('spToggle').checked;
+    store.set('spBar', spBar);
+    renderViewPrefs();
+    toast(spBar ? '📊 Đã hiện thanh công đức' : '📊 Đã ẩn thanh công đức');
+  });
+  renderViewPrefs();
 
   renderLine();
   renderStats();
