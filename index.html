@@ -769,6 +769,28 @@ body.calm *, body.calm *::before, body.calm *::after {
 }
 @media (prefers-reduced-motion: reduce) { #chantTitle { display: none; } }
 
+/* ══ Bài kinh · phông nền · tiếng nền ══
+   Ba danh sách này khá dài nên dùng chip nhỏ hơn, và cuộn ngang trên điện thoại. */
+.seg.chips { gap: 5px; }
+.seg.chips button { height: 28px; padding: 0 10px; font-size: 11.5px; border-radius: 15px; }
+.sutra-note { font: 400 12.5px/1.5 var(--f-ui); color: var(--ink3); text-align: center; margin-top: 4px; }
+.sutra-note b { color: var(--ink2); font-weight: 500; }
+/* Tiêu đề đứng trực tiếp trên cảnh nền: đổi mực theo độ chói của phông đang chọn
+   (chỉ áp dụng khi người chơi chọn phông riêng; "Tự động" để giao diện lo). */
+:root[data-bgd="dark"] .brand h1 { color: #ffffff; text-shadow: 0 2px 16px rgba(0,0,0,.55); }
+:root[data-bgd="light"] .brand h1 { color: #17171b; text-shadow: 0 2px 16px rgba(255,255,255,.6); }
+@media (pointer: coarse) {
+  .seg.chips button { height: 34px; font-size: 12.5px; padding: 0 12px; }
+}
+@media (max-width: 560px) {
+  .seg.chips {
+    flex-wrap: nowrap; overflow-x: auto; overscroll-behavior-x: contain;
+    padding-bottom: 4px; scrollbar-width: none; -webkit-overflow-scrolling: touch;
+  }
+  .seg.chips::-webkit-scrollbar { display: none; }
+  .seg.chips button { flex: 0 0 auto; }
+}
+
 /* ══ Điện thoại: vùng chạm, safe-area, bố cục một tay ══
    Nguyên tắc: mọi thứ chạm được ≥ 40–44px, chừa chỗ cho tai thỏ / thanh cử chỉ,
    không để trình duyệt tự zoom khi gõ chữ, và không đè chữ hiệu ứng lên quả mõ. */
@@ -944,7 +966,8 @@ body { overscroll-behavior-y: none; touch-action: manipulation; }
         <summary class="panel-head"><span class="eyebrow">Tụng kinh</span><span class="panel-hint" id="sutraBrief"></span></summary>
         <div class="field">
           <span class="eyebrow">Bài kinh</span>
-          <div class="seg" id="sutraSeg"></div>
+          <div class="seg chips" id="sutraSeg"></div>
+          <p class="sutra-note" id="sutraNote"></p>
         </div>
         <div class="field">
           <span class="eyebrow">Nhịp mõ</span>
@@ -1048,6 +1071,9 @@ body { overscroll-behavior-y: none; touch-action: manipulation; }
         <div class="seg" id="themeSeg"></div>
         <label class="set-row"><input type="checkbox" id="calmToggle"> Giảm chuyển động — dịu mắt, đỡ mỏi</label>
         <label class="set-row"><input type="checkbox" id="spToggle"> Thanh công đức trên sân khấu</label>
+        <span class="eyebrow" style="margin-top:6px">Phông nền</span>
+        <div class="seg chips" id="bgSeg"></div>
+        <p class="rit-note" id="bgNote" style="margin-top:0"></p>
       </div>
       <div class="set-sec">
         <span class="eyebrow">Âm thanh</span>
@@ -1055,8 +1081,11 @@ body { overscroll-behavior-y: none; touch-action: manipulation; }
           <label class="mix-row"><span>Tiếng mõ</span><input type="range" id="volMo" min="0" max="1" step="0.02" aria-label="Âm lượng tiếng mõ"><span class="mix-val" id="mvalMo">100%</span></label>
           <label class="mix-row"><span>Chuông &amp; tụng</span><input type="range" id="volBell" min="0" max="1" step="0.02" aria-label="Âm lượng chuông và giọng tụng"><span class="mix-val" id="mvalBell">90%</span></label>
           <label class="mix-row"><span>Nhạc thiền</span><input type="range" id="volMusic" min="0" max="1" step="0.02" aria-label="Âm lượng nhạc thiền"><span class="mix-val" id="mvalMusic">80%</span></label>
-          <label class="mix-row"><span>Tiếng suối</span><input type="range" id="volAmbient" min="0" max="1" step="0.02" aria-label="Âm lượng tiếng suối nền"><span class="mix-val" id="mvalAmbient">50%</span></label>
+          <label class="mix-row"><span>Tiếng nền</span><input type="range" id="volAmbient" min="0" max="1" step="0.02" aria-label="Âm lượng tiếng nền"><span class="mix-val" id="mvalAmbient">50%</span></label>
         </div>
+        <span class="eyebrow" style="margin-top:6px">Tiếng nền</span>
+        <div class="seg chips" id="ambSeg"></div>
+        <p class="rit-note" id="ambNote" style="margin-top:0"></p>
       </div>
       <div class="set-sec">
         <span class="eyebrow">Tiến trình</span>
@@ -1158,19 +1187,207 @@ body { overscroll-behavior-y: none; touch-action: manipulation; }
   'use strict';
 
   // ---------- content ----------
+  // Mỗi bài kinh: `short` là nhãn trên chip, `name` hiện dưới sân khấu, `note` là một
+  // dòng nghĩa để người mới hiểu mình đang tụng gì, `lines` là các câu tụng nối vòng.
   const SUTRAS = [
-    { id: 'adida', short: 'A Di Đà', name: 'Niệm Phật A Di Đà', lines: ['Nam Mô A Di Đà Phật'] },
-    { id: 'thichca', short: 'Thích Ca', name: 'Niệm Phật Bổn Sư', lines: ['Nam Mô Bổn Sư Thích Ca Mâu Ni Phật'] },
-    { id: 'quanam', short: 'Quán Âm', name: 'Niệm Bồ Tát Quán Thế Âm', lines: ['Nam Mô Đại Bi Quán Thế Âm Bồ Tát'] },
-    { id: 'batnha', short: 'Bát Nhã', name: 'Bát Nhã Tâm Kinh', lines: [
+    { id: 'adida', short: 'A Di Đà', name: 'Niệm Phật A Di Đà',
+      note: 'Một câu niệm thâu nhiếp sáu căn — tâm an trú nơi Phật hiệu.',
+      lines: ['Nam Mô A Di Đà Phật'] },
+    { id: 'thichca', short: 'Thích Ca', name: 'Niệm Phật Bổn Sư',
+      note: 'Tưởng nhớ đức Bổn Sư Thích Ca Mâu Ni — người chỉ đường.',
+      lines: ['Nam Mô Bổn Sư Thích Ca Mâu Ni Phật'] },
+    { id: 'quanam', short: 'Quán Âm', name: 'Niệm Bồ Tát Quán Thế Âm',
+      note: 'Lắng nghe tiếng khổ của thế gian bằng lòng từ bi.',
+      lines: ['Nam Mô Đại Bi Quán Thế Âm Bồ Tát'] },
+    { id: 'batnha', short: 'Bát Nhã', name: 'Bát Nhã Tâm Kinh',
+      note: 'Trí tuệ bờ kia — thấy năm uẩn đều không, độ hết khổ ách.',
+      lines: [
       'Quán Tự Tại Bồ Tát hành thâm Bát Nhã Ba La Mật Đa thời',
       'chiếu kiến ngũ uẩn giai không độ nhất thiết khổ ách',
       'Xá Lợi Tử sắc bất dị không không bất dị sắc',
       'sắc tức thị không không tức thị sắc',
       'thọ tưởng hành thức diệc phục như thị',
     ] },
+    { id: 'daibi', short: 'Đại Bi', name: 'Chú Đại Bi',
+      note: 'Thiên thủ thiên nhãn — lòng đại từ đại bi, tiêu tai trừ chướng.',
+      lines: [
+      'Nam Mô Đại Bi Hội Thượng Phật Bồ Tát',
+      'Thiên Thủ Thiên Nhãn Vô Ngại Đại Bi Tâm Đà La Ni',
+      'Nam Mô Hắc Ra Đát Na Đa Ra Dạ Da',
+      'Nam Mô A Rị Da Bà Lô Yết Đế Thước Bát Ra Da',
+      'Bồ Đề Tát Đỏa Bà Da Ma Ha Tát Đỏa Bà Da',
+      'Ma Ha Ca Lô Ni Ca Da',
+      'Án Tát Bàn Ra Phạt Duệ Số Đát Na Đát Tỏa',
+      'Nam Mô Tất Kiết Lật Đỏa Y Mông A Rị Da',
+      'Bà Lô Yết Đế Thất Phật Ra Lăng Đà Bà',
+      'Nam Mô Na Ra Cẩn Trì Hê Rị Ma Ha Bàn Đà Sa Mế',
+      'Sa Bà Ma Ha A Tỳ Đà Đà Bà Đa Da',
+      'Nam Mô Bà Già Phạt Đà Tất Đát Đa Bát Đà La',
+    ] },
+    { id: 'duocsu', short: 'Dược Sư', name: 'Kinh Dược Sư',
+      note: 'Cầu an — tiêu tai, diên thọ, thân tâm nhẹ nhõm.',
+      lines: [
+      'Nam Mô Bổn Sư Thích Ca Mâu Ni Phật',
+      'Nam Mô Tiêu Tai Diên Thọ Dược Sư Lưu Ly Quang Vương Phật',
+      'Dược Sư Phật Dược Sư Phật Tiêu Tai Diên Thọ Dược Sư Phật',
+      'Đát điệt tha Yết đế yết đế Ca la yết đế Sa bà ha',
+      'Nguyện tiêu trừ tật bệnh, thân tâm thường an lạc',
+      'Nguyện chúng sinh thoát khổ, được sống trong bình an',
+      'Nam Mô Dược Sư Lưu Ly Quang Vương Phật',
+    ] },
+    { id: 'kimcang', short: 'Kim Cang', name: 'Kinh Kim Cang · Kệ Vô Thường',
+      note: 'Quán đời như mộng, như sương mai, như ánh chớp.',
+      lines: ['Như thị ngã văn', 'Nhất thiết hữu vi pháp', 'như mộng huyễn bào ảnh',
+        'như lộ diệc như điện', 'ưng tác như thị quán'] },
+    { id: 'samhoi', short: 'Sáu Căn', name: 'Sám Hối Sáu Căn',
+      note: 'Nhìn lại lỗi đã tạo từ mắt, tai, mũi, lưỡi, thân và ý.',
+      lines: [
+      'Nhất tâm đảnh lễ Tam Bảo',
+      'Con xin sám hối tội từ mắt — ham nhìn sắc đẹp',
+      'Con xin sám hối tội từ tai — đắm theo tiếng hay',
+      'Con xin sám hối tội từ mũi — mê theo mùi hương',
+      'Con xin sám hối tội từ lưỡi — tham vị ngọt bùi',
+      'Con xin sám hối tội từ thân — buông theo xúc chạm',
+      'Con xin sám hối tội từ ý — chạy theo vọng tưởng',
+      'Tội từ tâm khởi, tướng tội vốn không, tâm diệt thì tội tiêu',
+    ] },
+    { id: 'hoihuong', short: 'Hồi Hướng', name: 'Hồi Hướng Công Đức',
+      note: 'Đem công đức vừa tạo gieo đều cho tất cả chúng sinh.',
+      lines: [
+      'Nguyện tiêu tam chướng trừ phiền não',
+      'Nguyện đắc trí tuệ chân minh liễu',
+      'Phổ nguyện tội chướng tất tiêu diệt',
+      'Thế thế thường hành Bồ Tát đạo',
+      'Nguyện đem công đức này',
+      'Hồi hướng khắp chúng sinh',
+      'Đồng phát tâm Bồ Đề',
+      'Vãng sanh An Lạc quốc',
+    ] },
+    { id: 'tubi', short: 'Từ Bi', name: 'Kinh Từ Bi',
+      note: 'Rải lòng thương đến mọi loài, không phân biệt, không oán thù.',
+      lines: [
+      'Nguyện cho mọi loài được sống an vui',
+      'Nguyện cho mọi loài thoát khỏi khổ đau',
+      'Nguyện không ai oán thù ai, không ai hại ai',
+      'Nguyện loài trên cạn, dưới nước, trên không đều an lành',
+      'Như mẹ thương con, dẫu hy sinh thân mình cũng che chở',
+      'Nguyện tâm từ rộng khắp mọi phương, không chướng ngại',
+      'Nguyện con giữ tâm hiền lành, khiêm nhường và biết đủ',
+    ] },
+    { id: 'tambao', short: 'Tam Bảo', name: 'Quy Y Tam Bảo',
+      note: 'Nương về ba ngôi — khởi đầu của mọi điều lành.',
+      lines: [
+      'Con xin quy y Phật — nguyện noi gương sáng giác ngộ',
+      'Con xin quy y Pháp — nguyện học và hành lời dạy',
+      'Con xin quy y Tăng — nguyện sống hòa hợp cùng đại chúng',
+      'Con đã quy y Phật, quy y Pháp, quy y Tăng',
+      'Nguyện không làm điều ác, nguyện làm mọi điều lành',
+      'Nguyện giữ tâm trong sạch, cứu giúp mọi chúng sinh',
+    ] },
+    { id: 'hoitho', short: 'Hơi Thở', name: 'Quán Niệm Hơi Thở',
+      note: 'Theo dõi từng hơi vào ra — mười sáu phép quán, mỗi lần một hơi.',
+      lines: [
+      'Thở vào, con biết con đang thở vào',
+      'Thở ra, con biết con đang thở ra',
+      'Thở vào một hơi dài, con biết đó là hơi dài',
+      'Thở vào, con ý thức toàn thân con',
+      'Thở ra, con làm lặng yên toàn thân con',
+      'Thở vào, con thấy niềm vui nơi tâm',
+      'Thở ra, con thấy sự an lạc nơi thân',
+      'Thở vào, con trở về với nụ cười nhẹ',
+    ] },
+    { id: 'ngugioi', short: 'Ngũ Giới', name: 'Năm Lời Nguyện (Ngũ Giới)',
+      note: 'Năm giới giữ thân, khẩu, ý trong sạch giữa đời thường.',
+      lines: [
+      'Nguyện không sát sinh — nuôi lòng tôn trọng sự sống',
+      'Nguyện không trộm cắp — nuôi lòng biết đủ',
+      'Nguyện không tà dâm — nuôi lòng chung thủy',
+      'Nguyện không vọng ngữ — nuôi lòng chân thật',
+      'Nguyện không dùng chất gây say — nuôi lòng sáng suốt',
+    ] },
+    { id: 'phuocduc', short: 'Phước Đức', name: 'Kinh Phước Đức',
+      note: 'Phước lớn nhất không ở đâu xa — là sống lành và biết đủ.',
+      lines: [
+      'Gần gũi bậc trí, biết kính trọng người đáng kính',
+      'Sống nơi tốt lành, biết hướng về điều thiện',
+      'Học nhiều hiểu rộng, khéo giữ giới hạnh',
+      'Phụng dưỡng cha mẹ, chăm sóc vợ chồng con cái',
+      'Biết bố thí, giúp đỡ họ hàng, hành xử theo đạo đức',
+      'Thân không ác, khẩu không ác, ý không ác',
+    ] },
   ];
   const TEMPOS = [{ bpm: 60, label: 'Chậm · 60' }, { bpm: 76, label: 'Vừa · 76' }, { bpm: 96, label: 'Nhanh · 96' }];
+
+  // ---------- phông nền (cảnh sau lưng sân khấu) ----------
+  // 'auto' giữ bảng màu của giao diện đang chọn (sáng / tối) — đúng như trước giờ.
+  // Các phông còn lại mang bảng màu riêng: chỉ ghi đè phần cảnh (trời, núi, nước, hạt
+  // rơi). Quầng sáng vẫn do applyRealmTheme lo, nên tiến trình tu tập không bị mất.
+  //   water  : vị trí đường chân trời (tỉ lệ chiều cao) — biển thì hạ thấp cho nhiều nước
+  //   weather: rain · snow · leaf · petal · firefly
+  //   clouds : mật độ mây (0–1)   birds/fish: chim bay, cá lượn
+  const SCENES = [
+    { id: 'auto', name: 'Tự động', ic: '🌗', desc: 'Theo giao diện sáng / tối đang chọn.' },
+    { id: 'chua', name: 'Chùa cổ', ic: '🏯', desc: 'Sương sớm trên hồ sen, chim bay ngang.',
+      water: 0.86, clouds: 0.5, birds: true, fish: true,
+      pal: { skyTop: '#eadbe6', skyMid: '#f7e8e0', skyBot: '#fdf3e8', orb: '#ffe3b0', orbGlow: '#ffce9052',
+        mtnFar: '#ded0da', mtnMid: '#c6aebd', mtnNear: '#a58a9d', pagoda: '#87697e', mist: '#fff8f4a0',
+        waterTop: '#e2cfd9', waterBot: '#cbb2c0', lotus: '#f0a6c8', flame: '#ffcf7a', stars: 0, buddha: '#e8d2cc' } },
+    { id: 'binhminh', name: 'Sớm mai', ic: '🌅', desc: 'Nắng sớm vàng nhạt, cánh hoa rơi nhẹ.',
+      water: 0.84, clouds: 0.4, weather: 'petal', birds: true,
+      pal: { skyTop: '#ffd9a8', skyMid: '#ffeccb', skyBot: '#fff6e2', orb: '#fff0c2', orbGlow: '#ffbe6a66',
+        mtnFar: '#f0cfae', mtnMid: '#dbb28c', mtnNear: '#b98a63', pagoda: '#8f6446', mist: '#fff3e0b0',
+        waterTop: '#f5dcb8', waterBot: '#d9b48c', lotus: '#ff9fc0', flame: '#ffcf7a', stars: 0, buddha: '#f0d3ad' } },
+    { id: 'dem', name: 'Đêm trăng', ic: '🌙', desc: 'Trăng sáng trên hồ, đom đóm lập lòe.',
+      water: 0.87, weather: 'firefly', fish: true,
+      pal: { skyTop: '#080b1a', skyMid: '#131a33', skyBot: '#2a2440', orb: '#f6efd8', orbGlow: '#f6efd833',
+        mtnFar: '#232542', mtnMid: '#1a1b31', mtnNear: '#111222', pagoda: '#0b0c18', mist: '#c9c2ec14',
+        waterTop: '#151a33', waterBot: '#080a16', lotus: '#e79ad0', flame: '#ffd08a', stars: 1, buddha: '#232347' } },
+    { id: 'may', name: 'Núi mây', ic: '⛰️', desc: 'Biển mây cuồn cuộn ôm lấy dãy núi xa.',
+      water: 0.9, clouds: 1, birds: true,
+      pal: { skyTop: '#dfe7f2', skyMid: '#eef2f7', skyBot: '#fbfcfe', orb: '#ffffff', orbGlow: '#ffffff55',
+        mtnFar: '#c8d2e0', mtnMid: '#aeb9cc', mtnNear: '#8b97ad', pagoda: '#6c7891', mist: '#ffffffb8',
+        waterTop: '#cfd8e4', waterBot: '#b4bece', lotus: '#e6a8cd', flame: '#ffd79a', stars: 0, buddha: '#dbe2ee' } },
+    { id: 'mua', name: 'Mưa rơi', ic: '🌧️', desc: 'Mưa đều trên mái chùa, sấm vọng phương xa.',
+      water: 0.85, clouds: 0.8, weather: 'rain',
+      pal: { skyTop: '#b9c3cd', skyMid: '#cfd7de', skyBot: '#e4e9ed', orb: '#e8eef2', orbGlow: '#ffffff33',
+        mtnFar: '#b2bcc6', mtnMid: '#98a3ae', mtnNear: '#7c8794', pagoda: '#616b78', mist: '#f2f5f7a6',
+        waterTop: '#b9c2ca', waterBot: '#96a0aa', lotus: '#d998bb', flame: '#ffd79a', stars: 0, buddha: '#c6cfd8' } },
+    { id: 'tuyet', name: 'Tuyết', ic: '❄️', desc: 'Tuyết bay lặng lẽ, núi phủ một màu bạc.',
+      water: 0.88, clouds: 0.6, weather: 'snow',
+      pal: { skyTop: '#cddceb', skyMid: '#e3edf6', skyBot: '#f6fbff', orb: '#ffffff', orbGlow: '#ffffff66',
+        mtnFar: '#c3d3e2', mtnMid: '#a8bccf', mtnNear: '#8ba1b8', pagoda: '#6e849b', mist: '#ffffffcc',
+        waterTop: '#c9dbe9', waterBot: '#a9c1d6', lotus: '#dfa6cd', flame: '#ffe3ae', stars: 0, buddha: '#d3e2f0' } },
+    { id: 'bien', name: 'Biển', ic: '🌊', desc: 'Chân trời rộng mở, sóng vỗ về bãi xa.',
+      water: 0.62, pagoda: false, clouds: 0.6, birds: true, fish: true,
+      pal: { skyTop: '#a8d7ee', skyMid: '#cfeaf6', skyBot: '#f2f8f4', orb: '#fff4c8', orbGlow: '#ffd98a5c',
+        mtnFar: '#9dc3d6', mtnMid: '#7fa8c2', mtnNear: '#5d87a6', pagoda: '#43637e', mist: '#ffffff9c',
+        waterTop: '#3f7fa6', waterBot: '#1d4a68', lotus: '#8fd8e8', flame: '#ffcf7a', stars: 0, buddha: '#c3e2f0' } },
+    { id: 'thu', name: 'Thu vàng', ic: '🍁', desc: 'Lá vàng rơi trên mặt nước tĩnh.',
+      water: 0.86, clouds: 0.3, weather: 'leaf', birds: true, fish: true,
+      pal: { skyTop: '#f6dcb0', skyMid: '#fbe9cd', skyBot: '#fdf5e6', orb: '#ffd98a', orbGlow: '#ffb85a66',
+        mtnFar: '#e0c8a2', mtnMid: '#c9a878', mtnNear: '#a8825a', pagoda: '#7d5c3c', mist: '#fff6e0a8',
+        waterTop: '#eddcbc', waterBot: '#cdb18c', lotus: '#ef9ab6', flame: '#ffcf7a', stars: 0, buddha: '#f0dcb6' } },
+    { id: 'hoa', name: 'Hoa đào', ic: '🌸', desc: 'Hoa đào bay trong gió xuân.',
+      water: 0.85, clouds: 0.4, weather: 'petal', birds: true, fish: true,
+      pal: { skyTop: '#ffdfe9', skyMid: '#fff0f2', skyBot: '#fffafb', orb: '#fff2dc', orbGlow: '#ffc9d966',
+        mtnFar: '#f2d5df', mtnMid: '#dcb6c6', mtnNear: '#bd93a8', pagoda: '#96738a', mist: '#ffffffb0',
+        waterTop: '#f4dbe4', waterBot: '#d7b6c6', lotus: '#ff8fbe', flame: '#ffd79a', stars: 0, buddha: '#f2d9e2' } },
+  ];
+  const sceneById = id => SCENES.find(s => s.id === id) || SCENES[0];
+
+  // ---------- tiếng nền ----------
+  // Mỗi phông là một lớp tổng hợp bằng Web Audio, không dùng tệp âm thanh nào.
+  const SSND = [
+    { id: 'suoi', name: 'Suối reo', ic: '💧', desc: 'Nước chảy rì rào bên chân núi.' },
+    { id: 'mua', name: 'Mưa rơi', ic: '🌧️', desc: 'Mưa đều trên mái chùa, vài giọt tan trên đá.' },
+    { id: 'gio', name: 'Gió núi', ic: '🍃', desc: 'Gió lùa qua rừng thông, từng cơn một.' },
+    { id: 'chim', name: 'Chim sớm', ic: '🐦', desc: 'Chim hót trong sương sớm.' },
+    { id: 'song', name: 'Sóng biển', ic: '🌊', desc: 'Sóng vỗ bờ xa, dạt dào lên xuống.' },
+    { id: 'de', name: 'Đêm dế', ic: '🦗', desc: 'Dế gáy trong đêm trăng.' },
+    { id: 'chuong', name: 'Chuông xa', ic: '🔔', desc: 'Chuông chùa vọng lại từ xa.' },
+    { id: 'tinh', name: 'Tĩnh lặng', ic: '🤫', desc: 'Không tiếng nền — chỉ còn tiếng mõ.' },
+  ];
+  const ambById = id => SSND.find(s => s.id === id) || SSND[0];
   // Realms of practice, thresholds in công đức (108 is the count of a prayer-bead string).
   // Each realm carries its own colour theme + falling-particle type — the whole stage
   // re-tints as you advance, so progress is felt, not just read off a bar.
@@ -1383,6 +1600,8 @@ body { overscroll-behavior-y: none; touch-action: manipulation; }
     volMusic: store.get('volMusic', 0.8),
     volAmbient: store.get('volAmbient', 0.5),
     ambient: store.get('ambient', true),
+    scene: store.get('scene', 'auto'),
+    ambience: store.get('ambience', 'suoi'),
     skin: store.get('skin', 'tre'),
     streak: store.get('streak', 0),
     lastDay: store.get('lastDay', ''),
@@ -1404,6 +1623,8 @@ body { overscroll-behavior-y: none; touch-action: manipulation; }
   };
   if (!SUTRAS.find(s => s.id === S.sutra)) S.sutra = 'adida';
   if (!TEMPOS.find(t => t.bpm === S.bpm)) S.bpm = 76;
+  if (!SCENES.find(s => s.id === S.scene)) S.scene = 'auto';
+  if (!SSND.find(s => s.id === S.ambience)) S.ambience = 'suoi';
   if (!Array.isArray(S.ach)) S.ach = [];
   if (!S.ritual || typeof S.ritual !== 'object' || Array.isArray(S.ritual)) S.ritual = { incense: [], repent: false, ded: 0 };
   if (!Array.isArray(S.ritual.incense)) S.ritual.incense = [];
@@ -1416,7 +1637,7 @@ body { overscroll-behavior-y: none; touch-action: manipulation; }
   if (!Array.isArray(S.temple)) S.temple = [];
   if (typeof S.total !== 'number' || !isFinite(S.total) || S.total < S.merit) S.total = S.merit;
   // Danh sách khoá được lưu (cũng dùng cho sao lưu / khôi phục tiến trình).
-  const SAVE_KEYS = ['merit', 'total', 'temple', 'knocks', 'lines', 'best', 'sutra', 'bpm', 'music', 'voice', 'volMo', 'volBell', 'volMusic', 'volAmbient', 'ambient', 'skin', 'streak', 'lastDay', 'ach', 'bells', 'province', 'dayMerit', 'festivalOff', 'ritual', 'breaths', 'ritualBell', 'chimeDay', 'chimeDone', 'holyDays', 'wl', 'dana'];
+  const SAVE_KEYS = ['merit', 'total', 'temple', 'knocks', 'lines', 'best', 'sutra', 'bpm', 'music', 'voice', 'volMo', 'volBell', 'volMusic', 'volAmbient', 'ambient', 'scene', 'ambience', 'skin', 'streak', 'lastDay', 'ach', 'bells', 'province', 'dayMerit', 'festivalOff', 'ritual', 'breaths', 'ritualBell', 'chimeDay', 'chimeDone', 'holyDays', 'wl', 'dana'];
   const save = () => { for (const k of SAVE_KEYS) store.set(k, S[k]); };
 
   const $ = id => document.getElementById(id);
@@ -1585,46 +1806,252 @@ body { overscroll-behavior-y: none; touch-action: manipulation; }
     }
     return buf;
   }
-  function startAmbient() {
+  // Đệm nhiễu trắng 4 giây cho các lớp nền (đệm 0,1 giây của tiếng mõ quá ngắn để lặp).
+  function whiteBuf(secs) {
+    const len = Math.floor(ac.sampleRate * secs);
+    const buf = ac.createBuffer(2, len, ac.sampleRate);
+    for (let ch = 0; ch < 2; ch++) {
+      const d = buf.getChannelData(ch);
+      for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+    }
+    return buf;
+  }
+  let _white = null, _pink = null;
+  const white4 = () => (_white || (_white = whiteBuf(4)));
+  const pink4 = () => (_pink || (_pink = pinkBuffer(4)));
+  function ambSrc(kind, t) {
+    const s = ac.createBufferSource();
+    s.buffer = kind === 'pink' ? pink4() : white4();
+    s.loop = true; s.start(t);
+    return s;
+  }
+  const ambFilt = (type, f, q) => { const b = ac.createBiquadFilter(); b.type = type; b.frequency.value = f; if (q != null) b.Q.value = q; return b; };
+  const ambVol = v => { const g = ac.createGain(); g.gain.value = v; return g; };
+  const ambSway = (f, amt, target) => { const o = ac.createOscillator(), g = ac.createGain(); o.frequency.value = f; g.gain.value = amt; o.connect(g).connect(target); o.start(); return o; };
+  // Nối nguồn → chuỗi node → bus nền, gọn cho phần dựng lớp bên dưới.
+  function ambChain(src, nodes) {
+    let n = src;
+    for (const x of nodes) n = n.connect(x);
+    n.connect(ambBus);
+  }
+
+  // ── Tiếng rời rạc: mưa, sấm, chim, dế ──
+  function ambDrop(t, vol) { // giọt mưa tan trên đá
+    const n = ac.createBufferSource(); n.buffer = noiseBuf();
+    const f = ambFilt('bandpass', 1500 + Math.random() * 2600, 5);
+    const g = ac.createGain();
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(vol, t + 0.004);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.05 + Math.random() * 0.07);
+    n.connect(f).connect(g).connect(ambBus);
+    n.start(t); n.stop(t + 0.2);
+  }
+  function ambThunder(t) { // sấm xa: một đợt trầm dâng lên rồi tan
+    const n = ac.createBufferSource(); n.buffer = pink4(); n.loop = true;
+    const g = ac.createGain();
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.linearRampToValueAtTime(0.09, t + 1.1);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 4.4);
+    n.connect(ambFilt('lowpass', 150, 0.5)).connect(g).connect(ambBus);
+    n.start(t); n.stop(t + 4.7);
+  }
+  function ambChirp(t) { // chim hót: vài nốt ngắn, cao độ trượt lên rồi xuống
+    const base = 2200 + Math.random() * 1900;
+    const notes = 2 + Math.floor(Math.random() * 3);
+    for (let i = 0; i < notes; i++) {
+      const st = t + i * (0.07 + Math.random() * 0.05);
+      const o = ac.createOscillator(), g = ac.createGain();
+      const f0 = base * (1 + (Math.random() - 0.5) * 0.18);
+      o.type = 'sine';
+      o.frequency.setValueAtTime(f0 * 0.75, st);
+      o.frequency.exponentialRampToValueAtTime(f0 * 1.15, st + 0.04);
+      o.frequency.exponentialRampToValueAtTime(f0 * 0.88, st + 0.1);
+      g.gain.setValueAtTime(0.0001, st);
+      g.gain.exponentialRampToValueAtTime(0.05, st + 0.012);
+      g.gain.exponentialRampToValueAtTime(0.0001, st + 0.1);
+      o.connect(g).connect(ambBus);
+      o.start(st); o.stop(st + 0.14);
+    }
+  }
+  function ambCricket(t, f) { // một tiếng dế
+    const o = ac.createOscillator(), g = ac.createGain();
+    o.type = 'triangle'; o.frequency.value = f;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.02, t + 0.005);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.035);
+    o.connect(g).connect(ambBus);
+    o.start(t); o.stop(t + 0.05);
+  }
+
+  // ── Tám phông tiếng nền ──
+  // Mỗi phông nhận thời điểm bắt đầu `t` và trả về { nodes (để dừng), tick? }.
+  // `tick(mốc)` chỉ lên lịch cho tương lai gần rồi trả về mốc kế tiếp; bộ đếm gọi lại
+  // trước khi tới hạn nên nhịp thưa (chim, dế, chuông) không bị dồn cục.
+  const AMB = {
+    suoi(t) {
+      const pink = ambSrc('pink', t);
+      ambChain(pink, [ambFilt('lowpass', 560, 0.6), ambVol(0.5)]);
+      const flow = ambSrc('white', t);
+      const bp = ambFilt('bandpass', 1100, 0.7);
+      ambChain(flow, [bp, ambVol(0.22)]);
+      const lfo = ambSway(0.06, 420, bp.frequency);
+      const spark = ambSrc('white', t);
+      ambChain(spark, [ambFilt('highpass', 4200, 0.7), ambVol(0.02)]);
+      return { nodes: [pink, flow, spark, lfo] };
+    },
+    mua(t) {
+      const hiss = ambSrc('white', t);
+      ambChain(hiss, [ambFilt('highpass', 1000, 0.7), ambVol(0.1)]);
+      const bed = ambSrc('pink', t);
+      ambChain(bed, [ambFilt('lowpass', 640, 0.6), ambVol(0.26)]);
+      const wash = ambSrc('white', t);
+      const wg = ambVol(0.05);
+      ambChain(wash, [ambFilt('bandpass', 2400, 0.5), wg]);
+      const sway = ambSway(0.05, 0.03, wg.gain);
+      return {
+        nodes: [hiss, bed, wash, sway],
+        tick: n => {
+          const k = 2 + Math.floor(Math.random() * 3);
+          for (let i = 0; i < k; i++) ambDrop(n + Math.random() * 0.5, 0.04 + Math.random() * 0.05);
+          if (Math.random() < 0.02) ambThunder(n + Math.random() * 2); // sấm thưa, vài chục giây một lần
+          return n + 0.5;
+        },
+      };
+    },
+    gio(t) {
+      const bed = ambSrc('pink', t);
+      const bp = ambFilt('bandpass', 420, 0.9);
+      const bg = ambVol(0.7);
+      ambChain(bed, [bp, bg]);
+      const gust = ambSway(0.055, 0.45, bg.gain);   // từng cơn gió
+      const drift = ambSway(0.037, 300, bp.frequency); // âm sắc đổi dần
+      const leaves = ambSrc('white', t);
+      const lg = ambVol(0.012);
+      ambChain(leaves, [ambFilt('bandpass', 2600, 0.8), lg]);
+      const rustle = ambSway(0.09, 0.011, lg.gain);
+      return { nodes: [bed, leaves, gust, drift, rustle] };
+    },
+    chim(t) {
+      const bed = ambSrc('pink', t);
+      ambChain(bed, [ambFilt('lowpass', 500, 0.6), ambVol(0.2)]);
+      const air = ambSrc('white', t);
+      ambChain(air, [ambFilt('bandpass', 1800, 0.6), ambVol(0.014)]);
+      return {
+        nodes: [bed, air],
+        tick: n => {
+          const k = 1 + Math.floor(Math.random() * 3);
+          for (let i = 0; i < k; i++) ambChirp(n + Math.random() * 1.3);
+          return n + 1.3;
+        },
+      };
+    },
+    song(t) {
+      const wash = ambSrc('pink', t);
+      const lp = ambFilt('lowpass', 700, 0.5);
+      const wg = ambVol(0.6);
+      ambChain(wash, [lp, wg]);
+      const foam = ambSrc('white', t);
+      const fg = ambVol(0.05);
+      ambChain(foam, [ambFilt('highpass', 1600, 0.6), fg]);
+      const deep = ac.createOscillator(), dg = ambVol(0.03);
+      deep.type = 'sine'; deep.frequency.value = 58; deep.connect(dg).connect(ambBus); deep.start();
+      // hai nhịp sóng lệch nhau nên không nghe ra vòng lặp
+      const l1 = ambSway(0.07, 0.45, wg.gain);
+      const l2 = ambSway(0.052, 0.045, fg.gain);
+      const l3 = ambSway(0.07, 280, lp.frequency);
+      return { nodes: [wash, foam, deep, l1, l2, l3] };
+    },
+    de(t) {
+      const bed = ambSrc('pink', t);
+      ambChain(bed, [ambFilt('lowpass', 420, 0.6), ambVol(0.16)]);
+      const air = ambSrc('white', t);
+      ambChain(air, [ambFilt('highpass', 5200, 0.7), ambVol(0.008)]);
+      const bugs = [0, 1, 2].map(i => 3600 + i * 340 + Math.random() * 220);
+      return {
+        nodes: [bed, air],
+        tick: n => {
+          for (const f of bugs) {
+            if (Math.random() > 0.42) continue;
+            const st = n + Math.random() * 0.4, k = 3 + Math.floor(Math.random() * 3);
+            for (let i = 0; i < k; i++) ambCricket(st + i * 0.045, f);
+          }
+          return n + 0.45;
+        },
+      };
+    },
+    chuong(t) {
+      const bed = ambSrc('pink', t);
+      ambChain(bed, [ambFilt('lowpass', 300, 0.6), ambVol(0.1)]);
+      const air = ambSrc('white', t);
+      ambChain(air, [ambFilt('bandpass', 900, 0.5), ambVol(0.012)]);
+      return {
+        nodes: [bed, air],
+        tick: n => { playBell(n + Math.random(), 130.81, 0.2, 10, ambBus); return n + 16 + Math.random() * 16; },
+      };
+    },
+    tinh() { return { nodes: [] }; },
+  };
+
+  let ambPump = null;
+  function startAmbient(quick) {
     if (!ac || ambNodes || !S.ambient || S.volAmbient <= 0) return;
     const t = ac.currentTime;
-    const pink = ac.createBufferSource(); pink.buffer = pinkBuffer(4); pink.loop = true;
-    const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 560; lp.Q.value = 0.6;
-    const g1 = ac.createGain(); g1.gain.value = 0.5;
-    pink.connect(lp).connect(g1).connect(ambBus);
-
-    const flow = ac.createBufferSource(); flow.buffer = noiseBuf(); flow.loop = true;
-    const bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 1100; bp.Q.value = 0.7;
-    const g2 = ac.createGain(); g2.gain.value = 0.22;
-    flow.connect(bp).connect(g2).connect(ambBus);
-    const lfo = ac.createOscillator(), lg = ac.createGain();
-    lfo.frequency.value = 0.06; lg.gain.value = 420; lfo.connect(lg).connect(bp.frequency);
-
-    const spark = ac.createBufferSource(); spark.buffer = noiseBuf(); spark.loop = true;
-    const hp = ac.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 4200;
-    const g3 = ac.createGain(); g3.gain.value = 0.02;
-    spark.connect(hp).connect(g3).connect(ambBus);
-
-    pink.start(t); flow.start(t); spark.start(t); lfo.start(t);
+    const built = (AMB[S.ambience] || AMB.suoi)(t) || { nodes: [] };
     ambBus.gain.cancelScheduledValues(t);
     ambBus.gain.setValueAtTime(0.0001, t);
-    ambBus.gain.exponentialRampToValueAtTime(S.volAmbient, t + 4); // rì rào hiện ra từ từ
-    ambNodes = { pink, flow, spark, lfo };
+    // lần đầu thì hiện ra từ từ, còn khi người chơi đổi phông thì vào nhanh cho đỡ chờ
+    ambBus.gain.exponentialRampToValueAtTime(S.volAmbient, t + (quick ? 1.2 : 4));
+    ambNodes = { nodes: built.nodes || [], tick: built.tick || null, next: t + 1.4 };
+    if (ambNodes.tick && !ambPump) {
+      ambPump = setInterval(() => {
+        if (!ambNodes || !ac || !ambNodes.tick) return;
+        const now = ac.currentTime;
+        // khi tab bị ẩn, trình duyệt hạn chế setInterval nên lên lịch xa hơn
+        const ahead = document.hidden ? 3 : 1.3;
+        let guard = 0;
+        while (ambNodes.next < now + ahead && guard++ < 48) {
+          const nx = ambNodes.tick(ambNodes.next);
+          ambNodes.next = (typeof nx === 'number' && isFinite(nx) && nx > ambNodes.next) ? nx : ambNodes.next + 1;
+        }
+      }, 300);
+    }
   }
   function stopAmbient() {
     if (!ambNodes) return;
-    const t = ac.currentTime, { pink, flow, spark, lfo } = ambNodes;
+    const t = ac.currentTime;
+    clearInterval(ambPump); ambPump = null;
     ambBus.gain.cancelScheduledValues(t);
     ambBus.gain.setValueAtTime(Math.max(0.0001, ambBus.gain.value), t);
     ambBus.gain.exponentialRampToValueAtTime(0.0001, t + 2);
-    [pink, flow, spark, lfo].forEach(n => { try { n.stop(t + 2.2); } catch {} });
+    ambNodes.nodes.forEach(n => { try { n.stop(t + 2.2); } catch {} });
     ambNodes = null;
   }
   function setAmbient(v) {
-    S.volAmbient = v; S.ambient = v > 0; save();
+    S.volAmbient = v; S.ambient = v > 0 && S.ambience !== 'tinh'; save();
     if (!ac) return;
-    if (v <= 0) { stopAmbient(); return; }
+    if (v <= 0 || S.ambience === 'tinh') { stopAmbient(); return; }
     if (!ambNodes) startAmbient(); else ambBus.gain.setTargetAtTime(v, ac.currentTime, 0.2);
+  }
+  // Đổi phông tiếng nền: dựng lại các lớp; nếu đang khoá tiếng thì mở lại vừa phải để
+  // người chơi nghe được ngay mình vừa chọn gì.
+  function setAmbience(id) {
+    const same = ambById(id).id === S.ambience;
+    S.ambience = ambById(id).id;
+    if (S.ambience !== 'tinh' && S.volAmbient <= 0) {
+      S.volAmbient = 0.5;
+      const el = $('volAmbient'); if (el) el.value = '0.5';
+      const out = $('mvalAmbient'); if (out) out.textContent = '50%';
+    }
+    S.ambient = S.ambience !== 'tinh' && S.volAmbient > 0;
+    save();
+    if (ac) {
+      if (same && ambNodes) ambBus.gain.setTargetAtTime(S.volAmbient, ac.currentTime, 0.2);
+      else {
+        stopAmbient();
+        if (S.ambient) { if (ac.state === 'suspended') ac.resume().catch(() => {}); startAmbient(true); }
+      }
+    }
+    buildAmbSeg(); renderSetInfo(); renderSceneInfo();
   }
 
   // Melody: four 16-beat phrases in the D pentatonic (D F G A C), one note per beat or longer.
@@ -1917,6 +2344,16 @@ body { overscroll-behavior-y: none; touch-action: manipulation; }
     $('nextLine').textContent = lines.length > 1 ? lines[(S.lineIdx + 1) % lines.length] : 'Mỗi tiếng mõ, tụng một chữ.';
     $('sutraName').textContent = sutra().name;
     const sb = $('sutraBrief'); if (sb) sb.textContent = sutra().short;
+    // Một dòng nghĩa + số câu, để người mới biết mình đang tụng bài gì.
+    const sn = $('sutraNote');
+    if (sn) {
+      sn.replaceChildren();
+      const note = sutra().note;
+      if (note) sn.append(note + ' · ');
+      const c = document.createElement('b');
+      c.textContent = lines.length + ' câu';
+      sn.append(c);
+    }
   }
   function renderStats() {
     $('merit').textContent = fmt(S.merit);
@@ -1970,14 +2407,15 @@ body { overscroll-behavior-y: none; touch-action: manipulation; }
   function seg(el, items, isOn, onPick) {
     el.replaceChildren(...items.map(it => {
       const b = document.createElement('button');
-      b.type = 'button'; b.textContent = it.label;
+      b.type = 'button'; b.textContent = (it.ic ? it.ic + ' ' : '') + it.label;
       if (it.disabled) { b.disabled = true; b.title = it.disabled; }
+      else if (it.desc) b.title = it.desc;
       b.setAttribute('aria-pressed', String(isOn(it)));
       b.addEventListener('click', () => { onPick(it); seg(el, items, isOn, onPick); });
       return b;
     }));
   }
-  seg($('sutraSeg'), SUTRAS.map(s => ({ ...s, label: s.short })), it => it.id === S.sutra, it => {
+  seg($('sutraSeg'), SUTRAS.map(s => ({ ...s, label: s.short, desc: s.note })), it => it.id === S.sutra, it => {
     S.sutra = it.id; S.lineIdx = 0; S.syl = 0; renderLine(); save();
   });
   seg($('tempoSeg'), TEMPOS, it => it.bpm === S.bpm, it => {
@@ -2309,10 +2747,45 @@ body { overscroll-behavior-y: none; touch-action: manipulation; }
   function renderSetInfo() {
     const mode = THEME_LABEL[store.get('theme', 'auto')] || 'Tự động';
     const bits = ['Giao diện ' + mode];
+    if (S.scene !== 'auto') bits.push('nền ' + sceneById(S.scene).name);
+    bits.push('tiếng ' + ambById(S.ambience).name.toLowerCase());
     if (calm) bits.push('giảm chuyển động');
     if (store.get('spBar', true) === false) bits.push('ẩn thanh công đức');
     const b = $('setBrief'); if (b) b.textContent = mode;
     const i = $('setInfo'); if (i) i.textContent = bits.join(' · ');
+  }
+
+  // ── Phông nền & tiếng nền ──
+  function buildSceneSeg() {
+    const el = $('bgSeg'); if (!el) return;
+    seg(el, SCENES.map(s => ({ id: s.id, ic: s.ic, label: s.name, desc: s.desc })), it => it.id === S.scene, it => applyScene(it.id));
+  }
+  function applyScene(id) {
+    S.scene = sceneById(id).id; save();
+    buildScene();               // dựng lại cảnh tĩnh theo bảng màu mới
+    lastScene = 0;
+    buildSceneSeg();
+    renderSceneInfo();
+    renderSetInfo();
+    syncBgDark();
+    toast('🖼️ Phông nền: ' + sceneById(S.scene).name);
+  }
+  // Tiêu đề trang đứng trực tiếp trên cảnh nền, nên chọn mực sáng/tối theo độ chói
+  // của bầu trời. Phông "Tự động" thì để nguyên cho giao diện lo.
+  function syncBgDark() {
+    const s = sceneById(S.scene), root = document.documentElement;
+    if (!s.pal) { root.removeAttribute('data-bgd'); return; }
+    const hex = (s.pal['sky-mid'] || s.pal['sky-top'] || '#ffffff').replace('#', '');
+    const r = parseInt(hex.slice(0, 2), 16), g2 = parseInt(hex.slice(2, 4), 16), b = parseInt(hex.slice(4, 6), 16);
+    root.setAttribute('data-bgd', (0.299 * r + 0.587 * g2 + 0.114 * b) < 110 ? 'dark' : 'light');
+  }
+  function buildAmbSeg() {
+    const el = $('ambSeg'); if (!el) return;
+    seg(el, SSND.map(s => ({ id: s.id, ic: s.ic, label: s.name, desc: s.desc })), it => it.id === S.ambience, it => setAmbience(it.id));
+  }
+  function renderSceneInfo() {
+    const bn = $('bgNote'); if (bn) bn.textContent = sceneById(S.scene).desc || '';
+    const an = $('ambNote'); if (an) an.textContent = ambById(S.ambience).desc || '';
   }
   function openSettings() {
     $('modal-collection').hidden = false;
@@ -3529,13 +4002,26 @@ body { overscroll-behavior-y: none; touch-action: manipulation; }
   // ---------- scene: temple hills at dawn (light) or under the moon (dark) ----------
   const sc = $('scene'), sx = sc.getContext('2d');
   let sW = 0, sH = 0, sDPR = 1, sceneBase = null, sc_ = {};
+  let scWater = 0.86;      // vị trí đường chân trời của phông đang chọn
+  let scFX = null;         // hạt thời tiết + sinh vật (mưa, tuyết, lá, đom đóm, chim, cá)
+  let scFlockAt = 0;       // lần tới chim bay ngang
+  const activeScene = () => sceneById(S.scene);
   const lanterns = [];
   function rng(seed) { return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
   function readScene() {
     const cs = getComputedStyle(document.documentElement);
     for (const k of ['sky-top', 'sky-mid', 'sky-bot', 'orb', 'orb-glow', 'mtn-far', 'mtn-mid', 'mtn-near', 'pagoda', 'mist', 'water-top', 'water-bot', 'lantern-flame', 'lotus', 'stars', 'buddha-sky', 'halo'])
       sc_[k] = cs.getPropertyValue('--' + k).trim();
+    // Phông tự chọn chỉ ghi đè phần cảnh — quầng sáng (--halo) vẫn theo cảnh giới.
+    // Bảng màu của phông viết tên ngắn cho dễ đọc, ở đây đổi sang tên biến CSS.
+    const s = activeScene();
+    if (s.pal) for (const k in s.pal) sc_[PAL_KEY[k] || k] = s.pal[k];
   }
+  const PAL_KEY = {
+    skyTop: 'sky-top', skyMid: 'sky-mid', skyBot: 'sky-bot', orbGlow: 'orb-glow',
+    mtnFar: 'mtn-far', mtnMid: 'mtn-mid', mtnNear: 'mtn-near',
+    waterTop: 'water-top', waterBot: 'water-bot', flame: 'lantern-flame', buddha: 'buddha-sky',
+  };
   function ridge(r, x, base, amp) {
     return base - amp * (0.55 * Math.sin(x * r.f1 + r.p1) + 0.3 * Math.sin(x * r.f2 + r.p2) + 0.15 * Math.abs(Math.sin(x * r.f3 + r.p3)));
   }
@@ -3551,7 +4037,9 @@ body { overscroll-behavior-y: none; touch-action: manipulation; }
     let o = off.getContext('2d');
     o.scale(sDPR, sDPR);
     const rand = rng(108);
-    const waterY = sH * 0.86;
+    const cfg = activeScene();
+    scWater = cfg.water || 0.86;
+    const waterY = sH * scWater;
 
     const sky = o.createLinearGradient(0, 0, 0, waterY);
     sky.addColorStop(0, sc_['sky-top']); sky.addColorStop(0.55, sc_['sky-mid']); sky.addColorStop(1, sc_['sky-bot']);
@@ -3601,8 +4089,8 @@ body { overscroll-behavior-y: none; touch-action: manipulation; }
       o.fillStyle = m; o.fillRect(0, sH * L.base - sH * 0.02, sW, sH * 0.1);
     });
 
-    // a five-tier stupa on the middle hill
-    if (pagodaAt) {
+    // a five-tier stupa on the middle hill (bỏ ở phông biển cho thoáng chân trời)
+    if (pagodaAt && cfg.pagoda !== false) {
       const u = Math.max(10, Math.min(sW, sH) * 0.022);
       let y = pagodaAt.y + u * 0.6;
       o.fillStyle = sc_.pagoda;
@@ -3639,6 +4127,7 @@ body { overscroll-behavior-y: none; touch-action: manipulation; }
       const lr = rng(7);
       for (let i = 0; i < 7; i++) lanterns.push({ x: lr(), d: lr(), v: 0.004 + lr() * 0.006, ph: lr() * 6 });
     }
+    initSceneFX(cfg);
   }
   function drawLantern(x, y, s, t, ph) {
     const flick = 0.85 + 0.15 * Math.sin(t * 7 + ph * 3);
@@ -3660,6 +4149,147 @@ body { overscroll-behavior-y: none; touch-action: manipulation; }
     sx.beginPath(); sx.arc(x, y - s * 0.75, s * 0.18 * flick, 0, Math.PI * 2);
     sx.fillStyle = sc_['lantern-flame']; sx.fill();
   }
+  // ── Hạt & sinh vật của phông nền ──
+  // Toạ độ lưu theo tỉ lệ (0–1) nên đổi cỡ cửa sổ không làm hạt nhảy chỗ.
+  function fxList(n, make) { const a = []; for (let i = 0; i < n; i++) a.push(make(i)); return a; }
+  function initSceneFX(cfg) {
+    const r = rng(2024);
+    scFX = { rain: [], snow: [], leaf: [], petal: [], fly: [], cloud: [], fish: [], flock: [], birds: !!cfg.birds };
+    if (cfg.weather === 'rain') scFX.rain = fxList(90, () => ({ x: r() * 1.2 - 0.1, y: r(), v: 0.5 + r() * 0.45, l: 0.02 + r() * 0.03, a: 0.1 + r() * 0.2 }));
+    if (cfg.weather === 'snow') scFX.snow = fxList(80, () => ({ x: r(), y: r(), v: 0.02 + r() * 0.03, s: 1 + r() * 2.2, ph: r() * 6, a: 0.4 + r() * 0.5 }));
+    if (cfg.weather === 'leaf') scFX.leaf = fxList(24, () => ({ x: r(), y: r(), v: 0.02 + r() * 0.025, s: 5 + r() * 5, ph: r() * 6, rot: r() * 6, vr: (r() - 0.5) * 1.4, c: r() }));
+    if (cfg.weather === 'petal') scFX.petal = fxList(34, () => ({ x: r(), y: r(), v: 0.016 + r() * 0.028, s: 4 + r() * 4.5, ph: r() * 6, rot: r() * 6, vr: (r() - 0.5) * 1.6 }));
+    if (cfg.weather === 'firefly') scFX.fly = fxList(26, () => ({ x: r(), y: 0.3 + r() * 0.5, v: 0.008 + r() * 0.02, ph: r() * 6, s: 1 + r() * 1.5 }));
+    if (cfg.clouds) scFX.cloud = fxList(Math.round(3 + cfg.clouds * 5), () => ({ x: r(), y: 0.05 + r() * 0.3, w: 0.08 + r() * 0.14, v: 0.004 + r() * 0.006, a: (0.1 + r() * 0.18) * cfg.clouds }));
+    if (cfg.fish) scFX.fish = fxList(7, () => ({ x: r(), y: 0.06 + r() * 0.72, v: 0.008 + r() * 0.02, dir: r() < 0.5 ? -1 : 1, s: 3 + r() * 4, ph: r() * 6 }));
+    scFlockAt = performance.now() + 6000 + Math.random() * 10000;
+  }
+
+  function drawClouds(dt, t, still) {
+    for (const c of scFX.cloud) {
+      if (!still) c.x = (c.x + c.v * dt) % 1.25;
+      const x = (c.x - 0.12) * sW, y = c.y * sH, w = c.w * sW;
+      sx.save(); sx.translate(x, y); sx.scale(1, 0.34);
+      const cg = sx.createRadialGradient(0, 0, 0, 0, 0, w);
+      cg.addColorStop(0, sc_.mist); cg.addColorStop(1, 'transparent');
+      sx.globalAlpha = c.a; sx.fillStyle = cg;
+      sx.beginPath(); sx.arc(0, 0, w, 0, Math.PI * 2); sx.fill();
+      sx.beginPath(); sx.arc(w * 0.6, w * 0.14, w * 0.6, 0, Math.PI * 2); sx.fill();
+      sx.restore();
+    }
+    sx.globalAlpha = 1;
+  }
+
+  function drawWeather(dt, t, still) {
+    // mưa: vệt xiên, rồi gợn nước lăn tăn trên mặt hồ
+    if (scFX.rain.length) {
+      sx.strokeStyle = sc_.mist; sx.lineWidth = 1;
+      for (const d of scFX.rain) {
+        if (!still) d.y += d.v * dt;
+        if (d.y > 1.06) { d.y -= 1.12; d.x = (d.x + 0.37) % 1.2; }
+        const x = d.x * sW, y = d.y * sH;
+        sx.globalAlpha = d.a;
+        sx.beginPath(); sx.moveTo(x, y); sx.lineTo(x - d.l * sW * 0.2, y + d.l * sH); sx.stroke();
+      }
+      const wy = sH * scWater;
+      for (let i = 0; i < 16; i++) {
+        const d = scFX.rain[i * 5 % scFX.rain.length];
+        const rr = 3 + (Math.sin(t * 2 + i) * 0.5 + 0.5) * 7;
+        sx.globalAlpha = 0.2 * (1 - rr / 12);
+        sx.beginPath(); sx.ellipse(d.x * sW, wy + 6 + (i % 5) * 5, rr, rr * 0.32, 0, 0, Math.PI * 2); sx.stroke();
+      }
+      sx.globalAlpha = 1;
+    }
+    // tuyết
+    if (scFX.snow.length) {
+      sx.fillStyle = '#ffffff';
+      for (const f of scFX.snow) {
+        if (!still) { f.y += f.v * dt; f.x += Math.sin(t * 0.6 + f.ph) * 0.012 * dt; }
+        if (f.y > 1.05) { f.y -= 1.1; f.x = Math.random(); }
+        sx.globalAlpha = f.a;
+        sx.beginPath(); sx.arc((((f.x % 1) + 1) % 1) * sW, f.y * sH, f.s, 0, Math.PI * 2); sx.fill();
+      }
+      sx.globalAlpha = 1;
+    }
+    // lá vàng (thu) hoặc cánh hoa (xuân)
+    const fall = scFX.leaf.length ? scFX.leaf : scFX.petal;
+    if (fall.length) {
+      const isLeaf = !!scFX.leaf.length;
+      for (const l of fall) {
+        if (!still) { l.y += l.v * dt; l.x += Math.sin(t * 0.5 + l.ph) * 0.02 * dt; l.rot += l.vr * dt; }
+        if (l.y > 1.05) { l.y -= 1.1; l.x = Math.random(); }
+        sx.save(); sx.translate((((l.x % 1) + 1) % 1) * sW, l.y * sH); sx.rotate(l.rot);
+        if (isLeaf) {
+          sx.globalAlpha = 0.75;
+          sx.fillStyle = l.c > 0.62 ? '#d98a3a' : (l.c > 0.3 ? '#bf6a2c' : '#e0b45a');
+          sx.beginPath(); sx.ellipse(0, 0, l.s, l.s * 0.5, 0, 0, Math.PI * 2); sx.fill();
+        } else {
+          sx.globalAlpha = 0.72; sx.fillStyle = sc_.lotus;
+          sx.beginPath(); sx.ellipse(0, 0, l.s, l.s * 0.62, 0, 0, Math.PI * 2); sx.fill();
+        }
+        sx.restore();
+      }
+      sx.globalAlpha = 1;
+    }
+    // đom đóm
+    if (scFX.fly.length) {
+      for (const f of scFX.fly) {
+        if (!still) { f.x = (f.x + f.v * dt) % 1; f.y += Math.sin(t * 0.4 + f.ph) * 0.01 * dt; }
+        const x = f.x * sW, y = f.y * sH, rr = 13 * f.s;
+        const pulse = 0.3 + 0.7 * Math.max(0, Math.sin(t * 1.5 + f.ph));
+        const gg = sx.createRadialGradient(x, y, 0, x, y, rr);
+        gg.addColorStop(0, 'rgba(255,246,190,0.95)'); gg.addColorStop(0.35, 'rgba(255,215,106,0.55)'); gg.addColorStop(1, 'transparent');
+        sx.globalAlpha = 0.5 * pulse; sx.fillStyle = gg;
+        sx.beginPath(); sx.arc(x, y, rr, 0, Math.PI * 2); sx.fill();
+      }
+      sx.globalAlpha = 1;
+    }
+  }
+
+  function drawFlock(dt, t, still) {
+    if (!scFX.birds) return;
+    if (!scFX.flock.length && performance.now() > scFlockAt) {
+      const n = 3 + Math.floor(Math.random() * 5), pts = [];
+      for (let i = 0; i < n; i++) pts.push({ dx: (i % 2 ? 1 : -1) * i * 0.014, dy: Math.random() * 0.02, k: Math.random() });
+      scFX.flock.push({ x: -0.08, y: 0.1 + Math.random() * 0.22, v: 0.05 + Math.random() * 0.05, pts });
+      scFlockAt = performance.now() + 14000 + Math.random() * 22000;
+    }
+    sx.strokeStyle = sc_['mtn-near']; sx.lineWidth = 1.4;
+    for (let i = scFX.flock.length - 1; i >= 0; i--) {
+      const b = scFX.flock[i];
+      if (!still) b.x += b.v * dt;
+      if (b.x > 1.25) { scFX.flock.splice(i, 1); continue; }
+      for (const p of b.pts) {
+        const px = (b.x + p.dx) * sW, py = (b.y + p.dy) * sH, w = 3 + p.k * 2.4;
+        const flap = still ? 0.7 : Math.sin(t * 7 + p.k * 6) * 0.5 + 0.5;
+        sx.globalAlpha = 0.5;
+        sx.beginPath();
+        sx.moveTo(px - w, py + w * 0.45 * flap);
+        sx.quadraticCurveTo(px - w * 0.45, py - w * 0.4 * flap, px, py);
+        sx.quadraticCurveTo(px + w * 0.45, py - w * 0.4 * flap, px + w, py + w * 0.45 * flap);
+        sx.stroke();
+      }
+    }
+    sx.globalAlpha = 1;
+  }
+
+  function drawFish(dt, t, still) {
+    const wy = sH * scWater;
+    for (const f of scFX.fish) {
+      if (!still) f.x = (f.x + f.v * f.dir * dt + 1) % 1;
+      const x = f.x * sW, y = wy + 8 + f.y * (sH - wy - 18);
+      const wig = still ? 0 : Math.sin(t * 3 + f.ph) * 0.6;
+      sx.globalAlpha = 0.26; sx.fillStyle = sc_['mtn-near'];
+      sx.beginPath(); sx.ellipse(x, y, f.s * 1.7, f.s * 0.62, 0, 0, Math.PI * 2); sx.fill();
+      sx.beginPath();
+      sx.moveTo(x - f.dir * f.s * 1.5, y);
+      sx.lineTo(x - f.dir * f.s * 2.7, y - f.s * 0.6 + wig);
+      sx.lineTo(x - f.dir * f.s * 2.7, y + f.s * 0.6 + wig);
+      sx.closePath(); sx.fill();
+    }
+    sx.globalAlpha = 1;
+  }
+
   let lastScene = 0;
   function sceneFrame(tms) {
     requestAnimationFrame(sceneFrame);
@@ -3670,6 +4300,7 @@ body { overscroll-behavior-y: none; touch-action: manipulation; }
     sx.setTransform(1, 0, 0, 1, 0, 0);
     sx.drawImage(sceneBase.sky, 0, 0);
     sx.setTransform(sDPR, 0, 0, sDPR, 0, 0);
+    if (scFX && scFX.cloud.length) drawClouds(dt, t, still);
     // a great Buddha seated beyond the far hills; chanting in rhythm lights him up
     divineSpike = Math.max(0, divineSpike - dt * 0.22);
     const lit = Math.max(chainGlow(), divineSpike);
@@ -3689,15 +4320,21 @@ body { overscroll-behavior-y: none; touch-action: manipulation; }
       sx.save(); sx.translate(cx, y); sx.scale(1, 0.12); sx.translate(-cx, -y);
       sx.fillStyle = mg; sx.fillRect(cx - w, y - w, w * 2, w * 2); sx.restore();
     }
+    // cá lượn dưới mặt nước, rồi tới thời tiết và chim trời
+    if (scFX) {
+      if (scFX.fish.length) drawFish(dt, t, still);
+      drawWeather(dt, t, still);
+      drawFlock(dt, t, still);
+    }
     // lotus lanterns floating on the water
-    const waterY = sH * 0.86, s = Math.max(6, Math.min(sW, sH) * 0.012);
+    const waterY = sH * scWater, s = Math.max(6, Math.min(sW, sH) * 0.012);
     for (const L of lanterns) {
       if (!still) L.x = (L.x + L.v * dt) % 1.1;
       const y = waterY + 10 + L.d * (sH - waterY - 22) + (still ? 0 : Math.sin(t * 1.3 + L.ph) * 1.5);
       drawLantern(L.x * sW * 1.1 - sW * 0.05, y, s * (0.7 + L.d * 0.6), t, L.ph);
     }
   }
-  const rebuild = () => { buildScene(); lastScene = 0; };
+  const rebuild = () => { buildScene(); lastScene = 0; syncBgDark(); };
   new ResizeObserver(rebuild).observe(sc);
   matchMedia('(prefers-color-scheme: dark)').addEventListener('change', rebuild);
   new MutationObserver(rebuild).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
@@ -3785,6 +4422,10 @@ body { overscroll-behavior-y: none; touch-action: manipulation; }
     toast(spBar ? '📊 Đã hiện thanh công đức' : '📊 Đã ẩn thanh công đức');
   });
   renderViewPrefs();
+  buildSceneSeg();
+  buildAmbSeg();
+  renderSceneInfo();
+  syncBgDark();
   renderTemple();
 
   renderLine();
