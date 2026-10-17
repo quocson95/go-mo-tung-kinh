@@ -698,6 +698,61 @@ body.calm *, body.calm *::before, body.calm *::after {
 }
 @media (max-width: 560px) { #bigText { top: 34vh; } .bt-sub { font-size: 13px; } }
 @media (prefers-reduced-motion: reduce) { #bigText { display: none; } }
+
+/* ── Tiêu đề "Tụng kinh" thường trú trên sân khấu ──
+   Hiện suốt buổi tụng: viền đậm + chữ gradient nhấp nháy, quầng sáng thở, vòng xung kích lúc vào. */
+#chantTitle {
+  position: absolute; left: 12px; right: 12px; top: 30px; z-index: 3;
+  display: grid; justify-items: center; gap: 5px;
+  pointer-events: none; text-align: center;
+  --ct-a: #fff; --ct-b: #ffd77f; --ct-glow: #ffd77f; --ct-edge: rgba(40,18,0,.9);
+}
+#chantTitle[hidden] { display: none; }
+.ct-halo {
+  position: absolute; left: 50%; top: 40%; width: min(560px, 88%); height: 150px;
+  transform: translate(-50%, -50%); border-radius: 50%;
+  background: radial-gradient(closest-side, var(--ct-glow), transparent 74%);
+  opacity: .2; filter: blur(12px);
+}
+.ct-main { position: relative; display: grid; place-items: center; line-height: 1; }
+.ct-main i {
+  grid-area: 1 / 1; font-style: normal; font-family: var(--f-ui); font-weight: 700;
+  font-size: clamp(24px, 4.6vw, 56px); letter-spacing: .06em; white-space: nowrap;
+}
+.ct-o { color: transparent; -webkit-text-stroke: .12em var(--ct-edge); }
+.ct-f {
+  background: linear-gradient(180deg, var(--ct-a) 8%, var(--ct-b) 90%);
+  background-size: 240% 100%;
+  -webkit-background-clip: text; background-clip: text;
+  color: transparent; -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 16px var(--ct-glow));
+}
+.ct-sub { font: 500 10.5px/1 var(--f-mono); letter-spacing: .14em; text-transform: uppercase; color: var(--ink3); }
+#chantTitle.on .ct-main { animation: ctIn 860ms cubic-bezier(.2,1.4,.35,1) both, ctBreathe 3600ms ease-in-out 860ms infinite; }
+#chantTitle.on .ct-f { animation: ctShine 3600ms ease-in-out 860ms infinite; }
+#chantTitle.on .ct-sub { animation: ctSub 640ms ease-out 300ms both; }
+#chantTitle.on .ct-halo { animation: ctHalo 3600ms ease-in-out infinite; }
+#chantTitle.on::before, #chantTitle.on::after {
+  content: ''; position: absolute; left: 50%; top: 40%; width: 64px; height: 64px;
+  margin: -32px 0 0 -32px; border-radius: 50%; border: 2px solid var(--ct-glow);
+  animation: ctRing 900ms cubic-bezier(.2,.8,.3,1) both;
+}
+#chantTitle.on::after { animation-delay: 140ms; }
+@keyframes ctRing { 0% { transform: scale(.4); opacity: .85; } 100% { transform: scale(6.5); opacity: 0; } }
+@keyframes ctIn {
+  0%   { opacity: 0; transform: scale(2.2) translateY(10%); filter: blur(12px); letter-spacing: .38em; }
+  55%  { opacity: 1; transform: scale(1.03); filter: blur(0); letter-spacing: .06em; }
+  72%  { transform: scale(.985); }
+  100% { opacity: 1; transform: none; letter-spacing: .06em; }
+}
+@keyframes ctBreathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.055); } }
+@keyframes ctShine { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+@keyframes ctSub { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+@keyframes ctHalo {
+  0%, 100% { opacity: .16; transform: translate(-50%, -50%) scale(.92); }
+  50% { opacity: .42; transform: translate(-50%, -50%) scale(1.08); }
+}
+@media (prefers-reduced-motion: reduce) { #chantTitle { display: none; } }
 </style>
 
 <canvas id="scene" aria-hidden="true"></canvas>
@@ -751,6 +806,11 @@ body.calm *, body.calm *::before, body.calm *::after {
       <div class="stage" id="stage" tabindex="0" role="button" aria-label="Gõ mõ">
         <canvas id="cv"></canvas>
         <div id="rainbow-burst" aria-hidden="true"></div>
+        <div id="chantTitle" hidden aria-hidden="true">
+          <span class="ct-halo"></span>
+          <span class="ct-main"><i class="ct-o">TỤNG KINH</i><i class="ct-f">TỤNG KINH</i></span>
+          <span class="ct-sub" id="ctSub"></span>
+        </div>
         <div class="stage-meta"><span id="modeLabel">Gõ tự do</span><span class="combo" id="comboLabel"></span></div>
         <div class="verdict" id="verdict"></div>
         <div class="stage-prog" id="stageProgWrap">
@@ -1617,6 +1677,7 @@ body.calm *, body.calm *::before, body.calm *::after {
     $('chantBtn').textContent = 'Dừng tụng';
     $('modeLabel').textContent = 'Tụng theo nhịp · ' + S.bpm + ' bpm';
     updateCombo();
+    showChantTitle();
     chantIntro();
   }
   function stopChant(quiet) {
@@ -1627,6 +1688,7 @@ body.calm *, body.calm *::before, body.calm *::after {
     $('chantBtn').textContent = 'Bắt đầu tụng';
     $('modeLabel').textContent = 'Gõ tự do';
     S.combo = 0; updateCombo();
+    hideChantTitle();
     if (!quiet) showBigText('XẢ THIỀN', { kind: 'punch', tier: 1, size: .72, tag: 'Kết thúc lễ tụng', ms: 1150 });
   }
 
@@ -2407,20 +2469,41 @@ body.calm *, body.calm *::before, body.calm *::after {
     clearTimeout(btTimer);
     btTimer = setTimeout(() => { box.classList.remove('bt-in'); box.hidden = true; }, ms + 90);
   }
-  // Lễ tụng bắt đầu: chữ lớn "TỤNG KINH" + tên bài kinh
+  // Lễ tụng bắt đầu: chữ lớn tên bài kinh + tiêu đề "TỤNG KINH" thường trú trên sân khấu
   function chantIntro() {
     if (reduce.matches) return;
     const s = sutra();
-    showBigText('TỤNG KINH', {
-      kind: 'hero', tier: 0, size: 1,
+    showBigText(s.name, {
+      kind: 'hero', tier: 0,
+      size: Math.max(.42, Math.min(.95, 11 / Math.max(6, s.name.length))),
       tag: 'Bắt đầu lễ tụng',
-      sub: s.name + ' · ' + S.bpm + ' bpm',
+      sub: S.bpm + ' bpm · Gõ đúng vòng hồng để tích chuỗi',
       ms: 2200,
     });
     stageShake(4);
     rainPetals(26);
     burstSparks(16, '🪷');
     const f = $('flash'); if (f) { f.classList.remove('on'); void f.offsetWidth; f.classList.add('on'); }
+  }
+  // Tiêu đề thường trú: sắc màu theo cảnh giới hiện tại
+  function paintChantTitle() {
+    const el = $('chantTitle'); if (!el) return;
+    const th = REALMS[realmOf(S.total)] || REALMS[0];
+    el.style.setProperty('--ct-a', '#ffffff');
+    el.style.setProperty('--ct-b', th.accent);
+    el.style.setProperty('--ct-glow', th.accent);
+  }
+  function showChantTitle() {
+    const el = $('chantTitle'); if (!el || reduce.matches) return;
+    const sub = $('ctSub');
+    if (sub) sub.textContent = sutra().name + ' · ' + S.bpm + ' bpm';
+    paintChantTitle();
+    el.hidden = false;
+    el.classList.remove('on'); void el.offsetWidth; el.classList.add('on');
+  }
+  function hideChantTitle() {
+    const el = $('chantTitle'); if (!el) return;
+    el.classList.remove('on'); el.hidden = true;
   }
   const COMBO_WORDS = ['TỐT LẮM', 'TUYỆT VỜI', 'XUẤT SẮC', 'SIÊU ĐẲNG', 'THẦN TỐC', 'BẤT KHẢ TƯ NGHÌ', 'PHI THƯỜNG', 'VÔ SONG', 'TỐI THƯỢNG'];
   const comboTierOf = n => n >= 30 ? 4 : n >= 20 ? 3 : n >= 12 ? 2 : n >= 6 ? 1 : 0;
@@ -2743,6 +2826,7 @@ body.calm *, body.calm *::before, body.calm *::after {
     root.setProperty('--stage-glow', th.glow);
     readColors(); // nạp lại palette cho canvas
     applyAmbientParticles(r);
+    paintChantTitle(); // tiêu đề "Tụng kinh" đổi màu theo cảnh giới
   }
   // ── Banner thăng cấp ──
   let realmUpTimer = null;
