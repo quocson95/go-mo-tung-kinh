@@ -594,10 +594,126 @@ body.calm *, body.calm *::before, body.calm *::after {
 .tm-st { font: 500 10.5px/1 var(--f-mono); color: var(--ink3); white-space: nowrap; }
 .tm-card.built .tm-st { color: var(--good); }
 .tm-mini { display: flex; flex-wrap: wrap; gap: 5px; font-size: 17px; line-height: 1; min-height: 20px; }
+
+/* ── Chữ lớn kiểu game: "Tụng kinh" & chuỗi combo (Audition-style) ──
+   Một lớp phủ cố định: viền đậm + chữ gradient + bóng ma lệch màu + vòng xung kích.
+   Màu và cỡ do JS đặt qua biến --bt-*, thời lượng qua --bt-ms. */
+#bigText {
+  position: fixed; left: 50%; top: 38vh; z-index: 6;
+  transform: translate(-50%, -50%);
+  width: min(96vw, 1180px);
+  display: grid; place-items: center; gap: 9px;
+  pointer-events: none; text-align: center; user-select: none; -webkit-user-select: none;
+  --bt-a: #fff; --bt-b: #ffd77f; --bt-edge: #3a1d00; --bt-glow: #ffd77f; --bt-tag: #ffe6a8;
+  --bt-scale: 1; --bt-ms: 1500ms;
+}
+#bigText[hidden] { display: none; }
+.bt-ring {
+  position: absolute; left: 50%; top: 46%; width: 140px; height: 140px;
+  margin: -70px 0 0 -70px; border-radius: 50%;
+  border: 3px solid var(--bt-glow); opacity: 0;
+}
+.bt-wrap { position: relative; display: grid; place-items: center; line-height: .94; letter-spacing: .02em; }
+.bt-lay { grid-area: 1 / 1; font-size: calc(clamp(50px, 11.5vw, 128px) * var(--bt-scale)); font-weight: 600; white-space: nowrap; color: #fff; }
+#bigText[data-kind="btIn"] .bt-lay { font-family: var(--f-display); }
+#bigText[data-kind="btCombo"] .bt-lay,
+#bigText[data-kind="btPunch"] .bt-lay { font-family: var(--f-ui); font-weight: 700; letter-spacing: -.02em; }
+.bt-fill {
+  background: linear-gradient(178deg, var(--bt-a) 10%, var(--bt-b) 88%);
+  -webkit-background-clip: text; background-clip: text;
+  color: transparent; -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 22px var(--bt-glow)) drop-shadow(0 5px 0 rgba(0,0,0,.3));
+}
+#bigText[data-tier="4"] .bt-fill {
+  background: linear-gradient(90deg, #ff3b3b, #ffd93b, #3bff7e, #3bb6ff, #c83bff, #ff3b3b);
+  background-size: 220% 100%;
+  -webkit-background-clip: text; background-clip: text;
+  animation: btRainbow 1200ms linear infinite;
+}
+@keyframes btRainbow { to { background-position: 220% 0; } }
+.bt-outline { color: transparent; -webkit-text-stroke: .13em var(--bt-edge); filter: drop-shadow(0 0 12px var(--bt-glow)); }
+#bigText[data-kind="btPunch"] .bt-outline { -webkit-text-stroke-width: .1em; }
+.bt-ghost { color: transparent; opacity: .55; }
+.bt-ghost-a { -webkit-text-stroke: .055em #00e8ff; transform: translate(-.05em, -.025em); }
+.bt-ghost-b { -webkit-text-stroke: .055em #ff2f8e; transform: translate(.05em, .025em); }
+#bigText[data-tier="0"] .bt-ghost, #bigText[data-tier="1"] .bt-ghost { opacity: 0; }
+.bt-tag {
+  font: 700 11.5px/1 var(--f-ui); letter-spacing: .32em; text-transform: uppercase;
+  color: var(--bt-tag); padding: 6px 15px 5px; border-radius: 999px;
+  background: rgba(10,6,2,.62); border: 1px solid currentColor;
+  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+  box-shadow: 0 0 18px var(--bt-glow);
+}
+.bt-sub { font: 500 15px/1.25 var(--f-display); font-style: italic; color: #fff; text-shadow: 0 2px 12px rgba(0,0,0,.66); }
+#bigText.bt-in .bt-ring { animation: btRing 720ms cubic-bezier(.2,.8,.3,1) both; }
+#bigText.bt-in .bt-ring.b { animation-delay: 110ms; }
+#bigText.bt-in .bt-tag { animation: btTag 560ms cubic-bezier(.2,1.6,.4,1) both; }
+#bigText.bt-in .bt-sub { animation: btSub 780ms ease-out both; }
+#bigText[data-kind="btIn"].bt-in .bt-wrap { animation: btIn var(--bt-ms) cubic-bezier(.18,1.1,.3,1) both; }
+#bigText[data-kind="btCombo"].bt-in .bt-wrap { animation: btCombo var(--bt-ms) cubic-bezier(.18,1.1,.3,1) both; }
+#bigText[data-kind="btPunch"].bt-in .bt-wrap { animation: btPunch var(--bt-ms) cubic-bezier(.18,1.1,.3,1) both; }
+@keyframes btRing { 0% { transform: scale(.25); opacity: .85; } 100% { transform: scale(8.5); opacity: 0; } }
+@keyframes btTag { 0% { opacity: 0; transform: translateY(14px) scale(.75); letter-spacing: .7em; } 100% { opacity: 1; transform: none; letter-spacing: .32em; } }
+@keyframes btSub { 0% { opacity: 0; transform: translateY(-10px); } 35% { opacity: 0; } 100% { opacity: 1; transform: none; } }
+@keyframes btIn {
+  0%   { opacity: 0; transform: scale(2.6) translateY(6%); filter: blur(16px); letter-spacing: .45em; }
+  26%  { opacity: 1; transform: scale(1.04); filter: blur(0); letter-spacing: .04em; }
+  33%  { transform: scale(.96); }
+  42%  { transform: scale(1.015); }
+  52%  { transform: scale(1); }
+  84%  { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.3) translateY(-6%); filter: blur(6px); }
+}
+@keyframes btCombo {
+  0%   { opacity: 0; transform: scale(.2) rotate(-12deg); filter: blur(10px); }
+  16%  { opacity: 1; transform: scale(1.32) rotate(5deg); filter: blur(0); }
+  27%  { transform: scale(.9) rotate(-4deg); }
+  38%  { transform: scale(1.12) rotate(3deg); }
+  50%  { transform: scale(.98) rotate(-1deg); }
+  62%  { transform: scale(1.02) rotate(0); }
+  86%  { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.42) rotate(2deg); filter: blur(8px); }
+}
+@keyframes btPunch {
+  0%   { opacity: 0; transform: scale(.4); filter: blur(6px); }
+  22%  { opacity: 1; transform: scale(1.18); filter: blur(0); }
+  38%  { transform: scale(.94); }
+  55%  { transform: scale(1.02); }
+  72%  { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.25) translateY(-8%); filter: blur(5px); }
+}
+/* con lắc chuỗi trên sân khấu: nhún theo mỗi tiếng mõ */
+.combo { color: var(--lotus-ink); font-weight: 700; letter-spacing: .08em; display: inline-block; }
+.combo:empty { display: none; }
+.combo.pop { animation: comboPop 480ms cubic-bezier(.2,1.7,.4,1); }
+@keyframes comboPop { 0% { transform: scale(.55); } 45% { transform: scale(1.45); } 100% { transform: scale(1); } }
+/* rung sân khấu khi vào chuỗi lớn */
+.stage.shake { animation: stageShake 420ms cubic-bezier(.36,.07,.19,.97) both; }
+@keyframes stageShake {
+  10%, 90% { transform: translate3d(calc(-1 * var(--shake-p, 4px)), 0, 0); }
+  20%, 80% { transform: translate3d(calc(var(--shake-p, 4px) * 1.6), 0, 0); }
+  30%, 50%, 70% { transform: translate3d(calc(-1 * var(--shake-p, 4px) * 1.1), 0, 0); }
+  40%, 60% { transform: translate3d(calc(var(--shake-p, 4px) * 1.1), 0, 0); }
+  100% { transform: translate3d(0, 0, 0); }
+}
+@media (max-width: 560px) { #bigText { top: 34vh; } .bt-sub { font-size: 13px; } }
+@media (prefers-reduced-motion: reduce) { #bigText { display: none; } }
 </style>
 
 <canvas id="scene" aria-hidden="true"></canvas>
 <div id="flash" aria-hidden="true"></div>
+<div id="bigText" hidden aria-hidden="true">
+  <span class="bt-ring a"></span>
+  <span class="bt-ring b"></span>
+  <span class="bt-tag" id="btTag" hidden></span>
+  <span class="bt-wrap" id="btWrap">
+    <span class="bt-lay bt-outline" id="btOutline"></span>
+    <span class="bt-lay bt-ghost bt-ghost-a" id="btGhostA"></span>
+    <span class="bt-lay bt-ghost bt-ghost-b" id="btGhostB"></span>
+    <span class="bt-lay bt-fill" id="btFill"></span>
+  </span>
+  <span class="bt-sub" id="btSub" hidden></span>
+</div>
 <div id="realm-up" hidden aria-live="polite">
   <div class="ru-eyebrow">Thăng cấp cảnh giới</div>
   <div class="ru-name" id="ru-name"></div>
@@ -1501,8 +1617,9 @@ body.calm *, body.calm *::before, body.calm *::after {
     $('chantBtn').textContent = 'Dừng tụng';
     $('modeLabel').textContent = 'Tụng theo nhịp · ' + S.bpm + ' bpm';
     updateCombo();
+    chantIntro();
   }
-  function stopChant() {
+  function stopChant(quiet) {
     S.chanting = false;
     clearInterval(schedTimer); schedTimer = null;
     beats = [];
@@ -1510,6 +1627,7 @@ body.calm *, body.calm *::before, body.calm *::after {
     $('chantBtn').textContent = 'Bắt đầu tụng';
     $('modeLabel').textContent = 'Gõ tự do';
     S.combo = 0; updateCombo();
+    if (!quiet) showBigText('XẢ THIỀN', { kind: 'punch', tier: 1, size: .72, tag: 'Kết thúc lễ tụng', ms: 1150 });
   }
 
   // ---------- game ----------
@@ -1573,6 +1691,7 @@ body.calm *, body.calm *::before, body.calm *::after {
         showVerdict(perfect ? 'Chuẩn nhịp' : 'Gần nhịp', perfect ? 'perfect' : 'good');
         ringAnim = performance.now();
         if (perfect) { rayPulse = ringAnim; burstSparks(7); } else burstSparks(2);
+        comboPunch(S.combo, perfect);
         if (S.combo % 27 === 0) summonBuddha('Chư Phật gia hộ · chuỗi ' + S.combo, 2800);
       } else {
         S.combo = 0;
@@ -1700,7 +1819,7 @@ body.calm *, body.calm *::before, body.calm *::after {
   });
   seg($('tempoSeg'), TEMPOS, it => it.bpm === S.bpm, it => {
     S.bpm = it.bpm; save();
-    if (S.chanting) { stopChant(); startChant(); }
+    if (S.chanting) { stopChant(true); startChant(); }
   });
 
   function renderVoiceSeg() {
@@ -2245,6 +2364,89 @@ body.calm *, body.calm *::before, body.calm *::after {
     }
   }
 
+  // ── Chữ lớn kiểu game: "Tụng kinh" + chuỗi combo (Audition-style) ──
+  // Mỗi lần hiện là một "cú đánh" thị giác: viền đậm, chữ gradient, bóng ma lệch màu,
+  // vòng xung kích, rung sân khấu và tia sáng — mạnh dần theo bậc chuỗi.
+  const BT_THEMES = [
+    { a: '#ffffff', b: '#ffd77f', edge: '#3a1d00', glow: '#ffd77f', tag: '#ffe6a8' }, // vàng
+    { a: '#fff3c8', b: '#ffab2e', edge: '#4a2200', glow: '#ffb347', tag: '#ffd98a' }, // hổ phách
+    { a: '#ffe1f6', b: '#f263ca', edge: '#4a0033', glow: '#f263ca', tag: '#ffb8e8' }, // sen
+    { a: '#e2f9ff', b: '#2fb8e8', edge: '#002a3a', glow: '#57d6ff', tag: '#bff0ff' }, // lam
+    { a: '#cfd8ff', b: '#7a3bff', edge: '#1a0038', glow: '#b06bff', tag: '#e6d0ff' }, // tím
+  ];
+  const BT_BAD = { a: '#ffd6cc', b: '#ff3b2e', edge: '#3a0000', glow: '#ff6a4a', tag: '#ffc4b4' };
+  const BT_LAYERS = ['btOutline', 'btGhostA', 'btGhostB', 'btFill'];
+  let btTimer = null;
+  function stageShake(power) {
+    if (reduce.matches) return;
+    const el = $('stage'); if (!el) return;
+    el.style.setProperty('--shake-p', (power || 4) + 'px');
+    el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake');
+  }
+  function showBigText(text, o) {
+    o = o || {};
+    const box = $('bigText'); if (!box || reduce.matches) return;
+    const th = o.bad ? BT_BAD : BT_THEMES[Math.max(0, Math.min(BT_THEMES.length - 1, o.tier || 0))];
+    const kind = o.kind === 'hero' ? 'btIn' : o.kind === 'combo' ? 'btCombo' : 'btPunch';
+    const ms = Math.round(o.ms || (kind === 'btIn' ? 2000 : kind === 'btCombo' ? 1350 : 560));
+    box.style.setProperty('--bt-a', th.a);
+    box.style.setProperty('--bt-b', th.b);
+    box.style.setProperty('--bt-edge', th.edge);
+    box.style.setProperty('--bt-glow', th.glow);
+    box.style.setProperty('--bt-tag', th.tag);
+    box.style.setProperty('--bt-scale', String(o.size || 1));
+    box.style.setProperty('--bt-ms', ms + 'ms');
+    box.dataset.tier = String(o.tier || 0);
+    box.dataset.kind = kind;
+    for (const id of BT_LAYERS) $(id).textContent = text;
+    const tag = $('btTag'); tag.textContent = o.tag || ''; tag.hidden = !o.tag;
+    const sub = $('btSub'); sub.textContent = o.sub || ''; sub.hidden = !o.sub;
+    box.hidden = false;
+    box.classList.remove('bt-in'); void box.offsetWidth; // khởi động lại animation
+    box.classList.add('bt-in');
+    clearTimeout(btTimer);
+    btTimer = setTimeout(() => { box.classList.remove('bt-in'); box.hidden = true; }, ms + 90);
+  }
+  // Lễ tụng bắt đầu: chữ lớn "TỤNG KINH" + tên bài kinh
+  function chantIntro() {
+    if (reduce.matches) return;
+    const s = sutra();
+    showBigText('TỤNG KINH', {
+      kind: 'hero', tier: 0, size: 1,
+      tag: 'Bắt đầu lễ tụng',
+      sub: s.name + ' · ' + S.bpm + ' bpm',
+      ms: 2200,
+    });
+    stageShake(4);
+    rainPetals(26);
+    burstSparks(16, '🪷');
+    const f = $('flash'); if (f) { f.classList.remove('on'); void f.offsetWidth; f.classList.add('on'); }
+  }
+  const COMBO_WORDS = ['TỐT LẮM', 'TUYỆT VỜI', 'XUẤT SẮC', 'SIÊU ĐẲNG', 'THẦN TỐC', 'BẤT KHẢ TƯ NGHÌ', 'PHI THƯỜNG', 'VÔ SONG', 'TỐI THƯỢNG'];
+  const comboTierOf = n => n >= 30 ? 4 : n >= 20 ? 3 : n >= 12 ? 2 : n >= 6 ? 1 : 0;
+  function comboPunch(n, perfect) {
+    const el = $('comboLabel');
+    if (el) { el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop'); }
+    if (n < 4) return;
+    const tier = comboTierOf(n);
+    if (n % 5 === 0) { // mốc chuỗi: cú đánh lớn kèm tia sáng + rung sân khấu
+      const wi = Math.min(COMBO_WORDS.length - 1, Math.floor(n / 5) - 1);
+      showBigText('CHUỖI ' + n, {
+        kind: 'combo', tier, size: 1.05,
+        tag: COMBO_WORDS[wi],
+        sub: 'Nhân công đức ×' + mult(),
+        ms: 1200 + tier * 220,
+      });
+      stageShake(3 + tier * 1.6);
+      burstSparks(8 + tier * 5, perfect ? '✨' : null);
+      if (tier >= 2) rainPetals(12 + tier * 8);
+      if (tier >= 3) rainbowBurst();
+      if (ac) playBell(ac.currentTime + 0.01, 392 + tier * 90, 0.16 + tier * 0.05, 4 + tier, bellBus);
+    } else { // giữa các mốc: số chuỗi nhảy nhanh
+      showBigText('×' + n, { kind: 'punch', tier: Math.min(3, tier + 1), size: .58, ms: 470 });
+    }
+  }
+
   // ── Nghi lễ theo buổi ──
   // 4 buổi tu tập, mỗi buổi có hệ số công đức và mục tiêu riêng cho "thời khóa".
   const SLOTS = [
@@ -2395,7 +2597,7 @@ body.calm *, body.calm *::before, body.calm *::after {
   }
   function startMeditate() {
     if (medOn) return;
-    if (S.chanting) stopChant();
+    if (S.chanting) stopChant(true);
     ensureAudio();
     medOn = true; medPhase = 0; medBreaths = 0; medPhaseStart = performance.now();
     $('medBtn2').textContent = 'Dừng';
@@ -2510,7 +2712,7 @@ body.calm *, body.calm *::before, body.calm *::after {
     else if (e.key === 'f' || e.key === 'F') applyZen(!document.body.classList.contains('zen'), true);
     else if (e.key === 't' || e.key === 'T') { const cur = store.get('theme', 'auto'); applyTheme(THEME_CYCLE[(THEME_CYCLE.indexOf(cur) + 1) % THEME_CYCLE.length]); }
   });
-  document.addEventListener('visibilitychange', () => { if (document.hidden && S.chanting) stopChant(); });
+  document.addEventListener('visibilitychange', () => { if (document.hidden && S.chanting) stopChant(true); });
 
   // ---------- drawing ----------
   const cv = $('cv'), g = cv.getContext('2d');
@@ -3080,6 +3282,7 @@ body.calm *, body.calm *::before, body.calm *::after {
       for (const b of beats) if (!b.judged && now > b.t + GOOD) {
         b.judged = true; S.judged++;
         if (S.combo) showVerdict('Lỡ nhịp', 'miss');
+        if (S.combo >= 5) showBigText('ĐỨT CHUỖI', { kind: 'punch', tier: 1, size: .52, bad: true, tag: 'Chuỗi ' + S.combo, ms: 760 });
         S.combo = 0; updateCombo(); renderStats();
       }
     }
